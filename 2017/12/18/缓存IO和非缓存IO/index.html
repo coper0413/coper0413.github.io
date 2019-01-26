@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="系统调用(system call)每个操作系统都在内核里有一些内建的函数库，这些函数可以用来完成一些系统系统调用把应用程序的请求传给内核，调用相应的的内核函数完成所需的处理，将处理结果返回给应用程序，如果没有系统调用和内核函数，用户将不能编写大型应用程序，及别的功能，这些函数集合起来就叫做程序接口或应用编程接口(Application Programming Interface，API)，我们要在">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="缓存IO和非缓存IO">
+<meta property="og:url" content="http://yoursite.com/2017/12/18/缓存IO和非缓存IO/index.html">
+<meta property="og:site_name" content="Cooper&#39;s Blog">
+<meta property="og:description" content="系统调用(system call)每个操作系统都在内核里有一些内建的函数库，这些函数可以用来完成一些系统系统调用把应用程序的请求传给内核，调用相应的的内核函数完成所需的处理，将处理结果返回给应用程序，如果没有系统调用和内核函数，用户将不能编写大型应用程序，及别的功能，这些函数集合起来就叫做程序接口或应用编程接口(Application Programming Interface，API)，我们要在">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-16T22:46:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="缓存IO和非缓存IO">
+<meta name="twitter:description" content="系统调用(system call)每个操作系统都在内核里有一些内建的函数库，这些函数可以用来完成一些系统系统调用把应用程序的请求传给内核，调用相应的的内核函数完成所需的处理，将处理结果返回给应用程序，如果没有系统调用和内核函数，用户将不能编写大型应用程序，及别的功能，这些函数集合起来就叫做程序接口或应用编程接口(Application Programming Interface，API)，我们要在">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/18/缓存IO和非缓存IO/">
+
+
+
+
+
+  <title>缓存IO和非缓存IO | Cooper's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e18013fc23ab3fa51489f41dc6ab6120";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Cooper's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/18/缓存IO和非缓存IO/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">缓存IO和非缓存IO</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-18T15:06:03+08:00">
+                2017-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h5 id="系统调用-system-call"><a href="#系统调用-system-call" class="headerlink" title="系统调用(system call)"></a>系统调用(system call)</h5><p>每个操作系统都在内核里有一些内建的函数库，这些函数可以用来完成一些系统系统调用把应用程序的请求传给内核，调用相应的的内核函数完成所需的处理，将处理结果返回给应用程序，如果没有系统调用和内核函数，用户将不能编写大型应用程序，及别的功能，这些函数集合起来就叫做程序接口或应用编程接口(Application Programming Interface，API)，我们要在这个系统上编写各种应用程序，就是通过这个API接口来调用系统内核里面的函数。如果没有系统调用，那么应用程序就失去内核的支持。</p>
+<h5 id="不带缓存的I-O操作："><a href="#不带缓存的I-O操作：" class="headerlink" title="不带缓存的I/O操作："></a>不带缓存的I/O操作：</h5><p>Linix对IO文件的操作分为不带缓存的IO操作和标准IO操作(即带缓存)，不带缓存的IO是指在用户层没有缓存，所以叫做无缓存IO,但对于内核来说，还是进行了缓存，只是用户层看不到罢了。带不带缓存是相对来说的。</p>
+<p>如果要写入数据到文件上时（就是写入磁盘上），内核先将数据写入到内核中所设的缓冲储存器，假如这个缓冲储存器的长度是100个字节，你调用系统函数ssize_t write写操作时，设每次写入长度count=10个字节，那么你几要调用10次这个函数才能把这个缓冲区写满，此时数据还是在缓冲区，并没有写入到磁盘，缓冲区满时才进行实际上的IO操作，把数据写入到磁盘上，所以上面说的“不带缓存”不是说没有缓存，而是指没有直写进磁盘。</p>
+<h5 id="带缓存IO-标准IO"><a href="#带缓存IO-标准IO" class="headerlink" title="带缓存IO(标准IO)"></a>带缓存IO(标准IO)</h5><p>在很多操作系统上都实现了标准I/O库，该库由ANSI C标准说明。标准I/O库是在系统调用函数基础上构造的，它处理很多细节（例如缓存分配）以优化执行I/O。</p>
+<p>因为系统调用耗费资源且效率不高，标准I/O提供缓存的目的就是减少调用read和write的次数。带缓存IO其实就是在用户层再建立一个缓存区，这个缓存区的分配和优化长度等细节都是标准IO库处理好了。</p>
+<p>如果说要写数据到文件上，内核缓存区长度是100字节，我们调用不带缓存的IO函数write()就要调用10次，这样系统效率低，现在我们在用户层建立另一个缓存区，假设流缓存的长度是50字节，我们用应用层语言提供的写回函数将数据写入到流缓存区里面，流缓存区满50字节后再进入内核缓存区，此时再调用系统函数write()将数据写入到文件上，这样就只需要进行两次系统调用write()。</p>
+<p>标准I/O提供了三种类型的缓存：</p>
+<ul>
+<li>全缓存。当填满标准I/O缓存后才执行I/O操作。磁盘上的文件通常是全缓存的。</li>
+<li>行缓存。当输入输出遇到新行符或缓存满时，才由标准I/O库执行实际I/O操作。stdin、stdout通常是行缓存的。</li>
+<li>无缓存。相当于read、write了。stderr通常是无缓存的，因为它必须尽快输出。</li>
+</ul>
+<p>一般而言，由系统选择缓存的长度，并自动分配。标准I/O库在关闭流的时候自动释放缓存。</p>
+<p>在标准I / O库中，一个不足之处是需要复制的数据量。一次IO通常需要复制两次数据：一次是在内核和标准I / O缓存之间（当调用read和write时），第二次是在标准I / O缓存（通常系统分配和管理）和用户程序中的缓存之间。</p>
+<h5 id="无缓存IO操作数据流向路径："><a href="#无缓存IO操作数据流向路径：" class="headerlink" title="无缓存IO操作数据流向路径："></a>无缓存IO操作数据流向路径：</h5><p>数据 –&gt; 内核缓存区 –&gt; 磁盘</p>
+<h5 id="标准IO操作数据流向路径："><a href="#标准IO操作数据流向路径：" class="headerlink" title="标准IO操作数据流向路径："></a>标准IO操作数据流向路径：</h5><p>数据 –&gt; 流缓存区 –&gt; 内核缓存区 –&gt; 磁盘</p>
+<h5 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h5><ul>
+<li>不带缓存的I/O对文件描述符操作，带缓存的I/O是针对流的。</li>
+<li>与基于文件描述符的I/O相比，基于流的I/O更加简单，方便，也更加高效。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/11/Linux的进程切换与调度/" rel="next" title="Linux的进程切换与调度">
+                <i class="fa fa-chevron-left"></i> Linux的进程切换与调度
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/26/Linux下的IO模式/" rel="prev" title="Linux下的IO模式">
+                Linux下的IO模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar.jpeg" alt="Cooper">
+            
+              <p class="site-author-name" itemprop="name">Cooper</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/coper0413" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:837409785@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-globe"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#系统调用-system-call"><span class="nav-number">1.</span> <span class="nav-text">系统调用(system call)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#不带缓存的I-O操作："><span class="nav-number">2.</span> <span class="nav-text">不带缓存的I/O操作：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#带缓存IO-标准IO"><span class="nav-number">3.</span> <span class="nav-text">带缓存IO(标准IO)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#无缓存IO操作数据流向路径："><span class="nav-number">4.</span> <span class="nav-text">无缓存IO操作数据流向路径：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#标准IO操作数据流向路径："><span class="nav-number">5.</span> <span class="nav-text">标准IO操作数据流向路径：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#区别"><span class="nav-number">6.</span> <span class="nav-text">区别</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cooper</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

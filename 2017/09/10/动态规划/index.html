@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="动态规划算法的基本要素： 最优子结构：问题的最优解包含子问题的最优解。 重叠子问题：递归求解时，子问题被重复计算多次。  分治与动态规划的区别： 分治是自顶向下求解，求n的最优解时，并不能立即确定最优解，所以并不是只求n/2的最优解（二分思想）就行了，需要做许多子弟向上尝试，而每一次尝试都需要进行一次递归，导致规模较小的子问题多次重复计算。 动态规划是自底向上求解，将所有子问题的解都记下来，求更高">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态规划">
+<meta property="og:url" content="http://yoursite.com/2017/09/10/动态规划/index.html">
+<meta property="og:site_name" content="Cooper&#39;s Blog">
+<meta property="og:description" content="动态规划算法的基本要素： 最优子结构：问题的最优解包含子问题的最优解。 重叠子问题：递归求解时，子问题被重复计算多次。  分治与动态规划的区别： 分治是自顶向下求解，求n的最优解时，并不能立即确定最优解，所以并不是只求n/2的最优解（二分思想）就行了，需要做许多子弟向上尝试，而每一次尝试都需要进行一次递归，导致规模较小的子问题多次重复计算。 动态规划是自底向上求解，将所有子问题的解都记下来，求更高">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划1.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划2.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划3.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划4.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划5.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划6.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划7.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划8.png">
+<meta property="og:updated_time" content="2018-10-25T06:13:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="动态规划">
+<meta name="twitter:description" content="动态规划算法的基本要素： 最优子结构：问题的最优解包含子问题的最优解。 重叠子问题：递归求解时，子问题被重复计算多次。  分治与动态规划的区别： 分治是自顶向下求解，求n的最优解时，并不能立即确定最优解，所以并不是只求n/2的最优解（二分思想）就行了，需要做许多子弟向上尝试，而每一次尝试都需要进行一次递归，导致规模较小的子问题多次重复计算。 动态规划是自底向上求解，将所有子问题的解都记下来，求更高">
+<meta name="twitter:image" content="http://yoursite.com/2017/09/10/动态规划/动态规划1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/10/动态规划/">
+
+
+
+
+
+  <title>动态规划 | Cooper's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e18013fc23ab3fa51489f41dc6ab6120";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Cooper's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/10/动态规划/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">动态规划</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-10T22:10:21+08:00">
+                2017-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h5 id="动态规划算法的基本要素："><a href="#动态规划算法的基本要素：" class="headerlink" title="动态规划算法的基本要素："></a>动态规划算法的基本要素：</h5><ul>
+<li>最优子结构：问题的最优解包含子问题的最优解。</li>
+<li>重叠子问题：递归求解时，子问题被重复计算多次。</li>
+</ul>
+<h5 id="分治与动态规划的区别："><a href="#分治与动态规划的区别：" class="headerlink" title="分治与动态规划的区别："></a>分治与动态规划的区别：</h5><ul>
+<li>分治是<strong>自顶向下</strong>求解，求n的最优解时，并不能立即确定最优解，所以并不是只求n/2的最优解（二分思想）就行了，需要做许多子弟向上尝试，而每一次尝试都需要进行一次递归，导致规模较小的子问题多次重复计算。</li>
+<li>动态规划是<strong>自底向上</strong>求解，将所有子问题的解都记下来，求更高层问题的最优解时只需遍历它的子问题的最优解。</li>
+</ul>
+<h5 id="备忘录方法："><a href="#备忘录方法：" class="headerlink" title="备忘录方法："></a>备忘录方法：</h5><p>自顶向下的动态规划，与递归结构相同，但会在求解过程中记录子问题的解，用时差表，若已有解则直接使用，还没求解就求解并记录到表中。复杂度与动态规划相同。</p>
+<h5 id="矩阵连乘问题："><a href="#矩阵连乘问题：" class="headerlink" title="矩阵连乘问题："></a>矩阵连乘问题：</h5><ul>
+<li><p>递归定义：</p>
+<p><img src="/2017/09/10/动态规划/动态规划1.png" alt="动态规划1"></p>
+<p>但递归求解会重复计算子问题，动态规划将所有子问题的最优解计算出来并记录，用的时候查询即可，不需要重复计算。</p>
+</li>
+<li><p>计算最优值：</p>
+<p>将矩阵连乘积A~i~A~i+1~…A~j~简记为A[i:j]；p[]记录各矩阵的行列数，如：A~i~的行为p[i-1]，列为p[i]；m[i][j]记录A[i:j]所需的最少数乘次数（子问题最优解）;s[i][j]记录A[i][j]最优的断开点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">matrixchain</span><span class="params">(<span class="keyword">int</span>[] p, <span class="keyword">int</span>[][] m, <span class="keyword">int</span>[][] s)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n=p.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++) m[i][i]=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> r=<span class="number">2</span>;r&lt;=n;r++)&#123;  <span class="comment">//子问题长度</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n-r+<span class="number">1</span>;i++)&#123;   <span class="comment">//找到A[i:j]的最优解</span></span><br><span class="line">            <span class="keyword">int</span> j = i+r-<span class="number">1</span>;</span><br><span class="line">            m[i][j] = m[i+<span class="number">1</span>][j]+p[i-<span class="number">1</span>]*p[i]*p[j];   <span class="comment">//初始化：从第一个元素后分开</span></span><br><span class="line">            s[i][j] = i;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k=i+<span class="number">1</span>;k&lt;j;k++)&#123;</span><br><span class="line">                <span class="keyword">int</span> t = m[i][k]+m[k+<span class="number">1</span>][j]+p[i-<span class="number">1</span>]*p[k]*p[j];</span><br><span class="line">                <span class="keyword">if</span>(t&lt;m[i][j])&#123;</span><br><span class="line">                    m[i][j] = t;</span><br><span class="line">                    s[i][j] = k;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据s[][]构造最优解：</p>
+<p>A[1:n]的最优解为(A[1:s[i][n]])*(A[s[i][n]+1:n])。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">traceback</span><span class="params">(<span class="keyword">int</span>[][] s, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(i == j) <span class="keyword">return</span>;</span><br><span class="line">    traceback(s, i, s[i][j]);</span><br><span class="line">    traceback(s, s[i][j]+<span class="number">1</span>, j);</span><br><span class="line">    system.out.println(<span class="string">"multiply A"</span>+i+<span class="string">","</span>+s[i][j]+<span class="string">"and A"</span>+(s[i][j]+<span class="number">1</span>)+<span class="string">","</span>+j);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="最长公共子序列："><a href="#最长公共子序列：" class="headerlink" title="最长公共子序列："></a>最长公共子序列：</h5><ul>
+<li><p>分析最优解结构：</p>
+<p>设序列X={x~1~,x~2~,x~3~,…x~m~}和Y={y~1~,y~2~,y~3~,…y~n~}的最长公共子序列为Z={z~1~,z~2~,…z~k~}，则：</p>
+<ul>
+<li>若x~m~=y~n~，则z~k~=x~m~=y~n~，且Z[1:k-1]是X[1:m-1]和Y[1:n-1]的最长公共子序列;</li>
+<li>若x~m~!=y~n~，且z~k~!=x~m~，则Z[1:k-1]是X[1:m]和Y[1:n-1]的最长公共子序列;</li>
+<li>若x~m~!=x~n~，且z~k~!=y~n~，则Z[1:k-1]是X[1:m-1]和Y[1:n]的最长公共子序列。</li>
+</ul>
+</li>
+<li><p>递归结构：</p>
+<p><img src="/2017/09/10/动态规划/动态规划2.png" alt="动态规划2"></p>
+</li>
+<li><p>计算最优值：</p>
+<p>c[i][j]存储X~i~和Y~j~的最长公共子序列的长度；b[i][j]记录c[i][j]的值是由哪个类型的子问题得到的：</p>
+<p>​    1.X与Y尾部相同；2.去除X尾部；3.去除Y尾部。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lcsLength</span><span class="params">(<span class="keyword">char</span>[] x, <span class="keyword">char</span>[] y, <span class="keyword">int</span>[][] b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> m = x.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> n = y.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span>[][] c = <span class="keyword">new</span> <span class="keyword">int</span>[m+<span class="number">1</span>][n+<span class="number">1</span>];  <span class="comment">//加了第0行与第0列，用于表示空序列</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=m;i++) c[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++) c[<span class="number">0</span>][i] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=m;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">1</span>;j&lt;=n;j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(x[i] == y[j])&#123;</span><br><span class="line">                c[i][j] = c[i-<span class="number">1</span>][j-<span class="number">1</span>]+<span class="number">1</span>;</span><br><span class="line">                b[i][j] = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c[i-<span class="number">1</span>][j] &gt;= c[i][j-<span class="number">1</span>])&#123;</span><br><span class="line">                c[i][j] = c[i-<span class="number">1</span>][j];</span><br><span class="line">                b[i][j] = <span class="number">2</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                c[i][j] = c[i][j-<span class="number">1</span>];</span><br><span class="line">                b[i][j] = <span class="number">3</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> c[m][n];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>构造最优解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lcs</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">char</span>[] x, <span class="keyword">int</span>[][] b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(i==<span class="number">0</span> || j==<span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span>(b[i][j] == <span class="number">1</span>)&#123;</span><br><span class="line">        lcs(i-<span class="number">1</span>, j-<span class="number">1</span>, x, b);</span><br><span class="line">        system.out.println(x[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(b[i][j] == <span class="number">2</span>) lcs(i-<span class="number">1</span>, j, x, b);</span><br><span class="line">    <span class="keyword">else</span> lcs(i, j-<span class="number">1</span>, x, b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="凸边形最优三角部分："><a href="#凸边形最优三角部分：" class="headerlink" title="凸边形最优三角部分："></a>凸边形最优三角部分：</h5><ul>
+<li><p>矩形连乘的最优化计算次序问题是凸边形最优三角部分问题的特殊情形，对应相同的语法树。<img src="/2017/09/10/动态规划/动态规划3.png" alt="动态规划3"></p>
+<p>w(v~i~v~k~v~j~)为三角形v~i~v~k~v~j~的权值；t[i][j]为子多边形[v~i-1~v~j~]最优解。</p>
+</li>
+<li><p>递归结构：<img src="/2017/09/10/动态规划/动态规划4.png" alt="动态规划4"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">minTriangulation</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">int</span>[][] t, <span class="keyword">int</span>[][] s)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;=n; i++) t[i][i] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> r=<span class="number">2</span>; r&lt;=n; r++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;=n-r+<span class="number">1</span>; i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> j = i+r-<span class="number">1</span>;</span><br><span class="line">            t[i][j] = t[i+!][j] + w(i-<span class="number">1</span>, i, j);</span><br><span class="line">            s[i][j] = i;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k=i+<span class="number">1</span>; k&lt;i+r-<span class="number">1</span>; k++)&#123;</span><br><span class="line">                <span class="keyword">int</span> u = t[i][k] +t[k+<span class="number">1</span>][j] +w(i-<span class="number">1</span>, k, j);</span><br><span class="line">                <span class="keyword">if</span>(u&lt;t[i][j])&#123;</span><br><span class="line">                    t[i][j] = u;</span><br><span class="line">                    s[i][j] = k;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+<h5 id="电路布线："><a href="#电路布线：" class="headerlink" title="电路布线："></a>电路布线：</h5><p><img src="/2017/09/10/动态规划/动态规划5.png" alt="动态规划5"></p>
+<ul>
+<li><p>(i, p(i))指上端的第i个接线柱接到下端的p(i)上。</p>
+<p>确定导线集Nets={(i, p(1)), 1&lt;=i&lt;=n}的最大不相交子集。</p>
+</li>
+<li><p>递归结构：</p>
+<p><img src="/2017/09/10/动态规划/动态规划6.png" alt="动态规划6"></p>
+</li>
+<li><p>计算最优值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mnset</span><span class="params">(<span class="keyword">int</span>[] c, <span class="keyword">int</span>[][] size)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = c.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;c[<span class="number">1</span>]; j++) size[<span class="number">1</span>][j] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=c[<span class="number">1</span>]; j&lt;=n; j++) size[<span class="number">1</span>][j] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">2</span>; i&lt;n; i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;c[i]; j++) size[i][j] = size[i-<span class="number">1</span>][j];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=c[i]; j&lt;=n; j++) size[i][j] = Math.max(size[i-<span class="number">1</span>][j], size[i-<span class="number">1</span>][c[i]-<span class="number">1</span>]+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    size[n][n] = Math.max(size[n-<span class="number">1</span>][n], size[n-<span class="number">1</span>][c[n]-<span class="number">1</span>]+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>构造最优解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">traceback</span><span class="params">(<span class="keyword">int</span>[] c, <span class="keyword">int</span>[][] size, <span class="keyword">int</span>[] net)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = c.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> j = n;</span><br><span class="line">    <span class="keyword">int</span> m = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=n; i&gt;<span class="number">1</span>; i--)&#123;</span><br><span class="line">        <span class="keyword">if</span>(size[i][j]!=size[i-<span class="number">1</span>][j])&#123;</span><br><span class="line">            net[m++] = i;</span><br><span class="line">            j = c[i] -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(j&gt;=c[<span class="number">1</span>]) net[m++] = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="0-1背包问题："><a href="#0-1背包问题：" class="headerlink" title="0-1背包问题："></a>0-1背包问题：</h5><ul>
+<li><p>递归结构：</p>
+<p>m(i,j)是背包容量为j，可选择物品为i,i+1,…n时0-1背包问题的最优解。</p>
+<p><img src="/2017/09/10/动态规划/动态规划7.png" alt="动态规划7"></p>
+</li>
+<li><p>计算最优值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">knapsack</span><span class="params">(<span class="keyword">int</span>[] v, <span class="keyword">int</span>[] w, <span class="keyword">int</span> c, <span class="keyword">int</span>[][] m)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = v.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> jMax = Math.min(w[n], c);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;jMax;j++) m[n][j] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=w[n];j&lt;=c;j++) m[n][j] = v[n];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=n-<span class="number">1</span>;i&gt;=<span class="number">1</span>;i--)&#123;</span><br><span class="line">        jMax = Math.min(w[i], c);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;jMax;j++) m[i][j] = m[i+<span class="number">1</span>][j];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=w[i];j&lt;=c;j++) m[i][j] = Math.max(m[i+<span class="number">1</span>][j], m[i+<span class="number">1</span>][j-w[i]]+v[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>构造最优解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">traceback</span><span class="params">(<span class="keyword">int</span>[][] m, <span class="keyword">int</span>[] w, <span class="keyword">int</span> c, <span class="keyword">int</span>[] x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = w.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(m[i][c] == m[i+<span class="number">1</span>][c]) x[i] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">            x[i] = <span class="number">1</span>;</span><br><span class="line">            c -= w[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    x[n] = (m[n][c]&gt;<span class="number">0</span>)?<span class="number">1</span>:<span class="number">0</span>; <span class="comment">//第n个若重量小于c则一定被放入？？</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="最优二叉搜索树："><a href="#最优二叉搜索树：" class="headerlink" title="最优二叉搜索树："></a>最优二叉搜索树：</h5><p>给定n个互异的关键字组成的序列K=\&lt;k~1~,k~2~,…k~n~&gt;，且关键字有序，要从这些关键字中构造一颗二叉查找树。对每个关键字k~i~，一次搜索搜索到的概率为p~i~。可能有一些搜索的值不再k内，因此还有n+1个“虚拟键”d~0~,d~1~,…d~n~，代表不在k内的值。</p>
+<ul>
+<li><p>递归结构：</p>
+<p><img src="/2017/09/10/动态规划/动态规划8.png" alt="动态规划8"></p>
+</li>
+<li><p>计算最优解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">obst</span><span class="params">(<span class="keyword">float</span>[] a, <span class="keyword">float</span>[] b, <span class="keyword">float</span>[][] m, <span class="keyword">int</span>[][] s, <span class="keyword">float</span>[][] w)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = a.length -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        w[i+<span class="number">1</span>][i] = a[i];</span><br><span class="line">        m[i+<span class="number">1</span>][i] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> r=<span class="number">0</span>;r&lt;n;r++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=n-<span class="number">1</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> j = i+r;</span><br><span class="line">            w[i][j] = w[i][j-<span class="number">1</span>]+a[j]+b[j];</span><br><span class="line">            m[i][j] = m[i+<span class="number">1</span>][j];</span><br><span class="line">            s[i][j] = i;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k=i+<span class="number">1</span>;k&lt;=j;k++)&#123;</span><br><span class="line">                <span class="keyword">float</span> t = m[i][k-<span class="number">1</span>]+m[k+<span class="number">1</span>][j];</span><br><span class="line">                <span class="keyword">if</span>(t&lt;m[i][j])&#123;</span><br><span class="line">                    m[i][j] = t;</span><br><span class="line">                    s[i][j] = k;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            m[i][j] += w[i][j];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/09/递归与分治/" rel="next" title="递归与分治.md">
+                <i class="fa fa-chevron-left"></i> 递归与分治.md
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/11/贪心算法/" rel="prev" title="贪心算法">
+                贪心算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar.jpeg" alt="Cooper">
+            
+              <p class="site-author-name" itemprop="name">Cooper</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/coper0413" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:837409785@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-globe"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#动态规划算法的基本要素："><span class="nav-number">1.</span> <span class="nav-text">动态规划算法的基本要素：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分治与动态规划的区别："><span class="nav-number">2.</span> <span class="nav-text">分治与动态规划的区别：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#备忘录方法："><span class="nav-number">3.</span> <span class="nav-text">备忘录方法：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#矩阵连乘问题："><span class="nav-number">4.</span> <span class="nav-text">矩阵连乘问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#最长公共子序列："><span class="nav-number">5.</span> <span class="nav-text">最长公共子序列：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#凸边形最优三角部分："><span class="nav-number">6.</span> <span class="nav-text">凸边形最优三角部分：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#电路布线："><span class="nav-number">7.</span> <span class="nav-text">电路布线：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-1背包问题："><span class="nav-number">8.</span> <span class="nav-text">0-1背包问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#最优二叉搜索树："><span class="nav-number">9.</span> <span class="nav-text">最优二叉搜索树：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cooper</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
