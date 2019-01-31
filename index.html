@@ -269,7 +269,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/01/Channel、事件和ChannelHandler/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/11/netty学习笔记1/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -288,7 +288,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/01/Channel、事件和ChannelHandler/" itemprop="url">Channel、事件和ChannelHandler</a></h1>
+                <a class="post-title-link" href="/2018/10/11/netty学习笔记1/" itemprop="url">netty学习笔记1</a></h1>
         
 
         <div class="post-meta">
@@ -300,8 +300,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-01T21:39:07+08:00">
-                2018-10-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-11T11:39:07+08:00">
+                2018-10-11
               </time>
             
 
@@ -354,6 +354,7 @@
 <p>​      ServerBootstrap用来绑定本地端口，有2个EventLoopGroup（实际上使用的是相同的实例）。</p>
 <p>​      ServerBootstrap在服务器端监听一个端口，轮询客户端的“Bootstrap”或DatagramChannel是否连接服务器，通常需要调用“Bootstrap”类的connect()方法，但是也可以先调用bind()再调用connect()进行连接，之后使用的Channel包含在bind()返回的ChannelFuture中。</p>
 <p>​       一个ServerBootstrap可以认为有2个channel组，第一组包含一个单例的ServerChannel，代表持有了一个保存本地端口的socket；第二组包含所有的Channel,代表服务器已经接受了的链接。</p>
+<p><img src="/2018/10/11/netty学习笔记1/1.png" alt=""></p>
 <p>  上图中EventLoopGroup A的唯一目的就是接收所有连接请求，然后交给EventLoopGroup B。</p>
 <h3 id="ChannelPipeline"><a href="#ChannelPipeline" class="headerlink" title="ChannelPipeline"></a>ChannelPipeline</h3><p>ChannelPipeline为ChannelHandler链提供了一个容器，并提供了沿着链入站和出站的事件流动的管理API。每个Channel都有自己的ChannelPipeline，当Channel创建时自动创建。ChannelHandler通过ChannelInitializer接口安装到ChannelPipeline中。ChannelInitializer子类通过ServerBootstrap进行注册，当它的方法initChannel被调用时，这个对象将安装自定义的ChannelHandler集合到pipeline中，当这个操作完成时，ChannelInitializer子类则从ChannelPipeline自动删除自身。</p>
 <h3 id="ByteBuf"><a href="#ByteBuf" class="headerlink" title="ByteBuf"></a>ByteBuf</h3><p>ByteBuf是一个很好的经过优化的数据容器，我们可以将字节数据有效的添加到ByteBuf中或从ByteBuf中获取数据。ByteBuf有2部分：一个用于读，一个用于写。我们可以按顺序的读取数据，也可以通过调整读取数据的索引或者直接将读取位置索引作为参数传递给get方法来重复读取数据。写入数据到ByteBuf后，writerIndex（写入索引）增加。开始读字节后，readerIndex（读取索引）增加。你可以读取字节，直到写入索引和读取索引处在相同的位置，ByteBuf变为不可读。当访问数据超过数组的最后位，则会抛出 IndexOutOfBoundsException。调用ByteBuf的”read”或”write”开头的任何方法都会提升 相应的索引。另一方面，”set”、”get”操作字节将不会移动索引位置；他们只会操作相关的通过参数传入方法的相对索引。可以给ByteBuf指定一个最大容量值，这个值限制着ByteBuf的容量。任何尝试将写入索引超过这个值的行为都将导致抛出异常。ByteBuf的默认最大容量限制是Integer.MAX_VALUE。</p>
