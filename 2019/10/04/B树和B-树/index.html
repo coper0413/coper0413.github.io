@@ -83,25 +83,25 @@
 <meta name="keywords" content="btree">
 <meta property="og:type" content="article">
 <meta property="og:title" content="B树和B+树">
-<meta property="og:url" content="http://yoursite.com/2019/01/31/B树和B-树/index.html">
+<meta property="og:url" content="http://yoursite.com/2019/10/04/B树和B-树/index.html">
 <meta property="og:site_name" content="Cooper&#39;s Blog">
 <meta property="og:description" content="B树1.为什么使用b树？二叉查找树的查找的时间复杂度是Ｏ(log N)，在数据库中大量数据查询磁盘io次数很大。 b树和b+树通过减少树的深度来减少磁盘io， 　　（1）每个节点存储多个元素​       （2）摒弃二叉树结构，采用多叉树 一个个m阶的B树具有如下几个特征：B树中所有结点的孩子结点最大值称为B树的阶，通常用m表示。一个结点有k个孩子时，必有k-1个关键字才能将子树中所有关键字划分为">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-1.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-2.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-3.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-4.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-5.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-6.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-7.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-8.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-png1.png">
-<meta property="og:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-png2.png">
-<meta property="og:updated_time" content="2019-01-31T14:54:12.117Z">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-1.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-2.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-3.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-4.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-5.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-6.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-7.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-8.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-png1.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-png2.png">
+<meta property="og:updated_time" content="2019-01-31T14:59:25.120Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="B树和B+树">
 <meta name="twitter:description" content="B树1.为什么使用b树？二叉查找树的查找的时间复杂度是Ｏ(log N)，在数据库中大量数据查询磁盘io次数很大。 b树和b+树通过减少树的深度来减少磁盘io， 　　（1）每个节点存储多个元素​       （2）摒弃二叉树结构，采用多叉树 一个个m阶的B树具有如下几个特征：B树中所有结点的孩子结点最大值称为B树的阶，通常用m表示。一个结点有k个孩子时，必有k-1个关键字才能将子树中所有关键字划分为">
-<meta name="twitter:image" content="http://yoursite.com/2019/01/31/B树和B-树/btree-1.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/04/B树和B-树/btree-1.jpg">
 
 
 
@@ -131,7 +131,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/01/31/B树和B-树/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/04/B树和B-树/">
 
 
 
@@ -284,7 +284,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/B树和B-树/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/04/B树和B-树/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -313,8 +313,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:50:16+08:00">
-                2019-01-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-04T22:50:16+08:00">
+                2019-10-04
               </time>
             
 
@@ -356,17 +356,17 @@
 <p>　　（1）<strong>每个节点存储多个元素</strong><br>​       （2）<strong>摒弃二叉树结构，采用多叉树</strong></p>
 <p>一个个m阶的B树具有如下几个<strong>特征</strong>：B树中所有结点的孩子结点最大值称为B树的阶，通常用m表示。一个结点有k个孩子时，必有k-1个关键字才能将子树中所有关键字划分为k个子集。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>.根结点至少有两个子女。</span><br><span class="line"><span class="number">2</span>.每个中间节点都包含k-<span class="number">1</span>个元素和k个孩子，其中 ceil（m/<span class="number">2</span>） ≤ k ≤ m </span><br><span class="line"><span class="number">3</span>.每一个叶子节点都包含k-<span class="number">1</span>个元素，其中 ceil（m/<span class="number">2</span>） ≤ k ≤ m </span><br><span class="line"><span class="number">4</span>.所有的叶子结点都位于同一层。 </span><br><span class="line"><span class="number">5</span>.每个节点中的元素从小到大排列，节点当中k-<span class="number">1</span>个元素正好是k个孩子包含的元素的值域划分 </span><br><span class="line"><span class="number">6</span>.每个结点的结构为：（n，A0，K1，A1，K2，A2，… ，Kn，An）</span><br><span class="line">其中，Ki(<span class="number">1</span>≤i≤n)为关键字，且Ki&lt;Ki+<span class="number">1</span>(<span class="number">1</span>≤i≤n-<span class="number">1</span>)。 Ai(<span class="number">0</span>≤i≤n)为指向子树根结点的指针。且Ai所指子树所有结点中的关键字均小于Ki+<span class="number">1</span>。 n为结点中关键字的个数，满足ceil(m/<span class="number">2</span>)-<span class="number">1</span>≤n≤m-<span class="number">1</span>。</span><br></pre></td></tr></table></figure>
-<p><img src="/2019/01/31/B树和B-树/btree-1.jpg" alt="tu1"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-1.jpg" alt="tu1"></p>
 <h5 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h5><p>以上图为例：若查询的数值为５：<br>　　第一次磁盘ＩＯ：在内存中定位（与17、35比较），比17小，左子树；<br>　　第二次磁盘ＩＯ：在内存中定位（与８、12比较），比８小，左子树；<br>　　第三次磁盘ＩＯ：在内存中定位（与3、5比较），找到5，终止。</p>
 <p>整个过程中，我们可以看出：比较的次数并不比二叉查找树少，尤其适当某一节点中的数据很多时，但是磁盘IO的次数却是大大减少。比较是在内存中进行的，相比于磁盘IO的速度，比较的耗时几乎可以忽略。所以当树的高度足够低的话，就可以极大的提高效率。相比之下，节点中的元素多点也没关系，仅仅是多了几次内存交互而已，只要不超过磁盘页的大小即可。</p>
 <h5 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h5><p>　对高度为ｋ的m阶B树，新结点一般是插在叶子层。通过检索可以确定关键码应插入的结点位置。然后分两种情况讨论：<br>　　1、 若该结点中关键码个数小于m-1，则直接插入即可。<br>　　2、 若该结点中关键码个数等于m-1，则将引起结点的分裂。以中间关键码为界将结点一分为二，产生一个新结点，并把中间关键码插入到父结点(ｋ-1层)中<br>　　重复上述工作，最坏情况一直分裂到根结点，建立一个新的根结点，整个B树增加一层。</p>
 <p>例如：在下面的B树中插入key：4</p>
-<p><img src="/2019/01/31/B树和B-树/btree-2.jpg" alt="tu2"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-2.jpg" alt="tu2"></p>
 <p>第一步：检索key插入的节点位置如上图所示，在3,5之间；</p>
 <p>第二步：判断节点中的关键码个数：<br>　　节点3，5已经是两元素节点，无法再增加。父亲节点 2， 6 也是两元素节点，也无法再增加。根节点9是单元素节点，可以升级为两元素节点。；</p>
 <p>第三步：结点分裂：<br>　　拆分节点3，5与节点2，6，让根节点9升级为两元素节点4，9。节点6独立为根节点的第二个孩子。</p>
 <p>最终结果如下图：虽然插入比较麻烦，但是这也能确保Ｂ树是一个自平衡的树</p>
-<p><img src="/2019/01/31/B树和B-树/btree-3.jpg" alt="tu3"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-3.jpg" alt="tu3"></p>
 <h5 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h5><p>在B树上删除关键字k的过程分两步完成：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">（1）找出该关键字所在的结点。然后根据 k所在结点是否为叶子结点有不同的处理方法。</span><br><span class="line">（2）若该结点为非叶结点，且被删关键字为该结点中第i个关键字key[i]，则可从指针son[i]所指的子     树中找出最小关键字Y，代替key[i]的位置，然后在叶结点中删去Y。</span><br></pre></td></tr></table></figure>
 <p>因此，把在非叶结点删除关键字k的问题就变成了删除叶子结点中的关键字的问题了。</p>
@@ -374,28 +374,28 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">（1）如果被删关键字所在结点的原关键字个数n&gt;=ceil(m/2)，说明删去该关键字后该结点仍满足B树的定义。 这种情况最为简单，只需从该结点中直接删去关键字即可。 </span><br><span class="line">（2）如果被删关键字所在结点的关键字个数n等于ceil(m/2)-1，说明删去该关键字后该结点将不满足B树的定义，需要调整。 </span><br><span class="line"></span><br><span class="line">调整过程为： </span><br><span class="line">如果其左右兄弟结点中有“多余”的关键字,即与该结点相邻的右（左）兄弟结点中的关键字数目大于 ceil(m/2)-1。则可将右（左）兄弟结点中最小（大）关键字上移至双亲结点。而将双亲结点中小（大）于该上 移关键字的关键字下移至被删关键字所在结点中。</span><br><span class="line">如果左右兄弟结点中没有“多余”的关键字，即与该结点相邻的右（左）兄弟结点中的关键字数目均等于 ceil(m/2)-1。这种情况比较复杂。需把要删除关键字的结点与其左（或右）兄弟结点以及双亲结点中分割二者 的关键字合并成一个结点,即在删除关键字后，该结点中剩余的关键字加指针，加上双亲结点中的关键字Ki一起， 合并到Ai（是双亲结点指向该删除关键字结点的左（右）兄弟结点的指针）所指的兄弟结点中去。如果因此使双亲 结点中关键字个数小于ceil(m/2)-1，则对此双亲结点做同样处理。以致于可能直到对根结点做这样的处理而使 整个树减少一层。</span><br></pre></td></tr></table></figure>
 <p>总之，设所删关键字为非终端结点中的Ki，则可以指针Ai所指子树中的最小关键字Y代替Ki，然后在相应结点中删除Y。对任意关键字的删除都可以转化为对最下层关键字的删除。</p>
 <p>下面举一个简单的例子：删除元素11. </p>
-<p><img src="/2019/01/31/B树和B-树/btree-4.jpg" alt="tu4"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-4.jpg" alt="tu4"></p>
 <p>第一步：判断该元素是否在叶子结点上。<br>　　　该元素在叶子节点上，可以直接删去，但是删除之后，中间节点12只有一个孩子，不符合B树的定义：每个中间节点都包含k个孩子，（其中 ceil（m/2） &lt;= k &lt;= m）所以需要调整；</p>
 <p>第二步：判断其左右兄弟结点中有“多余”的关键字，即：原关键字个数n&gt;=ceil(m/2) - 1；</p>
 <p>　　显然结点11的右兄弟节点中有多余的关键字。那么可将右兄弟结点中最小关键字上移至双亲结点。而将双亲结点中小于该上移关键字的关键字下移至被删关键字所在结点中即可</p>
-<p><img src="/2019/01/31/B树和B-树/btree-5.jpg" alt="tu5"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-5.jpg" alt="tu5"></p>
 <h5 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h5><p>​        ①、B树主要用于文件系统以及部分数据库索引，例如： MongoDB。而大部分关系数据库则使用       B+树做 索引，例如：mysql数据库；<br>　　②、从查找效率考虑一般要求B树的阶数m &gt;= 3;</p>
 <p>　　③、B-树上算法的执行时间主要由读、写磁盘的次数来决定，故一次I/O操作应读写尽可能多的信息。因此B-树的结点规模一般以一个磁盘页为单位。一个结点包含的关键字及其孩子个数取决于磁盘页的大小。</p>
 <h2 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h2><p>Ｂ＋树是Ｂ树的变种，有着比Ｂ树更高的查询效率。</p>
 <h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><p>一个m阶的B+树具有如下几个特征：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.有k个子树的中间节点包含有k个元素（B树中是k-1个元素），每个元素不保存数据，只用来索引，所有数据 都保存在叶子节点。 </span><br><span class="line">2.所有的叶子结点中包含了全部元素的信息，及指向含这些元素记录的指针，且叶子结点本身依关键字的大小 自小而大顺序链接。</span><br><span class="line">3.所有的中间节点元素都同时存在于子节点，在子节点元素中是最大（或最小）元素。</span><br></pre></td></tr></table></figure>
 <p>下面是一棵3阶的B+树：</p>
-<p>​    <img src="/2019/01/31/B树和B-树/btree-6.jpg" alt="tu6"></p>
+<p>​    <img src="/2019/10/04/B树和B-树/btree-6.jpg" alt="tu6"></p>
 <p>　　B+树通常有两个指针，一个指向根结点，另一个指向关键字最小的叶子结点。因些，对于B+树进行查找两种运算：一种是从最小关键字起顺序查找，另一种是从根结点开始，进行随机查找。</p>
 <h5 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h5><p>B+树的优势在于查找效率上，下面我们做一具体说明：<br>　　首先，Ｂ＋树的查找和Ｂ树一样，类似于二叉查找树。起始于根节点，自顶向下遍历树，选择其分离值在要查找值的任意一边的子指针。在节点内部典型的使用是二分查找来确定这个位置。<br>　　（1）、不同的是，Ｂ＋树中间节点没有卫星数据（索引元素所指向的数据记录），只有索引，而Ｂ树每个结点中的每个关键字都有卫星数据；这就意味着同样的大小的磁盘页可以容纳更多节点元素，在相同的数据量下，Ｂ＋树更加“矮胖”，ＩＯ操作更少</p>
 <p>　　B树的卫星数据： </p>
-<p><img src="/2019/01/31/B树和B-树/btree-7.jpg" alt="tu7"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-7.jpg" alt="tu7"></p>
 <p>   B树的卫星数据：</p>
-<p><img src="/2019/01/31/B树和B-树/btree-8.jpg" alt="tu8"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-8.jpg" alt="tu8"></p>
 <p>需要补充的是，在数据库的聚集索引（Clustered Index）中，叶子节点直接包含卫星数据。在非聚集索引（NonClustered Index）中，叶子节点带有指向卫星数据的指针。<br>　　<br>　　（2）、其次，因为卫星数据的不同，导致查询过程也不同；Ｂ树的查找只需找到匹配元素即可，最好情况下查找到根节点，最坏情况下查找到叶子结点，所说性能很不稳定，而Ｂ＋树每次必须查找到叶子结点，性能稳定<br>　　（3）、在范围查询方面，B+树的优势更加明显<br>　　B树的范围查找需要不断依赖中序遍历。首先二分查找到范围下限，在不断通过中序遍历，知道查找到范围的上限即可。整个过程比较耗时。<br>　　而B+树的范围查找则简单了许多。首先通过二分查找，找到范围下限，然后同过叶子结点的链表顺序遍历，直至找到上限即可，整个过程简单许多，效率也比较高。<br>　　例如：同样查找范围[3-11]，两者的查询过程如下：</p>
-<h5 id="B树的查找过程："><a href="#B树的查找过程：" class="headerlink" title="B树的查找过程："></a>B树的查找过程：</h5><p><img src="/2019/01/31/B树和B-树/btree-png1.png" alt="png1"></p>
+<h5 id="B树的查找过程："><a href="#B树的查找过程：" class="headerlink" title="B树的查找过程："></a>B树的查找过程：</h5><p><img src="/2019/10/04/B树和B-树/btree-png1.png" alt="png1"></p>
 <p>B树的查找过程：</p>
-<p><img src="/2019/01/31/B树和B-树/btree-png2.png" alt="png2"></p>
+<p><img src="/2019/10/04/B树和B-树/btree-png2.png" alt="png2"></p>
 <h5 id="插入-1"><a href="#插入-1" class="headerlink" title="插入"></a>插入</h5><p>　　 B+树的插入与B树的插入过程类似。不同的是B+树在叶结点上进行，如果叶结点中的关键码个数超过m，就必须分裂成关键码数目大致相同的两个结点，并保证上层结点中有这两个结点的最大关键码。</p>
 <h5 id="删除-1"><a href="#删除-1" class="headerlink" title="删除"></a>删除</h5><p>　　B+树中的关键码在叶结点层删除后，其在上层的复本可以保留，作为一个”分解关键码”存在，如果因为删除而造成结点中关键码数小于ceil(m/2)，其处理过程与B-树的处理一样。在此，我就不多做介绍了。<br>总结</p>
 <h5 id="B-树相比B树的优势："><a href="#B-树相比B树的优势：" class="headerlink" title="B+树相比B树的优势："></a>B+树相比B树的优势：</h5><p>　　1.单一节点存储更多的元素，使得查询的IO次数更少；</p>
@@ -431,8 +431,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/24/用Java实现一个DNS中继器/" rel="next" title="用Java实现一个DNS中继器">
-                <i class="fa fa-chevron-left"></i> 用Java实现一个DNS中继器
+              <a href="/2018/10/08/redis学习笔记1/" rel="next" title="redis学习笔记1">
+                <i class="fa fa-chevron-left"></i> redis学习笔记1
               </a>
             
           </div>
@@ -440,6 +440,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/11/netty学习笔记1/" rel="prev" title="netty学习笔记1">
+                netty学习笔记1 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -518,7 +522,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">51</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -531,7 +535,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>

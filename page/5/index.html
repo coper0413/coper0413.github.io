@@ -269,6 +269,261 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/25/brick-wall/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/25/brick-wall/" itemprop="url">brick_wall</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-25T16:03:35+08:00">
+                2017-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="brick-wall"><a href="#brick-wall" class="headerlink" title="brick wall"></a>brick wall</h5><p>将每个砖块的长度以数组形式给出，求某个位置纵向向下切经过的砖最小砖数</p>
+<p>[[1,2,2,1]</p>
+<p> [1,3,2]</p>
+<p> [2,4]</p>
+<p> [3,1,2]</p>
+<p> [1,3,1,1] ]</p>
+<p>Output = 2</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">leastBrick</span><span class="params">(List&lt;List&lt;Integer&gt;&gt; wall)</span> </span>&#123;</span><br><span class="line">        HashMap&lt;Integer,Integer&gt; map = <span class="keyword">new</span> HashMap&lt;Integer,Integer&gt;();</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(List&lt;Integer&gt; rows : wall) &#123;</span><br><span class="line">            <span class="keyword">int</span> width = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; rows.size() - <span class="number">1</span>;i++) &#123;</span><br><span class="line">                width += rows.get(i); <span class="comment">// 每一行砖块累加的长度</span></span><br><span class="line">                map.put(width,map.gerOrDefault(width,<span class="number">0</span>) + <span class="number">1</span>);<span class="comment">//统计每一行累加砖块相等出现的次数</span></span><br><span class="line">                max = Math.max(max,map.get(width));　<span class="comment">//求出累加砖块长度出现次数最多的</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> wall.size() - max;　<span class="comment">//层数　－　累加砖块相等的次数　＝　穿过最少的砖块数</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/25/大数组求均值/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/25/大数组求均值/" itemprop="url">大数组求均值</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-25T16:01:43+08:00">
+                2017-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>给定一个数组，数组内每个元素大小不定且相加可能溢出，求数组平均数．</p>
+<p>盈余法：</p>
+<ul>
+<li>先假定一个数f (f应尽量接近要求的平均数)．</li>
+<li>用数组里每个元素减去f 所得数为m.</li>
+<li>sum += m;</li>
+<li>若数组长度为n 则　avg = (nf +sum) / n;</li>
+<li>avg = f+ sum/n;</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> number[])</span></span>&#123;</span><br><span class="line">        Arrays.sort(number);</span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> f = number[number.length / <span class="number">2</span>];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i : number)&#123;</span><br><span class="line">            m = i - f;</span><br><span class="line">            sum += m;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> avg = f + sum/number.length;</span><br><span class="line">        <span class="keyword">return</span> avg;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/21/算法学习笔记5/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1571,175 +1826,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/09/递归与分治/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/09/09/递归与分治/" itemprop="url">递归与分治.md</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-09T22:00:12+08:00">
-                2017-09-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h5 id="算法设计模式："><a href="#算法设计模式：" class="headerlink" title="算法设计模式："></a>算法设计模式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">divide-and-conquer(P)&#123;</span><br><span class="line">    <span class="keyword">if</span>(|P|&lt;=n0) adhoc(P);   <span class="comment">//adhoc(P)用于直接解小规模P</span></span><br><span class="line">    divide P into smaller subinstances P1,P2,...Pk;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">1</span>;i&lt;=k;i++)&#123;</span><br><span class="line">        yi = divide-and-conquer(Pi);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> merge(y1,y2,...yk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="分治法效率："><a href="#分治法效率：" class="headerlink" title="分治法效率："></a>分治法效率：</h5><p>规模为|P|=n的问题所需时间：</p>
-<p><img src="/2017/09/09/递归与分治/递归与分治1.png" alt="公式1"></p>
-<h5 id="二分搜索："><a href="#二分搜索：" class="headerlink" title="二分搜索："></a>二分搜索：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">binarySearch</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> x, <span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> left=<span class="number">0</span>; <span class="keyword">int</span> right=n-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(left&lt;=right)&#123;</span><br><span class="line">        <span class="keyword">int</span> middle=(left+right)/<span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(x==a[middle]) <span class="keyword">return</span> middle;</span><br><span class="line">        <span class="keyword">if</span>(x&gt;a[middle]) left=middle+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span> right=middle-<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>每执行一次while循环，待搜索的数组大小减小一半，所以复杂度为O(logn)。</p>
-<h5 id="棋盘覆盖："><a href="#棋盘覆盖：" class="headerlink" title="棋盘覆盖："></a>棋盘覆盖：</h5><p>在一个2^k^*2^k^个方格组成的棋盘中，恰有一个特殊方格，用4种不同形态的L型骨牌覆盖除特殊方格以外的全部方格。</p>
-<ul>
-<li>k&gt;0时，将2^k^*2^k^棋盘分割为4个2^k^*2^k^子棋盘;</li>
-<li>特殊方格位于其中一个子期盘，其他三个不是特殊棋盘;</li>
-<li>用一个L型骨牌覆盖着三个非特殊棋盘的汇合处，变为4个特殊子期盘;</li>
-<li>递归分割，至1*1棋盘。</li>
-</ul>
-<p>设T(k)是chessboard覆盖一个2^k^*2^k^棋盘所需要的时间：</p>
-<p>​    <img src="/2017/09/09/递归与分治/递归与分治2.png" alt="公式2"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">chessboard</span><span class="params">(<span class="keyword">int</span> tr, <span class="keyword">int</span> tc, <span class="keyword">int</span> dr, <span class="keyword">int</span> dc, <span class="keyword">int</span> size)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(size==<span class="number">1</span>)<span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">int</span> t=tile++;  <span class="comment">//L型骨牌号</span></span><br><span class="line">    	s=size/<span class="number">2</span>;  <span class="comment">//分割棋盘</span></span><br><span class="line">    <span class="keyword">if</span>(dr&lt;tr+s &amp;&amp; dc&lt;tc+s)</span><br><span class="line">    	chessboard(tr, tc, dr, dc, s);  <span class="comment">//特殊方格在此子棋盘中</span></span><br><span class="line">    <span class="keyword">else</span>&#123; <span class="comment">//此子期盘中无特殊方格，用L型骨牌覆盖</span></span><br><span class="line">        board[tr+s-<span class="number">1</span>][tc+s-<span class="number">1</span>]=t;</span><br><span class="line">        chessboard(tr, tc, tr+s-<span class="number">1</span>, tc+s-<span class="number">1</span>, s);</span><br><span class="line">    &#125;</span><br><span class="line">    ...   <span class="comment">//对其余三个子期盘进行同样的处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="合并排序："><a href="#合并排序：" class="headerlink" title="合并排序："></a>合并排序：</h5><ul>
-<li><p>递归方式：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(Comparable a[], <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(left&lt;right)&#123;</span><br><span class="line">        <span class="keyword">int</span> i=(left+right)/<span class="number">2</span>;</span><br><span class="line">        mergeSort(a, left, i);</span><br><span class="line">        mergeSort(a, i+<span class="number">1</span>, right);</span><br><span class="line">        merge(a, b, left, i, right);   <span class="comment">//合并到数组b</span></span><br><span class="line">        copy(a, b, left, right);    <span class="comment">//复制回数组a</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="/2017/09/09/递归与分治/递归与分治3.png" alt="公式3"></p>
-</li>
-<li><p>非递归形式：自然和并排序</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(Comparable[] a)</span></span>&#123;</span><br><span class="line">    Comparable[] b = <span class="keyword">new</span> Comparable[a.length];</span><br><span class="line">    <span class="keyword">int</span> s=<span class="number">1</span>;  <span class="comment">//步长</span></span><br><span class="line">    <span class="keyword">while</span>(s&lt;a.length)&#123;</span><br><span class="line">        mergePass(a, b, s);      <span class="comment">//合并倒数组b</span></span><br><span class="line">        s+=s;</span><br><span class="line">        mergePass(b, a, s);      <span class="comment">//合并倒数组a</span></span><br><span class="line">        s+=s;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//用于合并排好序的相邻数组段</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mergePass</span><span class="params">(Comparable[] x, Comparable[] y, <span class="keyword">int</span> s)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=x.length-<span class="number">2</span>*s)&#123;</span><br><span class="line">        merge(x, y, i, i+s-<span class="number">1</span>, i+<span class="number">2</span>*s-<span class="number">1</span>);</span><br><span class="line">        i=i+<span class="number">2</span>*s;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(i+s&lt;x.length)</span><br><span class="line">    	merge(x, y, i, i+s-<span class="number">1</span>, x.length-<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    	<span class="keyword">for</span>(<span class="keyword">int</span> j=i;j&lt;x.length;j++)</span><br><span class="line">    		y[j]=x[j];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(Comparable[] c, Comparable[] d, <span class="keyword">int</span> l, <span class="keyword">int</span> m, <span class="keyword">int</span> r)</span></span>&#123;<span class="comment">//合并c[l:m]和c[m+1:r]到d[l:r]</span></span><br><span class="line">    <span class="keyword">int</span> i=l, j=m+<span class="number">1</span>, k=l;</span><br><span class="line">    <span class="keyword">while</span>((i&lt;=m) &amp;&amp; (j&lt;=r))&#123;</span><br><span class="line">        <span class="keyword">if</span>(c[i].compareTo(c[j])&lt;=<span class="number">0</span>)</span><br><span class="line">        	d[k++]=c[i++];</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        	d[k++]=c[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(i&gt;m)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> q=j;q&lt;=r;q++) d[k++]=c[q];</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> q=i;q&lt;=m;q++) d[k++]=c[q];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="快速排序："><a href="#快速排序：" class="headerlink" title="快速排序："></a>快速排序：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">qSort</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(p&lt;r)&#123;</span><br><span class="line">        <span class="keyword">int</span> q=partition(p, r);</span><br><span class="line">        qSort(p, q-<span class="number">1</span>);</span><br><span class="line">        qSort(q, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i=p, j=r+<span class="number">1</span>;</span><br><span class="line">    Comparable x = a[p];</span><br><span class="line">    <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">        <span class="keyword">while</span>(a[++i].compareTo(x)&lt;<span class="number">0</span> &amp;&amp; i&lt;r);</span><br><span class="line">        <span class="keyword">while</span>(a[--j].compareTo(x)&gt;<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(i&gt;=j)<span class="keyword">break</span>;</span><br><span class="line">        myMath.swap(a, i, j);</span><br><span class="line">    &#125;</span><br><span class="line">    a[p]=a[j];</span><br><span class="line">    a[j]=x;</span><br><span class="line">    <span class="keyword">return</span> j;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="线性时间选择："><a href="#线性时间选择：" class="headerlink" title="线性时间选择："></a>线性时间选择：</h5><p>给定线性序集中n个元素和一个整数k，1&lt;=k&lt;=n，要求找出这n个元素中第k小的元素。</p>
-<p>思路：随机选出一个基准，将数组划分成两部分（大于基准的和小于基准的），得到基准所处的位置与k比较，决定去哪一部分找。</p>
-<p>随机产生基准：最坏O(n^2)，平均O(n)。</p>
-<p>线性时间找到基准：最坏O(n)。</p>
-<p>按每组5个元素划分：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Comparable <span class="title">select</span><span class="params">(<span class="keyword">int</span> p, <span class="keyword">int</span> r, <span class="keyword">int</span> k)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(r-p&lt;<span class="number">5</span>)&#123;</span><br><span class="line">        bubbleSort(p, r);</span><br><span class="line">        <span class="keyword">return</span> a[p+k-<span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//将a[p+5*i]至a[p+5*i+4]的第三小元素与a[p+i]交换</span></span><br><span class="line">    <span class="comment">//找中位数的中位数  r-p-4即n-5（去除不足和个的那组）</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=(r-p+<span class="number">1</span>-<span class="number">5</span>)/<span class="number">5</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">int</span> s=p+<span class="number">5</span>*i;</span><br><span class="line">        <span class="keyword">int</span> t=s+<span class="number">4</span>;</span><br><span class="line">        bubbleSort(s, t);</span><br><span class="line">        myMath.swap(a, p+i, s+<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Comparable x=select(p, p+(r-p-<span class="number">4</span>)/<span class="number">5</span>, (r-p+<span class="number">6</span>)/<span class="number">10</span>);</span><br><span class="line">    <span class="keyword">int</span> i=partition(p, r, x), j=i-p+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span>(k&lt;=j) <span class="keyword">return</span> select(p, i, k);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> select(i+<span class="number">1</span>, r, k-j);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="最接近点对问题："><a href="#最接近点对问题：" class="headerlink" title="最接近点对问题："></a>最接近点对问题：</h5><ul>
-<li><p>一维：</p>
-<p>T(n)=O(nlogn)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">cpair1</span><span class="params">(s)</span></span>&#123;</span><br><span class="line">    n=|s|;</span><br><span class="line">    <span class="keyword">if</span>(n&lt;<span class="number">2</span>) <span class="keyword">return</span> 无穷大;</span><br><span class="line">    m=s中各点坐标的中位数;</span><br><span class="line">    构造s1和s2;  <span class="comment">//s1=&#123;x属于S|x&lt;=m&#125;, s2=&#123;x属于S|x&gt;m&#125;</span></span><br><span class="line">    d1=cpair1(s1);</span><br><span class="line">    d2=cpair1(s2);</span><br><span class="line">    p=max(s1);</span><br><span class="line">    q=min(s2);</span><br><span class="line">    d=min(d1, d2, q-p);</span><br><span class="line">    <span class="keyword">return</span> d;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>二维（平面）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">cpair2</span><span class="params">(s)</span></span>&#123;</span><br><span class="line">    n=|s|;</span><br><span class="line">    <span class="keyword">if</span>(n&lt;<span class="number">2</span>) <span class="keyword">return</span> 无穷大;</span><br><span class="line">    <span class="number">1</span>.m=s中各点x坐标的中位数;</span><br><span class="line">      构造s1和s2;   <span class="comment">//s1=&#123;p属于S|x(p)&lt;=m&#125;, s2=&#123;p属于S|x(p)&gt;m&#125;</span></span><br><span class="line">    <span class="number">2</span>.d1=cpair2(s1);  d2=cpair2(s2);</span><br><span class="line">    <span class="number">3</span>.dm=min(d1, d2);</span><br><span class="line">    <span class="number">4</span>.设P1是s1中距垂直分割线l的距离在dm之内的所有点的聚合;</span><br><span class="line">    将P1和P2中的点依y坐标轴排序;</span><br><span class="line">    并设x和y是相应的已排好序的点列;</span><br><span class="line">    <span class="number">5</span>.通过扫描x以及对于x中的每个点检查y中与其距离在dm之内的所有点;</span><br><span class="line">    设dl是这种扫描方式找到的点对间的最小距离;</span><br><span class="line">    <span class="number">6</span>.d=min(dm, dl);</span><br><span class="line">    <span class="keyword">return</span> d;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="循环赛日程表："><a href="#循环赛日程表：" class="headerlink" title="循环赛日程表："></a>循环赛日程表：</h5><p>n=2^k个选手，每个选手必须与其他n-1个选手赛一次，每个选手一天只能赛一次，循环赛一共进行n-1天。</p>
-<p><img src="/2017/09/09/递归与分治/递归与分治4.png" alt="p1"></p>
-<p>构造n*(n-1)的表，(i,j)点表示选手i第j天的对手;方便计算所以最左边加一列，可看成第0天选手与自己比赛。</p>
-<p>分治思想：将所有区域看成四块，递归将1拷贝到4，2拷贝到3。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">table</span><span class="params">(<span class="keyword">int</span> k, <span class="keyword">int</span>[][] a)</span></span>&#123;   <span class="comment">//行和列都从1开始</span></span><br><span class="line">    <span class="keyword">int</span> n=<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=k;i++) n*=<span class="number">2</span>;  <span class="comment">//得到选手总数</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++) a[<span class="number">1</span>][i]=i;  <span class="comment">//初始化第一行</span></span><br><span class="line">    <span class="keyword">int</span> m=<span class="number">1</span>;   <span class="comment">//划分出的子区块的宽度</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> s=<span class="number">1</span>;s&lt;=k;s++)&#123;</span><br><span class="line">        n/=<span class="number">2</span>;  <span class="comment">//需要将m*m子区块扩展成2m*2m区块的次数</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> t=<span class="number">1</span>;t&lt;=n;t++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=m+<span class="number">1</span>;i&lt;=<span class="number">2</span>*m;i++)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j=m+<span class="number">1</span>;j&lt;=<span class="number">2</span>*m;j++)&#123;</span><br><span class="line">                    a[i][j+(t-<span class="number">1</span>)*m*<span class="number">2</span>]=a[i-m][j+(t-<span class="number">1</span>)*m*<span class="number">2</span>-m];</span><br><span class="line">                    a[i][j+(t-<span class="number">1</span>)*m*<span class="number">2</span>-m]=a[i-m][j+(t-<span class="number">1</span>)*m*<span class="number">2</span>];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        m*=<span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1787,7 +1878,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">51</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1800,7 +1891,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
