@@ -341,11 +341,16 @@
         
           
             <h3 id="ByteBuf"><a href="#ByteBuf" class="headerlink" title="ByteBuf"></a>ByteBuf</h3><p>对于NIO编程而言，我们主要使用的是ByteBuffer。从功能角度而言，ByteBuffer完全可以满足NIO编程的需要，但是由于NIO编程的复杂性，ByteBuffer也有其局限性，它的主要缺点如下。</p>
-<p>（1）ByteBuffer长度固定，一旦分配完成，它的容量不能动态扩展和收缩，当需要编码的POJO对象大于ByteBuffer的容量时，会发生索引越界异常；</p>
-<p>（2）ByteBuffer只有一个标识位置的指针position，读写的时候需要手工调用flip()和rewind()等，使用者必须小心谨慎地处理这些API，否则很容易导致程序处理失败；</p>
-<p>（3）ByteBuffer的API功能有限，一些高级和实用的特性它不支持，需要使用者自己编程实现。</p>
-<p>Netty 的ByteBuffer 替代品是ByteBuf，一个强大的实现，既解决了JDK API 的局限性，又为网络应用程序的开发者提供了更好的API。</p>
-<p>下面列出ByteBuf API的优点：</p>
+<ul>
+<li>ByteBuffer长度固定，一旦分配完成，它的容量不能动态扩展和收缩，当需要编码的POJO对象大于ByteBuffer的容量时，会发生索引越界异常；</li>
+<li><p>ByteBuffer只有一个标识位置的指针position，读写的时候需要手工调用flip()和rewind()等；</p>
+</li>
+<li><p>ByteBuffer的API功能有限，一些高级和实用的特性它不支持，需要使用者自己编程实现。</p>
+</li>
+<li><p>Netty 的ByteBuffer 替代品是ByteBuf，既解决了JDK API 的局限性，又为网络应用程序的开发者提供了更好的API。</p>
+</li>
+</ul>
+<p><strong>ByteBuf API的优点：</strong></p>
 <ul>
 <li>可扩展到用户定义的buffer类型中</li>
 <li>通过内置的复合buffer类型实现透明的零拷贝(zero-copy)</li>
@@ -355,17 +360,17 @@
 <li>支持方法链接调用</li>
 <li>支持引用计数</li>
 </ul>
-<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>ByteBuf维护两个不同的索引：读索引和写索引。当你从ByteBuf中读，它的<code>readerIndex</code>增加了读取的字节数；同理，当你向ByteBuf中写，<code>writerIndex</code>增加。下图显示了一个空的ByteBuf的布局和状态：</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>ByteBuf维护两个不同的索引：读索引和写索引。当从ByteBuf中读，它的<code>readerIndex</code>增加了读取的字节数；同理，当你向ByteBuf中写，<code>writerIndex</code>增加。下图显示了一个空的ByteBuf的布局和状态：</p>
 <p><img src="/2018/10/13/netty学习笔记2/11.png" alt="p1"></p>
 <p>如果读数据时<code>readerIndex</code>已经和<code>writerIndex</code>一样，表示已经读完了可读的数据。尝试继续往下读会引发一个<code>IndexOutOfBoundsException</code>，就像引发数组越界那样。</p>
 <h3 id="ByteBuf的使用模式"><a href="#ByteBuf的使用模式" class="headerlink" title="ByteBuf的使用模式"></a>ByteBuf的使用模式</h3><h4 id="堆缓冲区-HEAP-BUFFER"><a href="#堆缓冲区-HEAP-BUFFER" class="headerlink" title="堆缓冲区(HEAP BUFFER)"></a>堆缓冲区(HEAP BUFFER)</h4><p>最常使用的ByteBuf模式将数据保存到JVM的堆中。被称为支持数组(backing array),这个模式提供了在没有使用池技术的情况下快速分配和释放(在堆缓冲区中)。如下所示：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf heapBuf = ...;</span><br><span class="line"><span class="keyword">if</span> (heapBuf.hasArray())&#123;<span class="comment">//检查是否有支持数组</span></span><br><span class="line">    <span class="keyword">byte</span>[] array = heapBuf.array();     <span class="comment">//得到支持数组</span></span><br><span class="line">    <span class="keyword">int</span> offset = heapBuf.arrayOffset() + heapBuf.readerIndex();<span class="comment">//计算第一个字节的偏移量</span></span><br><span class="line">    <span class="keyword">int</span> length = heapBuf.readableBytes();<span class="comment">//计算可读字节数</span></span><br><span class="line">    handleArray(array, offset, length); <span class="comment">//调用你的方法来处理这个array</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//当hasArray()返回false时尝试访问支持数组会抛出UnsupportedOperationException。</span></span><br></pre></td></tr></table></figure>
 <h4 id="直接缓冲区-DIRECT-BUFFER"><a href="#直接缓冲区-DIRECT-BUFFER" class="headerlink" title="直接缓冲区(DIRECT BUFFER)"></a>直接缓冲区(DIRECT BUFFER)</h4><p>在JDK1.4中引入的NIO的ByteBuffer类允许JVM 通过本地(native)方法调用分配内存,其目的是通过免去中间交换的内存拷贝, 提升IO处理速度。</p>
 <p>直接缓冲区的内容可以驻留在垃圾回收扫描的堆区以外。这就解释了为什么直接缓冲区数据对网络数据传输来说是一种非常理想的方式。如果你的数据是存放在堆中分配的缓冲区,那么实际上,在通过 socket 发送数据之前,JVM需要将先数据复制到直接缓冲区。</p>
-<p>这种方式的主要缺点是对于分配和释放内存空间来说比堆缓冲区消耗更大。如果你要处理内置数据的代码时可能会遇到另一个缺点：因为数据没有被分配到堆上，你可能需要做一个拷贝，如下所示：</p>
+<p>这种方式的主要缺点是对于分配和释放内存空间来说比堆缓冲区消耗更大。如果要处理内置数据的代码时可能会遇到另一个缺点：因为数据没有被分配到堆上，你可能需要做一个拷贝，如下所示：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf directBuf = ...</span><br><span class="line"><span class="keyword">if</span> (!directBuf.hasArray()) &#123;<span class="comment">//false表示为这是直接缓冲</span></span><br><span class="line">    <span class="keyword">int</span> length = directBuf.readableBytes();<span class="comment">//得到可读字节数</span></span><br><span class="line">    <span class="keyword">byte</span>[] array = <span class="keyword">new</span> <span class="keyword">byte</span>[length];    <span class="comment">//分配一个具有length大小的数组</span></span><br><span class="line">    directBuf.getBytes(directBuf.readerIndex(), array); <span class="comment">//将缓冲区中的数据拷贝到这个数组中 </span></span><br><span class="line">    handleArray(array, <span class="number">0</span>, length); <span class="comment">//下一步处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="复合缓冲区-COMPOSITE-BUFFER"><a href="#复合缓冲区-COMPOSITE-BUFFER" class="headerlink" title="复合缓冲区(COMPOSITE BUFFER)"></a>复合缓冲区(COMPOSITE BUFFER)</h4><p>Composite Buffer是Netty特有的缓冲区。本质上类似于提供一个或多个ByteBuf的组合视图，可以根据需要添加和删除不同类型的ByteBuf。</p>
-<p>想要理解Composite Buffer，请记住：它是一个组合视图。它提供一种访问方式让使用者自由的组合多个ByteBuf，避免了拷贝和分配新的缓冲区。<br>Composite Buffer不支持访问其支撑数组。因此如果要访问，需要先将内容拷贝到堆内存中，再进行访问</p>
+<p>Composite Buffer：它是一个组合视图。它提供一种访问方式让使用者自由的组合多个ByteBuf，避免了拷贝和分配新的缓冲区。<br>Composite Buffer不支持访问其支撑数组。因此如果要访问，需要先将内容拷贝到堆内存中，再进行访问</p>
 <p>下图是将两个ByteBuf：头部+Body组合在一起，没有进行任何复制过程。仅仅创建了一个视图</p>
 <p><img src="/2018/10/13/netty学习笔记2/22.png" alt="p2"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public static void byteBufComposite() &#123;</span><br><span class="line">    // 复合缓冲区，只是提供一个视图</span><br><span class="line">    CompositeByteBuf messageBuf = Unpooled.compositeBuffer();</span><br><span class="line">    ByteBuf headerBuf = Unpooled.buffer(); // can be backing or direct</span><br><span class="line">    ByteBuf bodyBuf = Unpooled.directBuffer();   // can be backing or direct</span><br><span class="line">    messageBuf.addComponents(headerBuf, bodyBuf);</span><br><span class="line">    messageBuf.removeComponent(0); // remove the header</span><br><span class="line">    for (ByteBuf buf : messageBuf) &#123;</span><br><span class="line">        System.out.println(buf.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -405,37 +410,29 @@
 </ol>
 <p><strong>理解</strong></p>
 <ol>
-<li>上面的6中方法，都会返回一个新的ByteBuf实例，具有自己的读索引和写索引。但是，其内部存储是与原对象是共享的。这就是视图的概念</li>
-<li>请注意：如果你修改了这个新的ByteBuf实例的具体内容，那么对应的源实例也会被修改，因为其内部存储是共享的</li>
-<li>如果需要拷贝现有缓冲区的真实副本，请使用copy()或copy(int, int)方法。</li>
+<li>上面的方法，都会返回一个新的ByteBuf实例，具有自己的读索引和写索引。但是，其内部存储是与原对象是共享的。这就是视图的概念</li>
+<li>如果修改了这个新的ByteBuf实例的具体内容，那么对应的源实例也会被修改，因为其内部存储是共享的</li>
+<li>如果需要拷贝现有缓冲区的真实副本，使用copy()或copy(int, int)方法。</li>
 <li>使用派生缓冲区，避免了复制内存的开销，有效提高程序的性能</li>
 </ol>
 <p>代码:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufSlice</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     Charset utf8 = Charset.forName(<span class="string">"UTF-8"</span>);</span><br><span class="line">     ByteBuf buf = Unpooled.copiedBuffer(<span class="string">"Netty in Action rocks!"</span>, utf8);</span><br><span class="line">     ByteBuf sliced = buf.slice(<span class="number">0</span>, <span class="number">15</span>);</span><br><span class="line">     System.out.println(sliced.toString(utf8));</span><br><span class="line">     buf.setByte(<span class="number">0</span>, (<span class="keyword">byte</span>)<span class="string">'J'</span>);</span><br><span class="line">     <span class="keyword">assert</span> buf.getByte(<span class="number">0</span>) == sliced.getByte(<span class="number">0</span>); <span class="comment">// return true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufCopy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     Charset utf8 = Charset.forName(<span class="string">"UTF-8"</span>);</span><br><span class="line">     ByteBuf buf = Unpooled.copiedBuffer(<span class="string">"Netty in Action rocks!"</span>, utf8);</span><br><span class="line">     ByteBuf copy = buf.copy(<span class="number">0</span>, <span class="number">15</span>);</span><br><span class="line">     System.out.println(copy.toString(utf8));</span><br><span class="line">     buf.setByte(<span class="number">0</span>, (<span class="keyword">byte</span>)<span class="string">'J'</span>);</span><br><span class="line">     <span class="keyword">assert</span> buf.getByte(<span class="number">0</span>) != copy.getByte(<span class="number">0</span>); <span class="comment">// return true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="读-写操作"><a href="#读-写操作" class="headerlink" title="读/写操作"></a>读/写操作</h4><p>如上文所提到的，有两种类别的读/写操作:</p>
+<h4 id="读-写操作"><a href="#读-写操作" class="headerlink" title="读/写操作"></a>读/写操作</h4><p>有两种类别的读/写操作:</p>
 <ol>
-<li><p>get()和set()操作 —– 从给定的索引开始，并且保持索引不变</p>
-</li>
-<li><p>read()和write()操作 —– 从给定的索引开始，并且根据已经访问过的字节数对索引进行访问</p>
-</li>
-<li><p>下图给出get()操作API，对于set()操作、read()操作和write操作可参考书籍或API</p>
-<p><img src="/2018/10/13/netty学习笔记2/44.png" alt="p4"></p>
-</li>
+<li>get()和set()操作 —– 从给定的索引开始，并且保持索引不变</li>
+<li>read()和write()操作 —– 从给定的索引开始，并且根据已经访问过的字节数对索引进行访问</li>
 </ol>
-<h4 id="更多的操作"><a href="#更多的操作" class="headerlink" title="更多的操作"></a>更多的操作</h4><p><img src="/2018/10/13/netty学习笔记2/55.png" alt="p5"></p>
-<p>下面的两个方法操作字面意思较难理解，给出解释:</p>
+<p>方法分析：</p>
 <ol>
-<li>hasArray() —– 如果ByteBuf由一个字节数组支撑，则返回true。通俗的讲：ByteBuf是堆缓冲区模式，则代表其内部存储是由字节数组支撑的。如果还没理解，可参考5.2.2章节</li>
+<li>hasArray() —– 如果ByteBuf由一个字节数组支撑，则返回true。通俗的讲：ByteBuf是堆缓冲区模式，则代表其内部存储是由字节数组支撑的。</li>
 <li>array() —– 如果ByteBuf是由一个字节数组支撑泽返回数组，否则抛出UnsupportedOperationException异常。也就是，ByteBuf是堆缓冲区模式</li>
 </ol>
-<p>5.4 ByteBufHolder接口<br>ByteBufHolder为Netty的高级特性提供了支持，如缓冲区池化，可以从池中借用ByteBuf，并且在需要时自动释放。</p>
+<p><strong>ByteBufHolder接口</strong><br>ByteBufHolder为Netty的高级特性提供了支持，如缓冲区池化，可以从池中借用ByteBuf，并且在需要时自动释放。</p>
 <ol>
 <li>ByteBufHolder是ByteBuf的容器，可以通过子类实现ByteBufHolder接口，根据自身需要添加自己需要的数据字段。可以用于自定义缓冲区类型扩展字段。</li>
 <li>Netty提供了一个默认的实现DefaultByteBufHolder。</li>
 </ol>
-<p>代码</p>
-<p>public class CustomByteBufHolder extends DefaultByteBufHolder{</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String protocolName;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CustomByteBufHolder</span><span class="params">(String protocolName, ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(data);</span><br><span class="line">    <span class="keyword">this</span>.protocolName = protocolName;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">replace</span><span class="params">(ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CustomByteBufHolder(protocolName, data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">retain</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.retain();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">(Object hint)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch(hint);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomByteBufHolder</span> <span class="keyword">extends</span> <span class="title">DefaultByteBufHolder</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> String protocolName;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CustomByteBufHolder</span><span class="params">(String protocolName, ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(data);</span><br><span class="line">    <span class="keyword">this</span>.protocolName = protocolName;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">replace</span><span class="params">(ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CustomByteBufHolder(protocolName, data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">retain</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.retain();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">(Object hint)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch(hint);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 <h4 id="ByteBuf分配"><a href="#ByteBuf分配" class="headerlink" title="ByteBuf分配"></a>ByteBuf分配</h4><p>创建和管理ByteBuf实例的多种方式：按需分配(ByteBufAllocator)、Unpooled缓冲区和ByteBufUtil类</p>
 <h4 id="按序分配-ByteBufAllocator接口"><a href="#按序分配-ByteBufAllocator接口" class="headerlink" title="按序分配: ByteBufAllocator接口"></a>按序分配: ByteBufAllocator接口</h4><p>Netty通过接口ByteBufAllocator实现了(ByteBuf的)池化。Netty提供池化和非池化的ButeBufAllocator: </p>
 <ol>
@@ -448,24 +445,11 @@
 <li><p>可以通过BootStrap中的Config为每个Channel提供独立的ByteBufAllocator实例</p>
 </li>
 </ol>
-<p><img src="/2018/10/13/netty学习笔记2/66.png" alt="p6"></p>
-<p>解释:</p>
-<ol>
-<li>上图中的buffer()方法，返回一个基于堆或者直接内存存储的Bytebuf —– 缺省是堆内存。源码: AbstractByteBufAllocator() { this(false); }</li>
-<li>ByteBufAllocator.DEFAULT —– 可能是池化，也可能是非池化。默认是池化(PooledByteBufAllocator.DEFAULT)</li>
-</ol>
 <h4 id="Unpooled缓冲区-—–-非池化"><a href="#Unpooled缓冲区-—–-非池化" class="headerlink" title="Unpooled缓冲区 —– 非池化"></a>Unpooled缓冲区 —– 非池化</h4><p>Unpooled提供静态的辅助方法来创建未池化的ByteBuf。</p>
-<p><img src="/2018/10/13/netty学习笔记2/77.png" alt="p7"></p>
-<p>注意:</p>
-<ol>
-<li>上图的buffer()方法，返回一个未池化的基于堆内存存储的ByteBuf</li>
-<li>wrappedBuffer() —– 创建一个视图，返回一个包装了给定数据的ByteBuf。非常实用</li>
-</ol>
-<p>创建ByteBuf代码:</p>
-<p> public void createByteBuf(ChannelHandlerContext ctx) {<br>​    // 1. 通过Channel创建ByteBuf<br>​    ByteBuf buf1 = ctx.channel().alloc().buffer();<br>​    // 2. 通过ByteBufAllocator.DEFAULT创建<br>​    ByteBuf buf2 =  ByteBufAllocator.DEFAULT.buffer();<br>​    // 3. 通过Unpooled创建<br>​    ByteBuf buf3 = Unpooled.buffer();<br>}</p>
+<h4 id="创建ByteBuf"><a href="#创建ByteBuf" class="headerlink" title="创建ByteBuf"></a>创建ByteBuf</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createByteBuf</span><span class="params">(ChannelHandlerContext ctx)</span> </span>&#123;</span><br><span class="line">     <span class="comment">// 1. 通过Channel创建ByteBuf</span></span><br><span class="line">     ByteBuf buf1 = ctx.channel().alloc().buffer();</span><br><span class="line">     <span class="comment">// 2. 通过ByteBufAllocator.DEFAULT创建</span></span><br><span class="line">     ByteBuf buf2 =  ByteBufAllocator.DEFAULT.buffer();</span><br><span class="line">     <span class="comment">// 3. 通过Unpooled创建</span></span><br><span class="line">     ByteBuf buf3 = Unpooled.buffer();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="ByteBufUtil类"><a href="#ByteBufUtil类" class="headerlink" title="ByteBufUtil类"></a>ByteBufUtil类</h4><p>ByteBufUtil类提供了用于操作ByteBuf的静态的辅助方法: hexdump()和equals</p>
 <ol>
-<li>hexdump() —– 以十六进制的表示形式打印ByteBuf的内容。非常有价值 </li>
+<li>hexdump() —– 以十六进制的表示形式打印ByteBuf的内容。</li>
 <li>equals() —– 判断两个ByteBuf实例的相等性</li>
 </ol>
 <h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>Netty4.0版本中为ButeBuf和ButeBufHolder引入了引用计数技术。请区别引用计数和可达性分析算法(jvm垃圾回收)</p>
@@ -477,7 +461,6 @@
 <li>buffer.touch() —– 记录当前对象的访问位置，主要用于调试。</li>
 <li>引用计数并非仅对于直接缓冲区(direct Buffer)。ByteBuf的三种模式: 堆缓冲区(heap Buffer)、直接缓冲区(dirrect Buffer)和复合缓冲区(Composite Buffer)都使用了引用计数，某些时候需要程序员手动维护引用数值</li>
 </ol>
-<p>代码：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">releaseReferenceCountedObject</span><span class="params">()</span></span>&#123;</span><br><span class="line">     ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();</span><br><span class="line">     <span class="comment">// 引用计数加1</span></span><br><span class="line">     buffer.retain();</span><br><span class="line">     <span class="comment">// 输出引用计数</span></span><br><span class="line">     buffer.refCnt();</span><br><span class="line">     <span class="comment">// 引用计数减1</span></span><br><span class="line">     buffer.release();</span><br><span class="line"></span><br><span class="line">##</span><br></pre></td></tr></table></figure>
 
           
