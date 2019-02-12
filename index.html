@@ -269,6 +269,264 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/13/netty学习笔记2/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/13/netty学习笔记2/" itemprop="url">netty学习笔记2</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-13T13:01:11+08:00">
+                2018-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="ByteBuf"><a href="#ByteBuf" class="headerlink" title="ByteBuf"></a>ByteBuf</h3><p>对于NIO编程而言，我们主要使用的是ByteBuffer。从功能角度而言，ByteBuffer完全可以满足NIO编程的需要，但是由于NIO编程的复杂性，ByteBuffer也有其局限性，它的主要缺点如下。</p>
+<p>（1）ByteBuffer长度固定，一旦分配完成，它的容量不能动态扩展和收缩，当需要编码的POJO对象大于ByteBuffer的容量时，会发生索引越界异常；</p>
+<p>（2）ByteBuffer只有一个标识位置的指针position，读写的时候需要手工调用flip()和rewind()等，使用者必须小心谨慎地处理这些API，否则很容易导致程序处理失败；</p>
+<p>（3）ByteBuffer的API功能有限，一些高级和实用的特性它不支持，需要使用者自己编程实现。</p>
+<p>Netty 的ByteBuffer 替代品是ByteBuf，一个强大的实现，既解决了JDK API 的局限性，又为网络应用程序的开发者提供了更好的API。</p>
+<p>下面列出ByteBuf API的优点：</p>
+<ul>
+<li>可扩展到用户定义的buffer类型中</li>
+<li>通过内置的复合buffer类型实现透明的零拷贝(zero-copy)</li>
+<li>容量可以根据需要扩展</li>
+<li>切换读写模式不需要调用ByteBUffer.flip()方法</li>
+<li>读写采用不同的索引</li>
+<li>支持方法链接调用</li>
+<li>支持引用计数</li>
+</ul>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>ByteBuf维护两个不同的索引：读索引和写索引。当你从ByteBuf中读，它的<code>readerIndex</code>增加了读取的字节数；同理，当你向ByteBuf中写，<code>writerIndex</code>增加。下图显示了一个空的ByteBuf的布局和状态：</p>
+<p><img src="/2018/10/13/netty学习笔记2/11.png" alt="p1"></p>
+<p>如果读数据时<code>readerIndex</code>已经和<code>writerIndex</code>一样，表示已经读完了可读的数据。尝试继续往下读会引发一个<code>IndexOutOfBoundsException</code>，就像引发数组越界那样。</p>
+<h3 id="ByteBuf的使用模式"><a href="#ByteBuf的使用模式" class="headerlink" title="ByteBuf的使用模式"></a>ByteBuf的使用模式</h3><h4 id="堆缓冲区-HEAP-BUFFER"><a href="#堆缓冲区-HEAP-BUFFER" class="headerlink" title="堆缓冲区(HEAP BUFFER)"></a>堆缓冲区(HEAP BUFFER)</h4><p>最常使用的ByteBuf模式将数据保存到JVM的堆中。被称为支持数组(backing array),这个模式提供了在没有使用池技术的情况下快速分配和释放(在堆缓冲区中)。如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf heapBuf = ...;</span><br><span class="line"><span class="keyword">if</span> (heapBuf.hasArray())&#123;<span class="comment">//检查是否有支持数组</span></span><br><span class="line">    <span class="keyword">byte</span>[] array = heapBuf.array();     <span class="comment">//得到支持数组</span></span><br><span class="line">    <span class="keyword">int</span> offset = heapBuf.arrayOffset() + heapBuf.readerIndex();<span class="comment">//计算第一个字节的偏移量</span></span><br><span class="line">    <span class="keyword">int</span> length = heapBuf.readableBytes();<span class="comment">//计算可读字节数</span></span><br><span class="line">    handleArray(array, offset, length); <span class="comment">//调用你的方法来处理这个array</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//当hasArray()返回false时尝试访问支持数组会抛出UnsupportedOperationException。</span></span><br></pre></td></tr></table></figure>
+<h4 id="直接缓冲区-DIRECT-BUFFER"><a href="#直接缓冲区-DIRECT-BUFFER" class="headerlink" title="直接缓冲区(DIRECT BUFFER)"></a>直接缓冲区(DIRECT BUFFER)</h4><p>在JDK1.4中引入的NIO的ByteBuffer类允许JVM 通过本地(native)方法调用分配内存,其目的是通过免去中间交换的内存拷贝, 提升IO处理速度。</p>
+<p>直接缓冲区的内容可以驻留在垃圾回收扫描的堆区以外。这就解释了为什么直接缓冲区数据对网络数据传输来说是一种非常理想的方式。如果你的数据是存放在堆中分配的缓冲区,那么实际上,在通过 socket 发送数据之前,JVM需要将先数据复制到直接缓冲区。</p>
+<p>这种方式的主要缺点是对于分配和释放内存空间来说比堆缓冲区消耗更大。如果你要处理内置数据的代码时可能会遇到另一个缺点：因为数据没有被分配到堆上，你可能需要做一个拷贝，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf directBuf = ...</span><br><span class="line"><span class="keyword">if</span> (!directBuf.hasArray()) &#123;<span class="comment">//false表示为这是直接缓冲</span></span><br><span class="line">    <span class="keyword">int</span> length = directBuf.readableBytes();<span class="comment">//得到可读字节数</span></span><br><span class="line">    <span class="keyword">byte</span>[] array = <span class="keyword">new</span> <span class="keyword">byte</span>[length];    <span class="comment">//分配一个具有length大小的数组</span></span><br><span class="line">    directBuf.getBytes(directBuf.readerIndex(), array); <span class="comment">//将缓冲区中的数据拷贝到这个数组中 </span></span><br><span class="line">    handleArray(array, <span class="number">0</span>, length); <span class="comment">//下一步处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="复合缓冲区-COMPOSITE-BUFFER"><a href="#复合缓冲区-COMPOSITE-BUFFER" class="headerlink" title="复合缓冲区(COMPOSITE BUFFER)"></a>复合缓冲区(COMPOSITE BUFFER)</h4><p>Composite Buffer是Netty特有的缓冲区。本质上类似于提供一个或多个ByteBuf的组合视图，可以根据需要添加和删除不同类型的ByteBuf。</p>
+<p>想要理解Composite Buffer，请记住：它是一个组合视图。它提供一种访问方式让使用者自由的组合多个ByteBuf，避免了拷贝和分配新的缓冲区。<br>Composite Buffer不支持访问其支撑数组。因此如果要访问，需要先将内容拷贝到堆内存中，再进行访问</p>
+<p>下图是将两个ByteBuf：头部+Body组合在一起，没有进行任何复制过程。仅仅创建了一个视图</p>
+<p><img src="/2018/10/13/netty学习笔记2/22.png" alt="p2"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public static void byteBufComposite() &#123;</span><br><span class="line">    // 复合缓冲区，只是提供一个视图</span><br><span class="line">    CompositeByteBuf messageBuf = Unpooled.compositeBuffer();</span><br><span class="line">    ByteBuf headerBuf = Unpooled.buffer(); // can be backing or direct</span><br><span class="line">    ByteBuf bodyBuf = Unpooled.directBuffer();   // can be backing or direct</span><br><span class="line">    messageBuf.addComponents(headerBuf, bodyBuf);</span><br><span class="line">    messageBuf.removeComponent(0); // remove the header</span><br><span class="line">    for (ByteBuf buf : messageBuf) &#123;</span><br><span class="line">        System.out.println(buf.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="字节级操作"><a href="#字节级操作" class="headerlink" title="字节级操作"></a>字节级操作</h3><h4 id="随机访问索引"><a href="#随机访问索引" class="headerlink" title="随机访问索引"></a>随机访问索引</h4><p>ByteBuf的索引与普通的Java字节数组一样。第一个字节的索引是0，最后一个字节索引总是capacity()-1。下列两条，非常有用:</p>
+<p>readXXX()和writeXXX()方法将会推进其对应的索引readerIndex和writerIndex。自动推进<br>getXXX()和setXXX()方法用于访问数据，对writerIndex和readerIndex无影响<br>代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufRelativeAccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ByteBuf buffer = Unpooled.buffer(); <span class="comment">//get reference form somewhere</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; buffer.capacity(); i++) &#123;</span><br><span class="line">        <span class="keyword">byte</span> b = buffer.getByte(i);<span class="comment">// 不改变readerIndex值</span></span><br><span class="line">        System.out.println((<span class="keyword">char</span>) b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="顺序访问索引"><a href="#顺序访问索引" class="headerlink" title="顺序访问索引"></a>顺序访问索引</h4><p>Netty的ByteBuf同时具有读索引和写索引，但JDK的ByteBuffer只有一个索引，所以JDK需要调用flip()方法在读模式和写模式之间切换。</p>
+<p> ByteBuf被读索引和写索引划分成3个区域：可丢弃字节区域，可读字节区域和可写字节区域 </p>
+<p><img src="/2018/10/13/netty学习笔记2/33.png" alt="p3"></p>
+<h5 id="可丢弃字节区域"><a href="#可丢弃字节区域" class="headerlink" title="可丢弃字节区域"></a>可丢弃字节区域</h5><p>可丢弃字节区域是指:[0，readerIndex)之间的区域。可调用discardReadBytes()方法丢弃已经读过的字节。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. discardReadBytes()效果 ----- 将可读字节区域(CONTENT)[readerIndex, writerIndex)往前移动readerIndex位，同时修改读索引和写索引。</span><br><span class="line"></span><br><span class="line">2. discardReadBytes()方法会移动可读字节区域内容(CONTENT)。如果频繁调用，会有多次数据复制开销，对性能有一定的影响</span><br></pre></td></tr></table></figure>
+<h5 id="可读字节区域"><a href="#可读字节区域" class="headerlink" title="可读字节区域"></a>可读字节区域</h5><p>可读字节区域是指:[readerIndex, writerIndex)之间的区域。任何名称以read和skip开头的操作方法，都会改变readerIndex索引。</p>
+<h5 id="可写字节区域"><a href="#可写字节区域" class="headerlink" title="可写字节区域"></a>可写字节区域</h5><p>可写字节区域是指:[writerIndex, capacity)之间的区域。任何名称以write开头的操作方法都将改变writerIndex的值。</p>
+<h4 id="索引管理"><a href="#索引管理" class="headerlink" title="索引管理"></a>索引管理</h4><ol>
+<li>markReaderIndex()+resetReaderIndex() —– markReaderIndex()是先备份当前的readerIndex，resetReaderIndex()则是将刚刚备份的readerIndex恢复回来。常用于dump ByteBuf的内容，又不想影响原来ByteBuf的readerIndex的值</li>
+<li>readerIndex(int) —– 设置readerIndex为固定的值</li>
+<li>writerIndex(int) —– 设置writerIndex为固定的值</li>
+<li>clear() —– 效果是: readerIndex=0, writerIndex(0)。不会清除内存</li>
+<li>调用clear()比调用discardReadBytes()轻量的多。仅仅重置readerIndex和writerIndex的值，不会拷贝任何内存，开销较小。</li>
+</ol>
+<h4 id="查找操作-indexOf"><a href="#查找操作-indexOf" class="headerlink" title="查找操作(indexOf)"></a>查找操作(indexOf)</h4><p>查找ByteBuf指定的值。类似于，String.indexOf(“str”)操作</p>
+<ol>
+<li>最简单的方法 —– indexOf(）</li>
+<li>利用ByteProcessor作为参数来查找某个指定的值。</li>
+</ol>
+<p>代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ByteBuf buffer = Unpooled.buffer(); <span class="comment">//get reference form somewhere</span></span><br><span class="line">    <span class="comment">// 使用indexOf()方法来查找</span></span><br><span class="line">    buffer.indexOf(buffer.readerIndex(), buffer.writerIndex(), (<span class="keyword">byte</span>)<span class="number">8</span>);</span><br><span class="line">    <span class="comment">// 使用ByteProcessor查找给定的值</span></span><br><span class="line">    <span class="keyword">int</span> index = buffer.forEachByte(ByteProcessor.FIND_CR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="派生缓冲区-—–-视图"><a href="#派生缓冲区-—–-视图" class="headerlink" title="派生缓冲区 —– 视图"></a>派生缓冲区 —– 视图</h4><p>派生缓冲区为ByteBuf提供了一个访问的视图。视图仅仅提供一种访问操作，不做任何拷贝操作。下列方法，都会呈现给使用者一个视图，以供访问:</p>
+<ol>
+<li>duplicate() </li>
+<li>slice()</li>
+<li>slice(int, int)</li>
+<li>Unpooled.unmodifiableBuffer(…)</li>
+<li>Unpooled.wrappedBuffer(…)</li>
+<li>order(ByteOrder)</li>
+<li>readSlice(int)</li>
+</ol>
+<p><strong>理解</strong></p>
+<ol>
+<li>上面的6中方法，都会返回一个新的ByteBuf实例，具有自己的读索引和写索引。但是，其内部存储是与原对象是共享的。这就是视图的概念</li>
+<li>请注意：如果你修改了这个新的ByteBuf实例的具体内容，那么对应的源实例也会被修改，因为其内部存储是共享的</li>
+<li>如果需要拷贝现有缓冲区的真实副本，请使用copy()或copy(int, int)方法。</li>
+<li>使用派生缓冲区，避免了复制内存的开销，有效提高程序的性能</li>
+</ol>
+<p>代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufSlice</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     Charset utf8 = Charset.forName(<span class="string">"UTF-8"</span>);</span><br><span class="line">     ByteBuf buf = Unpooled.copiedBuffer(<span class="string">"Netty in Action rocks!"</span>, utf8);</span><br><span class="line">     ByteBuf sliced = buf.slice(<span class="number">0</span>, <span class="number">15</span>);</span><br><span class="line">     System.out.println(sliced.toString(utf8));</span><br><span class="line">     buf.setByte(<span class="number">0</span>, (<span class="keyword">byte</span>)<span class="string">'J'</span>);</span><br><span class="line">     <span class="keyword">assert</span> buf.getByte(<span class="number">0</span>) == sliced.getByte(<span class="number">0</span>); <span class="comment">// return true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufCopy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     Charset utf8 = Charset.forName(<span class="string">"UTF-8"</span>);</span><br><span class="line">     ByteBuf buf = Unpooled.copiedBuffer(<span class="string">"Netty in Action rocks!"</span>, utf8);</span><br><span class="line">     ByteBuf copy = buf.copy(<span class="number">0</span>, <span class="number">15</span>);</span><br><span class="line">     System.out.println(copy.toString(utf8));</span><br><span class="line">     buf.setByte(<span class="number">0</span>, (<span class="keyword">byte</span>)<span class="string">'J'</span>);</span><br><span class="line">     <span class="keyword">assert</span> buf.getByte(<span class="number">0</span>) != copy.getByte(<span class="number">0</span>); <span class="comment">// return true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="读-写操作"><a href="#读-写操作" class="headerlink" title="读/写操作"></a>读/写操作</h4><p>如上文所提到的，有两种类别的读/写操作:</p>
+<ol>
+<li><p>get()和set()操作 —– 从给定的索引开始，并且保持索引不变</p>
+</li>
+<li><p>read()和write()操作 —– 从给定的索引开始，并且根据已经访问过的字节数对索引进行访问</p>
+</li>
+<li><p>下图给出get()操作API，对于set()操作、read()操作和write操作可参考书籍或API</p>
+<p><img src="/2018/10/13/netty学习笔记2/44.png" alt="p4"></p>
+</li>
+</ol>
+<h4 id="更多的操作"><a href="#更多的操作" class="headerlink" title="更多的操作"></a>更多的操作</h4><p><img src="/2018/10/13/netty学习笔记2/55.png" alt="p5"></p>
+<p>下面的两个方法操作字面意思较难理解，给出解释:</p>
+<ol>
+<li>hasArray() —– 如果ByteBuf由一个字节数组支撑，则返回true。通俗的讲：ByteBuf是堆缓冲区模式，则代表其内部存储是由字节数组支撑的。如果还没理解，可参考5.2.2章节</li>
+<li>array() —– 如果ByteBuf是由一个字节数组支撑泽返回数组，否则抛出UnsupportedOperationException异常。也就是，ByteBuf是堆缓冲区模式</li>
+</ol>
+<p>5.4 ByteBufHolder接口<br>ByteBufHolder为Netty的高级特性提供了支持，如缓冲区池化，可以从池中借用ByteBuf，并且在需要时自动释放。</p>
+<ol>
+<li>ByteBufHolder是ByteBuf的容器，可以通过子类实现ByteBufHolder接口，根据自身需要添加自己需要的数据字段。可以用于自定义缓冲区类型扩展字段。</li>
+<li>Netty提供了一个默认的实现DefaultByteBufHolder。</li>
+</ol>
+<p>代码</p>
+<p>public class CustomByteBufHolder extends DefaultByteBufHolder{</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String protocolName;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CustomByteBufHolder</span><span class="params">(String protocolName, ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(data);</span><br><span class="line">    <span class="keyword">this</span>.protocolName = protocolName;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">replace</span><span class="params">(ByteBuf data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CustomByteBufHolder(protocolName, data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">retain</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.retain();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomByteBufHolder <span class="title">touch</span><span class="params">(Object hint)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.touch(hint);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h4 id="ByteBuf分配"><a href="#ByteBuf分配" class="headerlink" title="ByteBuf分配"></a>ByteBuf分配</h4><p>创建和管理ByteBuf实例的多种方式：按需分配(ByteBufAllocator)、Unpooled缓冲区和ByteBufUtil类</p>
+<h4 id="按序分配-ByteBufAllocator接口"><a href="#按序分配-ByteBufAllocator接口" class="headerlink" title="按序分配: ByteBufAllocator接口"></a>按序分配: ByteBufAllocator接口</h4><p>Netty通过接口ByteBufAllocator实现了(ByteBuf的)池化。Netty提供池化和非池化的ButeBufAllocator: </p>
+<ol>
+<li><p>ctx.channel().alloc().buffer() —– 本质就是: ByteBufAllocator.DEFAULT</p>
+</li>
+<li><p>ByteBufAllocator.DEFAULT.buffer() —– 返回一个基于堆或者直接内存存储的Bytebuf。默认是堆内存</p>
+</li>
+<li><p>ByteBufAllocator.DEFAULT —– 有两种类型: UnpooledByteBufAllocator.DEFAULT(非池化)和PooledByteBufAllocator.DEFAULT(池化)。对于Java程序，默认使用PooledByteBufAllocator(池化)。对于安卓，默认使用UnpooledByteBufAllocator(非池化)</p>
+</li>
+<li><p>可以通过BootStrap中的Config为每个Channel提供独立的ByteBufAllocator实例</p>
+</li>
+</ol>
+<p><img src="/2018/10/13/netty学习笔记2/66.png" alt="p6"></p>
+<p>解释:</p>
+<ol>
+<li>上图中的buffer()方法，返回一个基于堆或者直接内存存储的Bytebuf —– 缺省是堆内存。源码: AbstractByteBufAllocator() { this(false); }</li>
+<li>ByteBufAllocator.DEFAULT —– 可能是池化，也可能是非池化。默认是池化(PooledByteBufAllocator.DEFAULT)</li>
+</ol>
+<h4 id="Unpooled缓冲区-—–-非池化"><a href="#Unpooled缓冲区-—–-非池化" class="headerlink" title="Unpooled缓冲区 —– 非池化"></a>Unpooled缓冲区 —– 非池化</h4><p>Unpooled提供静态的辅助方法来创建未池化的ByteBuf。</p>
+<p><img src="/2018/10/13/netty学习笔记2/77.png" alt="p7"></p>
+<p>注意:</p>
+<ol>
+<li>上图的buffer()方法，返回一个未池化的基于堆内存存储的ByteBuf</li>
+<li>wrappedBuffer() —– 创建一个视图，返回一个包装了给定数据的ByteBuf。非常实用</li>
+</ol>
+<p>创建ByteBuf代码:</p>
+<p> public void createByteBuf(ChannelHandlerContext ctx) {<br>​    // 1. 通过Channel创建ByteBuf<br>​    ByteBuf buf1 = ctx.channel().alloc().buffer();<br>​    // 2. 通过ByteBufAllocator.DEFAULT创建<br>​    ByteBuf buf2 =  ByteBufAllocator.DEFAULT.buffer();<br>​    // 3. 通过Unpooled创建<br>​    ByteBuf buf3 = Unpooled.buffer();<br>}</p>
+<h4 id="ByteBufUtil类"><a href="#ByteBufUtil类" class="headerlink" title="ByteBufUtil类"></a>ByteBufUtil类</h4><p>ByteBufUtil类提供了用于操作ByteBuf的静态的辅助方法: hexdump()和equals</p>
+<ol>
+<li>hexdump() —– 以十六进制的表示形式打印ByteBuf的内容。非常有价值 </li>
+<li>equals() —– 判断两个ByteBuf实例的相等性</li>
+</ol>
+<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>Netty4.0版本中为ButeBuf和ButeBufHolder引入了引用计数技术。请区别引用计数和可达性分析算法(jvm垃圾回收)</p>
+<ol>
+<li>谁负责释放: 一般来说，是由最后访问(引用计数)对象的那一方来负责将它释放</li>
+<li>buffer.release() —– 引用计数减1 </li>
+<li>buffer.retain() —– 引用计数加1</li>
+<li>buffer.refCnt() —– 返回当前对象引用计数值</li>
+<li>buffer.touch() —– 记录当前对象的访问位置，主要用于调试。</li>
+<li>引用计数并非仅对于直接缓冲区(direct Buffer)。ByteBuf的三种模式: 堆缓冲区(heap Buffer)、直接缓冲区(dirrect Buffer)和复合缓冲区(Composite Buffer)都使用了引用计数，某些时候需要程序员手动维护引用数值</li>
+</ol>
+<p>代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">releaseReferenceCountedObject</span><span class="params">()</span></span>&#123;</span><br><span class="line">     ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();</span><br><span class="line">     <span class="comment">// 引用计数加1</span></span><br><span class="line">     buffer.retain();</span><br><span class="line">     <span class="comment">// 输出引用计数</span></span><br><span class="line">     buffer.refCnt();</span><br><span class="line">     <span class="comment">// 引用计数减1</span></span><br><span class="line">     buffer.release();</span><br><span class="line"></span><br><span class="line">##</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/11/netty学习笔记1/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1740,181 +1998,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/22/JVM内存模型/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/22/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-22T10:06:22+08:00">
-                2018-07-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="运行时数据区域"><a href="#运行时数据区域" class="headerlink" title="运行时数据区域"></a>运行时数据区域</h4><p><img src="/2018/07/22/JVM内存模型/jvm1.jpeg" alt="jvm1"> </p>
-<h5 id="程序计数器（Program-Counter-Register）"><a href="#程序计数器（Program-Counter-Register）" class="headerlink" title="程序计数器（Program Counter Register）"></a>程序计数器（Program Counter Register）</h5><p>程序计数器（Program Counter Register）是一块较小的内存空间，可以看作是当前线程所执行的字节码的行号指示器。在虚拟机概念模型中，字节码解释器工作时就是通过改变计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。</p>
-<p>程序计数器是一块“线程私有”的内存，如上文的图所示，每条线程都有一个独立的程序计数器，各条线程之间的计数器互不影响，独立存储。这样设计使得在多线程环境下，线程切换后能恢复到正确的执行位置。</p>
-<p>如果线程正在执行的是一个Java方法，这个计数器记录的是正在执行的虚拟机字节码指令的地址；若执行的是Native方法，则计数器为空（Undefined）（因为对于Native方法而言，它的方法体并不是由Java字节码构成的，自然无法应用上述的“字节码指令的地址”的概念）。程序计数器也是唯一一个在Java虚拟机规范中没有规定任何OutOfMemoryError情况的内存区域。</p>
-<h5 id="Java虚拟机栈（Java-Virtual-Machine-Stacks）"><a href="#Java虚拟机栈（Java-Virtual-Machine-Stacks）" class="headerlink" title="Java虚拟机栈（Java Virtual Machine Stacks）"></a>Java虚拟机栈（Java Virtual Machine Stacks）</h5><p>Java虚拟机栈（Java Virtual Machine Stacks）描述的是Java方法执行的内存模型：每个方法在执行的同时都会创建一个栈帧（Stack Frame），栈帧中存储着局部变量表、操作数栈、动态链接、方法出口等信息。每一个方法从调用直至执行完成的过程，会对应一个栈帧在虚拟机栈中入栈到出栈的过程。与程序计数器一样，Java虚拟机栈也是线程私有的。</p>
-<p>函数的调用有完美的嵌套关系——调用者的生命期总是长于被调用者的生命期，并且后者在前者的之内。这样，被调用者的局部信息所占空间的分配总是后于调用者的（后入），而其释放则总是先于调用者的（先出），所以正好可以满足栈的LIFO顺序，选用栈这种数据结构来实现调用栈是一种很自然的选择。</p>
-<p>局部变量表中存放了编译期可知的各种：</p>
-<ul>
-<li>基本数据类型(boolen、byte、char、short、int、 float、 long、double）</li>
-<li>对象引用（reference类型，它不等于对象本身，可能是一个指向对象起始地址的指针，也可能是指向一个代表对象的句柄或其他与此对象相关的位置）</li>
-<li>returnAddress类型（指向了一条字节码指令的地址）</li>
-</ul>
-<p>其中64位长度的long和double类型的数据会占用2个局部变量空间（Slot），其余数据类型只占用1个。局部变量表所需的内存空间在编译期间完成分配，当进入一个方法时，这个方法需要在帧中分配多大的局部变量空间是完全确定的，在方法运行期间不会改变局部变量表的大小。</p>
-<p>Java虚拟机规范中对这个区域规定了两种异常状况：</p>
-<ul>
-<li>StackOverflowError：线程请求的栈深度大于虚拟机所允许的深度，将会抛出此异常。</li>
-<li>OutOfMemoryError：当可动态扩展的虚拟机栈在扩展时无法申请到足够的内存，就会抛出该异常。</li>
-</ul>
-<h5 id="本地方法栈（Native-Method-Stack）"><a href="#本地方法栈（Native-Method-Stack）" class="headerlink" title="本地方法栈（Native Method Stack）"></a>本地方法栈（Native Method Stack）</h5><p>本地方法栈（Native Method Stack）与Java虚拟机栈作用很相似，它们的区别在于虚拟机栈为虚拟机执行Java方法（即字节码）服务，而本地方法栈则为虚拟机使用到的Native方法服务。</p>
-<p>在虚拟机规范中对本地方法栈中使用的语言、方式和数据结构并无强制规定，因此具体的虚拟机可实现它。甚至有的虚拟机（Sun HotSpot虚拟机）直接把本地方法栈和虚拟机栈合二为一。与虚拟机一样，本地方法栈会抛出StackOverflowError和OutOfMemoryError异常。</p>
-<h5 id="Java堆（Heap）"><a href="#Java堆（Heap）" class="headerlink" title="Java堆（Heap）"></a>Java堆（Heap）</h5><p>对于大多数应用而言，Java堆（Heap）是Java虚拟机所管理的内存中最大的一块，它被所有线程共享的，在虚拟机启动时创建。此内存区域唯一的目的是存放对象实例，几乎所有的对象实例都在这里分配内存，且每次分配的空间是不定长的。在Heap 中分配一定的内存来保存对象实例，实际上只是保存对象实例的属性值，属性的类型和对象本身的类型标记等，并不保存对象的方法（方法是指令，保存在Stack中）,在Heap 中分配一定的内存保存对象实例和对象的序列化比较类似。对象实例在Heap 中分配好以后，需要在Stack中保存一个4字节的Heap 内存地址，用来定位该对象实例在Heap 中的位置，便于找到该对象实例。</p>
-<p>Java虚拟机规范中描述道：所有的对象实例以及数组都要在堆上分配，但是随着JIT编译器的发展和逃逸分析技术逐渐成熟，栈上分配、标量替换优化技术将会导致一些微妙的变化发生，所有的对象都在堆上分配的定论也并不“绝对”了。</p>
-<p>Java堆是垃圾收集器管理的主要区域，因此也被称为“GC堆（Garbage Collected Heap）”。从内存回收的角度看内存空间可如下划分：</p>
-<p><img src="/2018/07/22/JVM内存模型/jvm2.jpeg" alt="jvm2"></p>
-<ul>
-<li>新生代（Young）： 新生成的对象优先存放在新生代中，新生代对象朝生夕死，存活率很低。在新生代中，常规应用进行一次垃圾收集一般可以回收70% ~ 95% 的空间，回收效率很高。新生代又可细分为Eden空间、From Survivor空间、To Survivor空间，默认比例为8:1:1。它们的具体作用将在下一篇文章讲解GC时介绍。</li>
-<li>老年代（Tenured/Old）：在新生代中经历了多次（具体看虚拟机配置的阀值）GC后仍然存活下来的对象会进入老年代中。老年代中的对象生命周期较长，存活率比较高，在老年代中进行GC的频率相对而言较低，而且回收的速度也比较慢。</li>
-<li>永久代（Perm）：永久代存储类信息、常量、静态变量、即时编译器编译后的代码等数据，对这一区域而言，Java虚拟机规范指出可以不进行垃圾收集，一般而言不会进行垃圾回收。</li>
-</ul>
-<p>其中新生代和老年代组成了Java堆的全部内存区域，而永久代不属于堆空间，它在JDK 1.8以前被Sun HotSpot虚拟机用作方法区的实现，关于方法区的具体内容将在稍后介绍。</p>
-<h5 id="方法区（Method-Area）"><a href="#方法区（Method-Area）" class="headerlink" title="方法区（Method Area）"></a>方法区（Method Area）</h5><p>方法区（Method Area）与Java堆一样，是各个线程共享的内存区域。Object Class Data(类定义数据)是存储在方法区的，此外，常量、静态变量、JIT编译后的代码也存储在方法区。正因为方法区所存储的数据与堆有一种类比关系，所以它还被称为 Non-Heap。</p>
-<p>JDK 1.8以前的永久代（PermGen）</p>
-<p>Java虚拟机规范对方法区的限制非常宽松，除了和Java堆一样不需要连续的内存和可以选择固定大小或者可扩展外，还可以选择不实现垃圾收集，也就是说，Java虚拟机规范只是规定了方法区的概念和它的作用，并没有规定如何去实现它。对于JDK 1.8之前的版本，HotSpot虚拟机设计团队选择把GC分代收集扩展至方法区，即用永久代来实现方法区，这样HotSpot的垃圾收集器可以像管理Java堆一样管理这部分内存，能够省去专门为方法区编写内存管理代码的工作。对于其他的虚拟机（如Oracle JRockit、IBM J9等）来说是不存在永久代的概念的。</p>
-<p>如果运行时有大量的类产生，可能会导致方法区被填满，直至溢出。常见的应用场景如：</p>
-<ul>
-<li>Spring和ORM框架使用CGLib操纵字节码对类进行增强，增强的类越多，就需要越大的方法区来保证动态生成的Class可以加载入内存。</li>
-<li>大量JSP或动态产生JSP文件的应用（JSP第一次运行时需要编译为Java类）。</li>
-<li>基于OSGi的应用（即使是同一个类文件，被不同的类加载器加载也会视为不同的类）。</li>
-<li>……</li>
-</ul>
-<p>这些都会导致方法区溢出，报出<code>java.lang.OutOfMemoryError: PermGen space</code>。</p>
-<p>JDK 1.8的元空间（Metaspace）</p>
-<p>在JDK 1.8中，HotSpot虚拟机设计团队为了促进HotSpot与 JRockit的融合，修改了方法区的实现，移除了永久代，选择使用本地化的内存空间（而不是JVM的内存空间）存放类的元数据，这个空间叫做元空间（Metaspace）。</p>
-<p>做了这个改动以后，<code>java.lang.OutOfMemoryError: PermGen</code>的空间问题将不复存在，并且不再需要调整和监控这个内存空间。且虚拟机需要为方法区设计额外的GC策略：如果类元数据的空间占用达到参数“MaxMetaspaceSize”设置的值，将会触发对死亡对象和类加载器的垃圾回收。 为了限制垃圾回收的频率和延迟，适当的监控和调优元空间是非常有必要的。元空间过多的垃圾收集可能表示类、类加载器内存泄漏或对你的应用程序来说空间太小了。</p>
-<p>元空间的内存管理由元空间虚拟机来完成。先前，对于类的元数据我们需要不同的垃圾回收器进行处理，现在只需要执行元空间虚拟机的C++代码即可完成。在元空间中，类和其元数据的生命周期和其对应的类加载器是相同的。话句话说，只要类加载器存活，其加载的类的元数据也是存活的，因而不会被回收掉。</p>
-<p>我们从行文到现在提到的元空间稍微有点不严谨。准确的来说，每一个类加载器的存储区域都称作一个元空间，所有的元空间合在一起就是我们一直说的元空间。当一个类加载器被垃圾回收器标记为不再存活，其对应的元空间会被回收。在元空间的回收过程中没有重定位和压缩等操作。但是元空间内的元数据会进行扫描来确定Java引用。</p>
-<p>元空间虚拟机负责元空间的分配，其采用的形式为组块分配。组块的大小因类加载器的类型而异。在元空间虚拟机中存在一个全局的空闲组块列表。当一个类加载器需要组块时，它就会从这个全局的组块列表中获取并维持一个自己的组块列表。当一个类加载器不再存活，那么其持有的组块将会被释放，并返回给全局组块列表。类加载器持有的组块又会被分成多个块，每一个块存储一个单元的元信息。组块中的块是线性分配（指针碰撞分配形式）。组块分配自内存映射区域。这些全局的虚拟内存映射区域以链表形式连接，一旦某个虚拟内存映射区域清空，这部分内存就会返回给操作系统。</p>
-<p><img src="/2018/07/22/JVM内存模型/jvm3.jpeg" alt="jvm3"></p>
-<p>上图展示的是虚拟内存映射区域如何进行元组块的分配。类加载器1和3表明使用了反射或者为匿名类加载器，他们使用了特定大小组块。 而类加载器2和4根据其内部条目的数量使用小型或者中型的组块。</p>
-<p>运行时常量池（Runtime Constant Pool）</p>
-<p>运行时常量池（Runtime Constant Pool）是方法区的一部分。Class文件中除了有类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池（Constant Pool Table），用于存放编译期生成的各种字面量和符号引用，这部分内容将在类加载后进入方法区的运行时常量池存放。</p>
-<p>Java虚拟机对Class文件每一部分（自然包括常量池）的格式有严格规定，每一个字节用于存储那种数据都必须符合规范上的要求才会被虚拟机认可、装载和执行。但对于运行时常量池，Java虚拟机规范没有做任何有关细节的要求，不同的提供商实现的虚拟机可以按照自己的需求来实现此内存区域。不过一般而言，除了保存Class文件中的描述符号引用外，还会把翻译出的直接引用也存储在运行时常量池中。</p>
-<p>运行时常量池相对于Class文件常量池的另外一个重要特征是具备动态性，Java语言并不要求常量一定只有编译器才能产生，也就是并非置入Class文件中的常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中，此特性被开发人员利用得比较多的便是String类的<code>intern()</code>方法。</p>
-<h5 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h5><p>直接内存（Direct Memory）并不是虚拟机运行时数据区的一部分，也不是Java虚拟机规范中定义的内存区域。但这部分内存也被频繁运用，而却可能导致OutOfMemoryError异常出现，所以这里放到一起讲解。</p>
-<p>以NIO（New Input/Output）类为例，NIO引入了一种基于通道（Channel）与缓冲区（Buffer）的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆中的DirectByteBuffer对象作为这块内存的引用进行操作。这样能避免在Java堆和Native堆中来回复制数据，在一些场景里显著提高性能。</p>
-<p>本机直接内存的分配不会受到Java堆大小的限制，但是既然是内存，还是会受到本机总内存（包括RAM以及SWAP区或分页文件）大小以及处理器寻址空间的限制。服务器管理员在配置虚拟机参数时，会根据实际内存设置-Xmx等参数信息，但经常忽略直接内存，使得各个内存区域总和大于物理内存限制（包括物理的和操作系统的限制），从而导致动态扩展时出现OutOfMemoryError异常。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1967,7 +2050,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-count">52</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

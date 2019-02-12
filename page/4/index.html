@@ -269,6 +269,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/02/Java中的BIO-NIO-AIO/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/02/Java中的BIO-NIO-AIO/" itemprop="url">Java中的BIO,NIO,AIO</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T15:40:17+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="BIO-Blocking-IO"><a href="#BIO-Blocking-IO" class="headerlink" title="BIO(Blocking IO)"></a>BIO(Blocking IO)</h5><p>进行<code>read</code>, <code>write</code>, <code>connect</code>一类的系统调用时会被卡住。</p>
+<p>举个例子，当用<code>read</code>去读取网络的数据时，是无法预知对方是否已经发送数据的。因此在收到数据之前，能做的只有等待，直到对方把数据发过来，或者等到网络超时。</p>
+<p>对于单线程的网络服务，这样做就会有卡死的问题。因为当等待时，整个线程会被挂起，无法执行，也无法做其他的工作。于是，网络服务为了同时响应多个并发的网络请求，必须实现为多线程的，使用每个线程处理一个网络请求。但这存在一些问题：</p>
+<ul>
+<li>线程越多，Context Switch就越多，而Context Switch会浪费大量的CPU资源。</li>
+<li>JVM会为每个线程分配一个栈，线程栈会占用内存。比如有1000个线程同时运行，每个线程占用1MB内存，就占用了1个G的内存。</li>
+<li>为每个网络请求分配一个线程，这个线程的大多数时间是阻塞等待数据的，所以非常浪费资源。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">(<span class="keyword">int</span> port)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> ServerSocket socket = <span class="keyword">new</span> ServerSocket(port);    <span class="comment">//用于监听端口的socket</span></span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="keyword">final</span> Socket clientSocket = socket.accept();   <span class="comment">//阻塞方法，有链接请求时才会返回</span></span><br><span class="line">            System.out.println(<span class="string">"Accepted connection from "</span> + clientSocket);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;    <span class="comment">//为每一个新建立的链接分配一个线程                  </span></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    OutputStream out;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        out = clientSocket.getOutputStream();</span><br><span class="line">                        out.write(<span class="string">"Hello!\r\n"</span>.getBytes(Charset.forName(<span class="string">"UTF-8"</span>)));</span><br><span class="line">                        out.flush();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            clientSocket.close();</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();                                 </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="NIO-Non-Blocking-IO"><a href="#NIO-Non-Blocking-IO" class="headerlink" title="NIO(Non-Blocking IO)"></a>NIO(Non-Blocking IO)</h5><p>BIO和NIO的区别</p>
+<ul>
+<li><p>面向流与面向缓冲</p>
+<p>IO是面向流的(非缓存IO)，NIO是面向缓冲区的(缓存IO)。 Java IO面向流意味着每次从流中读一个或多个字节，直至读取所有字节，它们没有被缓存在任何地方。此外，它不能前后移动流中的数据。如果需要前后移动从流中读取的数据，需要先将它缓存到一个缓冲区。 Java NIO的数据读取到一个它稍后处理的缓冲区，需要时可在缓冲区中前后移动。</p>
+</li>
+<li><p>阻塞与非阻塞IO </p>
+<p> Java IO的各种流是阻塞的。这意味着，当一个线程调用read() 或 write()时，该线程被阻塞，直到有一些数据被读取，或数据完全写入。Java NIO的<strong>非阻塞模式</strong>下，一个线程从某通道读取数据时，它仅能得到目前可用的数据，如果目前没有数据可用时，就什么都不会获取，而不是保持线程阻塞，所以直至数据变的可以读取之前，该线程可以继续做其他的事情。 一个线程请求写入一些数据到某通道时，不需要等待它完全写入，这个线程同时可以去做别的事情。 线程通常将非阻塞IO的空闲时间用于在其它通道上执行IO操作，所以一个单独的线程现在可以管理多个输入和输出通道（channel）。</p>
+</li>
+<li><p>选择器(Selectors)</p>
+<p> Java NIO的选择器允许一个单独的线程来监视多个通道，将需要监视的通道注册到选择器后，使用一个单独的线程来“选择”通道：这个“选择”的过程是阻塞的，直到所有被监视的通道中有某些通道有事件发生(或数据就绪)时才会返回，这种选择机制利用了操作系统层面的IO多路复用(select/poll/epoll)，使得一个单独的线程很容易来管理多个通道。</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">(<span class="keyword">int</span> port)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        ServerSocketChannel serverChannel = ServerSocketChannel.open();</span><br><span class="line">        serverChannel.configureBlocking(<span class="keyword">false</span>);  <span class="comment">//设置为非阻塞模式</span></span><br><span class="line">        ServerSocket ss = serverChannel.socket();</span><br><span class="line">        InetSocketAddress address = <span class="keyword">new</span> InetSocketAddress(port);</span><br><span class="line">        ss.bind(address);    <span class="comment">//开始监听</span></span><br><span class="line">        Selector selector = Selector.open();   <span class="comment">//打开选择器</span></span><br><span class="line">        serverChannel.register(selector, SelectionKey.OP_ACCEPT);    <span class="comment">//将监听socket注册到选择器，并告诉选择器去监视该socket的ACCEPT事件</span></span><br><span class="line">        <span class="keyword">final</span> ByteBuffer msg = ByteBuffer.wrap(<span class="string">"Hello!\r\n"</span>.getBytes());</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                selector.select();           </span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">                ex.printStackTrace();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Set&lt;SelectionKey&gt; readyKeys = selector.selectedKeys();    <span class="comment">//select()函数返回，说明有就绪的socket，通过SelectionKey拿到就绪的socket</span></span><br><span class="line">            Iterator&lt;SelectionKey&gt; iterator = readyKeys.iterator();</span><br><span class="line">            <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                SelectionKey key = iterator.next();</span><br><span class="line">                iterator.remove();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (key.isAcceptable()) &#123;                <span class="comment">//serverSocket上有链接请求</span></span><br><span class="line">                        ServerSocketChannel server =</span><br><span class="line">                                (ServerSocketChannel)key.channel();</span><br><span class="line">                        SocketChannel client = server.accept();</span><br><span class="line">                        client.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">                        client.register(selector, SelectionKey.OP_WRITE |</span><br><span class="line">                                SelectionKey.OP_READ, msg.duplicate());   <span class="comment">//将新建立的链接注册到选择器上</span></span><br><span class="line">                        System.out.println(</span><br><span class="line">                                <span class="string">"Accepted connection from "</span> + client);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (key.isWritable()) &#123;               </span><br><span class="line">                        SocketChannel client =</span><br><span class="line">                                (SocketChannel)key.channel();</span><br><span class="line">                        ByteBuffer buffer =</span><br><span class="line">                                (ByteBuffer)key.attachment();</span><br><span class="line">                        <span class="keyword">while</span> (buffer.hasRemaining()) &#123;</span><br><span class="line">                            <span class="keyword">if</span> (client.write(buffer) == <span class="number">0</span>) &#123;        </span><br><span class="line">                                <span class="keyword">break</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        client.close();                    </span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">                    key.cancel();</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        key.channel().close();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException cex) &#123;</span><br><span class="line">                        <span class="comment">// 在关闭时忽略</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="AIO-Asynchronous-IO"><a href="#AIO-Asynchronous-IO" class="headerlink" title="AIO(Asynchronous IO)"></a>AIO(Asynchronous IO)</h5><p>AIO的特点</p>
+<ul>
+<li>异步IO，读完了再通知线程</li>
+<li>不会加快IO，只是在读完后进行通知</li>
+<li>使用回调函数，进行业务处理</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServer</span> </span>&#123;</span><br><span class="line">   </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">(<span class="keyword">int</span> port)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open().bind(<span class="keyword">new</span> InetSocketAddress(port));</span><br><span class="line">		server.accept(<span class="keyword">null</span>,</span><br><span class="line">		                <span class="keyword">new</span> CompletionHandler&lt;AsynchronousSocketChannel, Object&gt;() &#123;</span><br><span class="line">		                    <span class="keyword">final</span> ByteBuffer buffer = ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line">		 </span><br><span class="line">		                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">completed</span><span class="params">(AsynchronousSocketChannel result,</span></span></span><br><span class="line"><span class="function"><span class="params">		                            Object attachment)</span> </span>&#123;</span><br><span class="line">		                        System.out.println(Thread.currentThread().getName());</span><br><span class="line">		                        Future&lt;Integer&gt; writeResult = <span class="keyword">null</span>;</span><br><span class="line">		                        <span class="keyword">try</span> &#123;</span><br><span class="line">		                            buffer.clear();</span><br><span class="line">		                            result.read(buffer).get(<span class="number">100</span>, TimeUnit.SECONDS);</span><br><span class="line">		                            buffer.flip();</span><br><span class="line">		                            writeResult = result.write(buffer);</span><br><span class="line">		                        &#125; <span class="keyword">catch</span> (InterruptedException | ExecutionException e) &#123;</span><br><span class="line">		                            e.printStackTrace();</span><br><span class="line">		                        &#125; <span class="keyword">catch</span> (TimeoutException e) &#123;</span><br><span class="line">		                            e.printStackTrace();</span><br><span class="line">		                        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">		                            <span class="keyword">try</span> &#123;</span><br><span class="line">		                                server.accept(<span class="keyword">null</span>, <span class="keyword">this</span>);</span><br><span class="line">		                                writeResult.get();</span><br><span class="line">		                                result.close();</span><br><span class="line">		                            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		                                System.out.println(e.toString());</span><br><span class="line">		                            &#125;</span><br><span class="line">		                        &#125;</span><br><span class="line">		                    &#125;</span><br><span class="line">		 </span><br><span class="line">		                    <span class="meta">@Override</span></span><br><span class="line">		                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failed</span><span class="params">(Throwable exc, Object attachment)</span> </span>&#123;</span><br><span class="line">		                        System.out.println(<span class="string">"failed: "</span> + exc);</span><br><span class="line">		                    &#125;</span><br><span class="line">		                &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于NIO的读写过程依然在应用线程里完成，所以对于那些读写过程时间长的，NIO就不太适合。而AIO的读写过程完成后才被通知，所以AIO能够胜任那些重量级，读写过程长的任务。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/26/Linux下的IO模式/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1768,153 +1917,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/29/kmp算法/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/29/kmp算法/" itemprop="url">kmp算法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-29T16:06:02+08:00">
-                2017-10-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>“部分匹配值”就是”前缀”和”后缀”的最长的共有元素的长度。以”ABCDABD”为例，</p>
-<blockquote>
-<p>　　－　“A”的前缀和后缀都为空集，共有元素的长度为0；</p>
-<p>　　－　“AB”的前缀为[A]，后缀为[B]，共有元素的长度为0；</p>
-<p>　　－　“ABC”的前缀为[A, AB]，后缀为[BC, C]，共有元素的长度0；</p>
-<p>　　－　“ABCD”的前缀为[A, AB, ABC]，后缀为[BCD, CD, D]，共有元素的长度为0；</p>
-<p>　　－　“ABCDA”的前缀为[A, AB, ABC, ABCD]，后缀为[BCDA, CDA, DA, A]，共有元素为”A”，长度为1；</p>
-<p>　　－　“ABCDAB”的前缀为[A, AB, ABC, ABCD, ABCDA]，后缀为[BCDAB, CDAB, DAB, AB, B]，共有元素为”AB”，长度为2；</p>
-<p>　　－　“ABCDABD”的前缀为[A, AB, ABC, ABCD, ABCDA, ABCDAB]，后缀为[BCDABD, CDABD, DABD, ABD, BD, D]，共有元素的长度为0。</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">kmp</span><span class="params">(String target, String pattern)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] partialMatchTable = createPartialMatchTable(pattern);</span><br><span class="line">    <span class="keyword">char</span>[] tArray = target.toCharArray();</span><br><span class="line">    <span class="keyword">char</span>[] pArray = pattern.toCharArray();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> matchCount = <span class="number">0</span>;     <span class="comment">//当前已经匹配的字符个数</span></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(i&lt;tArray.length) &#123;</span><br><span class="line">        <span class="keyword">if</span>(tArray[i] == pArray[j]) &#123;</span><br><span class="line">            i ++;</span><br><span class="line">            j ++;</span><br><span class="line">            matchCount ++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(j == <span class="number">0</span>) &#123;</span><br><span class="line">            i ++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">int</span> move = matchCount - partialMatchTable[j-<span class="number">1</span>];</span><br><span class="line">            j -= move;</span><br><span class="line">            matchCount -= move;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(j == pArray.length) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] createPartialMathcTable(String p) &#123;</span><br><span class="line">    <span class="keyword">int</span> len = p.length();</span><br><span class="line">    <span class="keyword">int</span>[] partialMatchTable = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;len;i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> subLen = i;subLen&gt;<span class="number">0</span>;subLen--) &#123;</span><br><span class="line">            String pre = p.substring(<span class="number">0</span>,subLen);</span><br><span class="line">            String suff = p.substring(i-subLen+<span class="number">1</span>,i+<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span>(pre.equals(suff)) &#123;</span><br><span class="line">                partialMatchTable[i] = subLen;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> partialMatchTable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>寻找前缀后缀最长公共元素长度</p>
-<p>对于P = p0 p1 …pj-1 pj，寻找模式串P中长度最大且相等的前缀和后缀。如果存在p0 p1 …pk-1 pk =  pj- k pj-k+1…pj-1  pj，那么在包含pj的模式串中有最大长度为k+1的相同前缀后缀。举个例子，如果给定的模式串为“abab”</p>
-<p>比如对于字符串aba来说，它有长度为1的相同前缀后缀a；而对于字符串abab来说，它有长度为2的相同前缀后缀ab（相同前缀后缀的长度为k + 1，k + 1 = 2）。</p>
-</li>
-</ul>
-<ul>
-<li><p>求next数组</p>
-<p>next 数组考虑的是<strong>当前字符之前</strong>的字符串前后缀的相似度，所以通过第①步骤求得各个前缀后缀的公共元素的最大长度后，只要稍作变形即可：将第①步骤中求得的值整体右移一位，然后初值赋为-1．</p>
-<p>比如对于aba来说，第3个字符a之前的字符串ab中有长度为0的相同前缀后缀，所以第3个字符a对应的next值为0；而对于abab来说，第4个字符b之前的字符串aba中有长度为1的相同前缀后缀a，所以第4个字符b对应的next值为1（相同前缀后缀的长度为k，k  = 1）。</p>
-</li>
-</ul>
-<ul>
-<li><p>根据next数组进行匹配</p>
-<p>匹配失配，j = next [j]，模式串向右移动的位数为：j - next[j]。换言之，当模式串的后缀pj-k pj-k+1, …, pj-1 跟文本串si-k si-k+1, …, si-1匹配成功，但pj 跟si匹配失败时，因为next[j] = k，相当于在<strong>不包含pj</strong>的模式串中有最大长度为k  的相同前缀后缀，即p0 p1 …pk-1 = pj-k pj-k+1…pj-1，故令j = next[j]，从而让模式串右移j -  next[j] 位，使得模式串的前缀p0 p1, …, pk-1对应着文本串 si-k si-k+1, …, si-1，而后让pk  跟si 继续匹配。</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1967,7 +1969,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-count">52</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
