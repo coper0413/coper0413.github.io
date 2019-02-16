@@ -269,6 +269,470 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/14/spring学习笔记（三）/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/11/14/spring学习笔记（三）/" itemprop="url">spring学习笔记（三）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T15:03:40+08:00">
+                2017-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="AOP概述"><a href="#AOP概述" class="headerlink" title="AOP概述"></a>AOP概述</h4><ul>
+<li>AOP(Aspect Oriented Programming)，意为：面向切面编程，通过预编译方式和运行期动态代理实现程序功能的统一维护的一种技术。AOP是OOP（面向对象编程）的延续，是软件开发中的一个热点，也是Spring框架中的一个重要内容，是函数式编程的一种衍生范型。利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。</li>
+<li>AOP采取<strong>横向抽取</strong>机制，取代了传统<strong>纵向继承</strong>体系重复性代码。<br>经典应用：事务管理、性能监视、安全检查、缓存    、日志等。</li>
+<li>Spring AOP使用纯Java实现，不需要专门的编译过程和类加载器，在运行期通过代理方式向目标类织入增强代码。<br>AspectJ是一个基于Java语言的AOP框架，Spring2.0开始，Spring    AOP引入对Aspect的支持，AspectJ扩展了Java语言，提供了一个专门的编译器，在编译时提供横向代码的织入。</li>
+</ul>
+<h4 id="AOP实现原理"><a href="#AOP实现原理" class="headerlink" title="AOP实现原理"></a>AOP实现原理</h4><ul>
+<li>aop底层采用代理机制实现。</li>
+<li>接口+实现类的情况下，spring采用jdk动态代理Proxy。</li>
+<li>只有实现类时，spring采用cglib字节码增强。</li>
+</ul>
+<h4 id="AOP术语"><a href="#AOP术语" class="headerlink" title="AOP术语"></a>AOP术语</h4><ul>
+<li>target 目标类：需要被代理的类。例如：UserService</li>
+<li>Joinpoint 连接点：所谓连接点是指那些可能被拦截到的方法。例如：所有的方法</li>
+<li>PointCut 切入点：已经被增强的连接点。例如：addUser()</li>
+<li>advice 通知/增强：增强代码。例如：after、before</li>
+<li>Weaving 织入：是指把增强advice应用到目标对象target来创建新的代理对象proxy的过程.</li>
+<li>proxy 代理类</li>
+<li>Aspect 切面：是切入点pointcut和通知advice的结合</li>
+</ul>
+<h4 id="代理模式的实现"><a href="#代理模式的实现" class="headerlink" title="代理模式的实现"></a>代理模式的实现</h4><h5 id="JDK动态代理"><a href="#JDK动态代理" class="headerlink" title="JDK动态代理"></a>JDK动态代理</h5><p>JDK动态代理是对“装饰者”设计模式的简化。使用前提是必须有接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//切面类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"before"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">after</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"after"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserService <span class="title">createService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> UserService userService = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">        <span class="keyword">final</span> MyAspect myAspect = <span class="keyword">new</span> MyAspect();</span><br><span class="line">        UserService userService = Proxy.newProxyInstance(MyFactory.class.getClassLoader(), userService.getClass.getInterfaces(), <span class="keyword">new</span> InvocationHandler()&#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                myAspect.before();</span><br><span class="line">                Object obj = method.invoke(userService, args);</span><br><span class="line">                myAspect.after();</span><br><span class="line">                <span class="keyword">return</span> obj;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> userService;  <span class="comment">//返回代理类</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo6</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    UserService proxy = MyFactory.createService();</span><br><span class="line">    proxy.addUser();</span><br><span class="line">    proxy.updateUser();</span><br><span class="line">    proxy.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="CGLIB字节码增强"><a href="#CGLIB字节码增强" class="headerlink" title="CGLIB字节码增强"></a>CGLIB字节码增强</h5><p>没有接口，只有实现类时，采用字节码增强框架cglib，在运行时创建目标类的子类，从而对目标类进行增强。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserServiceImpl <span class="title">createService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> UserSerrviceImpl userService = <span class="keyword">new</span> UserService();</span><br><span class="line">        <span class="keyword">final</span> MyAspect myAspect = <span class="keyword">new</span> MyAspect();</span><br><span class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();</span><br><span class="line">        enhancer.setSuperclass(userService.getClass());</span><br><span class="line">        enhancer.setCallback(<span class="keyword">new</span> MethodInterceptor()&#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object proxy, Method method, Object[] args, MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                myAspect.before();</span><br><span class="line">                <span class="comment">//执行生成子类的方法</span></span><br><span class="line">                Object obj = method.invoke(userService, args);</span><br><span class="line">                <span class="comment">//执行原始类的方法</span></span><br><span class="line">                Object obj = methodProxy.invokeSuper(proxy, args);</span><br><span class="line">                myAspect.after();</span><br><span class="line">                <span class="keyword">return</span> obj;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        UserServiceImpl proxy = (UserServiceImpl)enhancer.create();</span><br><span class="line">        <span class="keyword">return</span> proxy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Spring中AOP实现方式"><a href="#Spring中AOP实现方式" class="headerlink" title="Spring中AOP实现方式"></a>Spring中AOP实现方式</h4><h5 id="AOP联盟通知类型"><a href="#AOP联盟通知类型" class="headerlink" title="AOP联盟通知类型"></a>AOP联盟通知类型</h5><p>AOP联盟为通知Advice定义了<code>org.aopalliance.aop.Advice</code>，Spring按照通知Advice在目标类方法的连接点位置可以分为5类：</p>
+<ul>
+<li><p>前置通知    <code>org.springframework.aop.MethodBeforeAdvice</code>，在目标方法执行前实施增强</p>
+<p>后置通知    <code>org.springframework.aop.AfterReturningAdvice</code>，在目标方法执行后实施增强</p>
+<p>环绕通知    <code>org.aopalliance.intercept.MethodInterceptor</code>，在目标方法执行前后实施增强</p>
+<p>异常抛出通知<code>org.springframework.aop.ThrowsAdvice</code>，在方法抛出异常后实施增强</p>
+<p>引介通知    <code>org.springframework.aop.IntroductionInterceptor</code>，在目标类中添加一些新的方法和属性</p>
+</li>
+</ul>
+<h5 id="Spring编写代理：半自动-需要手动为代理bean注入目标类、切面类等"><a href="#Spring编写代理：半自动-需要手动为代理bean注入目标类、切面类等" class="headerlink" title="Spring编写代理：半自动(需要手动为代理bean注入目标类、切面类等)"></a>Spring编写代理：半自动(需要手动为代理bean注入目标类、切面类等)</h5><p>让spring创建代理对象，从spring容器中手动获取代理对象。</p>
+<p>除4+1核心包外还需要导入AOP联盟(规范)<code>com.springsource.org.aopalliance-1.0.0.jar</code>与spring-aop(实现)<code>spring-aop-3.2.0.RELEASE.jar</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**切面类</span></span><br><span class="line"><span class="comment"> * 切面类中确定通知，需要实现不同接口，接口就是规范，从而就确定方法名称。</span></span><br><span class="line"><span class="comment"> * 此处采用“环绕通知” MethodInterceptor</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation mi)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"before"</span>);</span><br><span class="line">        <span class="comment">//环绕通知需要调用proceed（）方法以执行目标方法</span></span><br><span class="line">        Object obj = mi.proceed();</span><br><span class="line">        System.out.println(<span class="string">"after"</span>);</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 创建目标类 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo7.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 创建切面类 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo7.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 创建代理类 </span></span><br><span class="line"><span class="comment">	使用工厂bean FactoryBean ，底层调用 getObject() 返回特殊bean</span></span><br><span class="line"><span class="comment">	ProxyFactoryBean 用于创建代理工厂bean，生成特殊代理对象</span></span><br><span class="line"><span class="comment">		interfaces : 确定接口们，通过&lt;array&gt;可以设置多个值，只有一个值时，value=""</span></span><br><span class="line"><span class="comment">		target : 确定目标类</span></span><br><span class="line"><span class="comment">		interceptorNames : 通，切面类的名称，类型String[]，如果设置一个值 value=""</span></span><br><span class="line"><span class="comment">		optimize :强制使用cglib</span></span><br><span class="line"><span class="comment">				&lt;property name="optimize" value="true"&gt;&lt;/property&gt;</span></span><br><span class="line"><span class="comment">	底层机制</span></span><br><span class="line"><span class="comment">		如果目标类有接口，采用jdk动态代理</span></span><br><span class="line"><span class="comment">		如果没有接口，采用cglib 字节码增强</span></span><br><span class="line"><span class="comment">		如果声明 optimize = true ，无论是否有接口，都采用cglib</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"proxy"</span> <span class="attr">class</span>=<span class="string">"org.springframework.aop.framework.ProxyFactoryBean"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"interfaces"</span> <span class="attr">value</span>=<span class="string">"demo7.UserService"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proterty</span> <span class="attr">name</span>=<span class="string">"target"</span> <span class="attr">value</span>=<span class="string">"userService"</span>&gt;</span><span class="tag">&lt;/<span class="name">proterty</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proterty</span> <span class="attr">name</span>=<span class="string">"interceptorNames"</span> <span class="attr">value</span>=<span class="string">"myAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">proterty</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Teat</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo7</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String xmlPath = <span class="string">"demo7.beans.xml"</span>;</span><br><span class="line">    ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">    UserService proxy = applicatinContext.getBean(<span class="string">"proxy"</span>);</span><br><span class="line">    proxy.addUser();</span><br><span class="line">    proxy.updateUser();</span><br><span class="line">    proxy.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Spring-AOP编程：全自动"><a href="#Spring-AOP编程：全自动" class="headerlink" title="Spring AOP编程：全自动"></a>Spring AOP编程：全自动</h5><p>从spring容器获得目标类，如果配置aop，spring将自动生成代理。需要导入jar包<code>spring-framework-3.0.2.RELEASE-dependencies\org.aspectj\com.springsource.org.aspectj.weaver\1.6.8.RELEASE</code>。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/aop </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/aop/spring-aop.xsd"</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 1 创建目标类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo8.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 2 创建切面类（通知） --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo8.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 3 aop编程 </span></span><br><span class="line"><span class="comment">		3.1 导入命名空间</span></span><br><span class="line"><span class="comment">		3.2 使用 &lt;aop:config&gt;进行配置，proxy-target-class="true" 声明时使用cglib代理</span></span><br><span class="line"><span class="comment">			&lt;aop:pointcut&gt; 切入点 ，从目标对象获得具体方法</span></span><br><span class="line"><span class="comment">			&lt;aop:advisor&gt; 特殊的切面，只有一个通知和一个切入点</span></span><br><span class="line"><span class="comment">				advice-ref 通知引用</span></span><br><span class="line"><span class="comment">				pointcut-ref 切入点引用</span></span><br><span class="line"><span class="comment">		3.3 切入点表达式</span></span><br><span class="line"><span class="comment">			execution(* demo8.*.*(..))</span></span><br><span class="line"><span class="comment">			返回值任意 包为demo8 类名任意 方法名任意 参数任意</span></span><br><span class="line"><span class="comment">		</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span> <span class="attr">proxy-target-class</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">"execution(* demo8.*.*(..))"</span> <span class="attr">id</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">"myAspect"</span> <span class="attr">pointcut-ref</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Teat</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo8</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String xmlPath = <span class="string">"demo8.beans.xml"</span>;</span><br><span class="line">    ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">    UserService userService = applicatinContext.getBean(<span class="string">"userService"</span>);</span><br><span class="line">    userService.addUser();</span><br><span class="line">    userService.updateUser();</span><br><span class="line">    userService.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="AspectJ"><a href="#AspectJ" class="headerlink" title="AspectJ"></a>AspectJ</h4><h5 id="关于AspectJ"><a href="#关于AspectJ" class="headerlink" title="关于AspectJ"></a>关于AspectJ</h5><ul>
+<li>AspectJ是一个基于Java语言的AOP框架</li>
+<li>Spring2.0以后新增了对AspectJ切点表达式支持</li>
+<li><code>@AspectJ</code>是AspectJ1.5新增功能，通过JDK5注解技术，允许直接在Bean类中定义切面</li>
+</ul>
+<ul>
+<li>主要用途：自定义开发</li>
+<li>除了spring4+1核心包与两个aop相关包外，还需要导入aspect规范<code>com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar</code>和spring aspect实现<code>spring-aspects-3.2.0.RELEASE.jar</code>。</li>
+</ul>
+<h5 id="切入点表达式"><a href="#切入点表达式" class="headerlink" title="切入点表达式"></a>切入点表达式</h5><ul>
+<li>execution() 用于描述方法，语法为<code>execution(修饰符 返回值  包.类.方法名(参数)throws异常)</code>，修饰符一般省略。</li>
+<li>within() 匹配包或子包中的方法</li>
+<li>this() 匹配实现接口的代理对象中的方法</li>
+<li>target() 匹配实现接口的目标对象中的方法</li>
+<li>args() 匹配参数格式符合标准的方法</li>
+<li>bean(id) 对指定的bean所有的方法</li>
+</ul>
+<h5 id="AspectJ通知类型"><a href="#AspectJ通知类型" class="headerlink" title="AspectJ通知类型"></a>AspectJ通知类型</h5><p>aop联盟定义通知类型，具有特性接口，必须实现，从而确定方法名称，但aspectj通知类型只定义类型名称以及方法格式。</p>
+<ul>
+<li>before:前置通知(应用：各种校验)，在方法执行前执行，如果通知抛出异常，阻止方法运行</li>
+<li>afterReturning:后置通知(应用：常规数据处理)，方法正常返回后执行，如果方法中抛出异常，通知无法执行，必须在方法执行后才执行，所以可以获得方法的返回值。</li>
+<li>around:环绕通知(应用：十分强大，可以做任何事情)，方法执行前后分别执行，可以阻止方法的执行，必须手动执行目标方法。</li>
+<li>afterThrowing:抛出异常通知(应用：包装异常信息)，方法抛出异常后执行，如果方法没有抛出异常，无法执行。</li>
+<li>after:最终通知(应用：清理现场)，方法执行完毕后执行，无论方法中是否出现异常</li>
+</ul>
+<h5 id="基于XML"><a href="#基于XML" class="headerlink" title="基于XML"></a>基于XML</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 切面类，含有多个通知</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myBefore</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前置通知 ： "</span> + joinPoint.getSignature().getName());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterReturning</span><span class="params">(JoinPoint joinPoint,Object ret)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后置通知 ： "</span> + joinPoint.getSignature().getName() + <span class="string">" , --&gt;"</span> + ret);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">myAround</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable</span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前"</span>);</span><br><span class="line">		<span class="comment">//手动执行目标方法</span></span><br><span class="line">		Object obj = joinPoint.proceed();</span><br><span class="line">		</span><br><span class="line">		System.out.println(<span class="string">"后"</span>);</span><br><span class="line">		<span class="keyword">return</span> obj;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterThrowing</span><span class="params">(JoinPoint joinPoint,Throwable e)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"抛出异常通知 ： "</span> + e.getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfter</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"最终通知"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 1 创建目标类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo9.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 2 创建切面类（通知） --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo9.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 3 aop编程 </span></span><br><span class="line"><span class="comment">		&lt;aop:aspect&gt; 声明"切面"，从而获得通知（方法）</span></span><br><span class="line"><span class="comment">			ref 切面类引用</span></span><br><span class="line"><span class="comment">		&lt;aop:pointcut&gt; 声明一个"切入点"，所有的通知都可以使用。</span></span><br><span class="line"><span class="comment">			expression 切入点表达式</span></span><br><span class="line"><span class="comment">			id 名称，用于其它通知引用</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">ref</span>=<span class="string">"myAspect"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">"execution(* demo9.UserServiceImpl.*(..))"</span> <span class="attr">id</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.1 前置通知 </span></span><br><span class="line"><span class="comment">				&lt;aop:before method="" pointcut="" pointcut-ref=""/&gt;</span></span><br><span class="line"><span class="comment">					method : 通知，及方法名</span></span><br><span class="line"><span class="comment">					pointcut :切入点表达式，此表达式只能当前通知使用。</span></span><br><span class="line"><span class="comment">					pointcut-ref ： 切入点引用，可以与其他通知共享切入点。</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myBefore(JoinPoint joinPoint)&#123;</span></span><br><span class="line"><span class="comment">					参数：org.aspectj.lang.JoinPoint 用于描述连接点（目标方法），获得目标方法名等</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">					&lt;aop:before method="myBefore" pointcut-ref="myPointCut"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.2后置通知  ,目标方法后执行，获得返回值</span></span><br><span class="line"><span class="comment">				&lt;aop:after-returning method="" pointcut-ref="" returning=""/&gt;</span></span><br><span class="line"><span class="comment">					returning 通知方法第二个参数的名称</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myAfterReturning(JoinPoint joinPoint,Object ret)&#123;</span></span><br><span class="line"><span class="comment">					参数1：连接点描述</span></span><br><span class="line"><span class="comment">					参数2：类型Object，参数名 returning="ret" </span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:after-returning method="myAfterReturning" pointcut-ref="myPointCut" returning="ret" /&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.3 环绕通知 </span></span><br><span class="line"><span class="comment">				&lt;aop:around method="" pointcut-ref=""/&gt;</span></span><br><span class="line"><span class="comment">				通知方法格式：public Object myAround(ProceedingJoinPoint joinPoint) throws Throwable&#123;&#125;，内部执行目标方法：Object obj = joinPoint.proceed();</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:around method="myAround" pointcut-ref="myPointCut"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- 3.4 抛出异常</span></span><br><span class="line"><span class="comment">				&lt;aop:after-throwing method="" pointcut-ref="" throwing=""/&gt;</span></span><br><span class="line"><span class="comment">					throwing ：通知方法的第二个参数名称</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myAfterThrowing(JoinPoint joinPoint,Throwable e)&#123;&#125;</span></span><br><span class="line"><span class="comment">					参数1：连接点描述对象</span></span><br><span class="line"><span class="comment">					参数2：获得异常信息，类型Throwable ，参数名由throwing="e" 配置</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:after-throwing method="myAfterThrowing" pointcut-ref="myPointCut" throwing="e"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- 3.5 最终通知 --&gt;</span>			</span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">method</span>=<span class="string">"myAfter"</span> <span class="attr">pointcut-ref</span>=<span class="string">"myPointCut"</span>/&gt;</span>		</span><br><span class="line">		<span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h5 id="基于注解"><a href="#基于注解" class="headerlink" title="基于注解"></a>基于注解</h5><ul>
+<li><p>切面</p>
+<p><code>@Aspect</code> 声明切面，修饰切面类，从而获得通知。</p>
+</li>
+<li><p>通知</p>
+<p><code>@Before</code>前置</p>
+<p><code>@AfterReturning</code>后置</p>
+<p><code>@Around</code>环绕</p>
+<p><code>@AfterThrowing</code>抛出异常</p>
+<p><code>@After</code>最终</p>
+</li>
+<li><p>切入点</p>
+<p><code>@PointCut</code>，修饰方法<code>privatevoid xxx(){}</code> 之后通过“方法名”获得切入点引用</p>
+</li>
+<li><p>配置扫描</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 1.扫描注解类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"demo10"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="comment">&lt;!-- 2.确定aop注解生效 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span>&gt;</span><span class="tag">&lt;/<span class="name">aop:aspectj-autoproxy</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 切面类，含有多个通知</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Before</span>(<span class="string">"execution(* demo10.UserServiceImpl.*(..))"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myBefore</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前置通知 ： "</span> + joinPoint.getSignature().getName());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//声明公共切入点</span></span><br><span class="line">	<span class="meta">@Pointcut</span>(<span class="string">"execution(* demo10.UserServiceImpl.*(..))"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">myPointCut</span><span class="params">()</span></span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@AfterReturning</span>(value=<span class="string">"myPointCut()"</span> ,returning=<span class="string">"ret"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterReturning</span><span class="params">(JoinPoint joinPoint,Object ret)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后置通知 ： "</span> + joinPoint.getSignature().getName() + <span class="string">" , --&gt;"</span> + ret);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Around</span>(value = <span class="string">"myPointCut()"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">myAround</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable</span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前"</span>);</span><br><span class="line">		<span class="comment">//手动执行目标方法</span></span><br><span class="line">		Object obj = joinPoint.proceed();</span><br><span class="line">		</span><br><span class="line">		System.out.println(<span class="string">"后"</span>);</span><br><span class="line">		<span class="keyword">return</span> obj;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@AfterThrowing</span>(value=<span class="string">"execution(* demo.UserServiceImpl.*(..))"</span> ,throwing=<span class="string">"e"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterThrowing</span><span class="params">(JoinPoint joinPoint,Throwable e)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"抛出异常通知 ： "</span> + e.getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@After</span>(<span class="string">"myPointCut()"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfter</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"最终通知"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/10/spring学习笔记（二）/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/11/10/spring学习笔记（二）/" itemprop="url">spring学习笔记（二）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-10T13:43:19+08:00">
+                2017-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="Bean的种类"><a href="#Bean的种类" class="headerlink" title="Bean的种类"></a>Bean的种类</h4><ul>
+<li><p>普通bean：之前操作的都是普通bean。<code>&lt;bean id=&quot;&quot; class=&quot;&quot;&gt;</code> ，spring直接创建实例，并返回。</p>
+</li>
+<li><p>FactoryBean：是一个特殊的bean，具有工厂生成对象能力，只能生成特定的对象。</p>
+<p>这种bean对应的类必须实现FactoryBean接口，此接口提供方法 getObject() 用于获得特定bean。配置方式与普通bean相同。</p>
+</li>
+<li><p>BeanFactory 和 FactoryBean 对比？</p>
+<ul>
+<li>BeanFactory：工厂类，用于生成任意bean。</li>
+<li>FactoryBean：特殊bean，用于生成另一个特定的bean。例如：ProxyFactoryBean ，此工厂bean用于生产代理。<code>&lt;bean id=&quot;Proxy&quot; class=&quot;ProxyFactoryBean&quot;&gt;</code> 获得代理对象实例。</li>
+</ul>
+</li>
+</ul>
+<h4 id="实例化Bean-——-基于XML"><a href="#实例化Bean-——-基于XML" class="headerlink" title="实例化Bean —— 基于XML"></a>实例化Bean —— 基于XML</h4><ul>
+<li><p>默认构造：必须提供默认构造函数</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>静态工厂：需要一个静态工厂类(所有方法必须为static)，用于生成实例对象。这种方式常用于spring整合其他框架/工具。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"工厂的全限定类名"</span> <span class="attr">factory-method</span>=<span class="string">"静态方法"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实例工厂：必须先有工厂实例对象，通过实例对象创建对象。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 创建工厂实例 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myBeanFactory"</span> <span class="attr">class</span>=<span class="string">"demo2.MyBeanFactory"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 获得userservice </span></span><br><span class="line"><span class="comment">		* factory-bean 确定工厂实例</span></span><br><span class="line"><span class="comment">		* factory-method 确定普通方法</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">factory-bean</span>=<span class="string">"myBeanFactory"</span> <span class="attr">factory-method</span>=<span class="string">"createService"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h4><ul>
+<li><p>作用域：用于确定spring创建bean实例个数。</p>
+</li>
+<li><p>取值：</p>
+<ul>
+<li>singleton：在Spring IoC容器中仅存在一个Bean实例，Bean以单例方式存在，默认值。</li>
+<li>prototype：每次从容其中调用Bean时，都返回一个新的实例，即每次调用getBean()时，相当于执行new xxxBean()。</li>
+<li>request：每次HTTP请求都会创建一个新的Bean，该作用域仅适用于WebApplicationContext环境。</li>
+<li>session：同一个HTTP Session共享一个Bean，不同Session使用不同Bean，该作用域仅适用于WebApplicationContext环境。</li>
+<li>globalSession：一般用于Protlet应用环境，该作用域仅适用于WebApplicationContext环境。</li>
+</ul>
+</li>
+<li><p>配置方式：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> <span class="attr">scope</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h4><p><img src="/2017/11/10/spring学习笔记（二）/spring2-1.png" alt="spring2-1"></p>
+<h5 id="Bean实例生命周期的执行过程："><a href="#Bean实例生命周期的执行过程：" class="headerlink" title="Bean实例生命周期的执行过程："></a>Bean实例生命周期的执行过程：</h5><ul>
+<li>Spring对bean进行实例化，默认bean是单例；    </li>
+<li>Spring对bean进行依赖注入；    </li>
+<li>如果bean实现了BeanNameAware接口，spring将bean的id传给setBeanName()方法；    </li>
+<li>如果bean实现了BeanFactoryAware接口，spring将调用setBeanFactory方法，将BeanFactory实例传进来；    </li>
+<li>如果bean实现了ApplicationContextAware接口，它的setApplicationContext()方法将被调用，将应用上下文的引用传入到bean中；    </li>
+<li>如果bean实现了BeanPostProcessor接口，它的postProcessBeforeInitialization方法将被调用；    </li>
+<li>如果bean实现了InitializingBean接口，spring将调用它的afterPropertiesSet接口方法，类似的如果bean使用了init-method属性声明了初始化方法，该方法也会被调用；    </li>
+<li>如果bean实现了BeanPostProcessor接口，它的postProcessAfterInitialization接口方法将被调用；    </li>
+<li>此时bean已经准备就绪，可以被应用程序使用了，他们将一直驻留在应用上下文中，直到该应用上下文被销毁；    </li>
+<li>若bean实现了DisposableBean接口，spring将调用它的distroy()接口方法。同样的，如果bean使用了destroy-method属性声明了销毁方法，则该方法被调用。</li>
+</ul>
+<h5 id="单例管理的对象"><a href="#单例管理的对象" class="headerlink" title="单例管理的对象"></a>单例管理的对象</h5><ul>
+<li><p>当scope=”singleton”，即默认情况下，会在启动容器时（即实例化容器时）时实例化。但我们可以指定Bean节点的lazy-init=”true”来延迟初始化bean，这时候，只有在第一次获取bean时才会初始化bean，即第一次请求该bean时才初始化。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"Service"</span> <span class="attr">class</span>=<span class="string">"demo3.Service"</span> <span class="attr">lazy-init</span>=<span class="string">"true"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果想对所有的默认单例bean都应用延迟初始化，可以在根节点beans设置default-lazy-init属性为true。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">default-lazy-init</span>=<span class="string">"true"</span> <span class="attr">...</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认情况下，Spring在读取xml文件的时候，就会创建对象。在创建对象的时候先调用构造器，然后调用init-method属性值中所指定的方法。对象在被销毁的时候，会调用destroy-method属性值中所指定的方法（例如调用Container.destroy()方法的时候）。</p>
+</li>
+</ul>
+<h5 id="非单例管理的对象"><a href="#非单例管理的对象" class="headerlink" title="非单例管理的对象"></a>非单例管理的对象</h5><ul>
+<li>当scope=”prototype”时，容器也会延迟初始化bean，Spring读取xml文件的时候，并不会立刻创建对象，而是在第一次请求该bean时才初始化（如调用getBean方法时）。</li>
+<li>在第一次请求每一个prototype的bean时，Spring容器都会调用其构造器创建这个对象，然后调用init-method属性值中所指定的方法。</li>
+<li>对象销毁的时候，Spring容器不会帮我们调用任何方法，因为是非单例，这个类型的对象有很多个，Spring容器一旦把这个对象交给你之后，就不再管理这个对象了。</li>
+</ul>
+<h5 id="初始化与销毁"><a href="#初始化与销毁" class="headerlink" title="初始化与销毁"></a>初始化与销毁</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> <span class="attr">init-method</span>=<span class="string">""</span> <span class="attr">destroy-method</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"add user"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"初始化"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myDestroy</span><span class="params">()</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"销毁"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--  </span></span><br><span class="line"><span class="comment">		init-method 用于配置初始化方法,准备数据等</span></span><br><span class="line"><span class="comment">		destroy-method 用于配置销毁方法,清理资源等</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo3.UserServiceImpl"</span> </span></span><br><span class="line"><span class="tag">		<span class="attr">init-method</span>=<span class="string">"myInit"</span> <span class="attr">destroy-method</span>=<span class="string">"myDestroy"</span> &gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo03</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">		String xmlPath = <span class="string">"demo3/beans.xml"</span>;</span><br><span class="line">		ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">		UserService userService = (UserService) applicationContext.getBean(<span class="string">"userService"</span>);</span><br><span class="line">		userService.addUser();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//要求：1.容器必须close，销毁方法才会执行; 2.必须是单例的</span></span><br><span class="line">		<span class="comment">//applicationContext.getClass().getMethod("close").invoke(applicationContext);</span></span><br><span class="line">		<span class="comment">// * 此方法接口中没有定义，实现类提供，可以通过反射调用，也可以直接声明为实现类再直接调用</span></span><br><span class="line">		applicationContext.close();</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="BeanPostProcessor后处理Bean"><a href="#BeanPostProcessor后处理Bean" class="headerlink" title="BeanPostProcessor后处理Bean"></a>BeanPostProcessor后处理Bean</h5><ul>
+<li><p>spring提供一种机制，只要实现此接口BeanPostProcessor，并将实现类提供给spring容器，spring容器将自动执行，在初始化方法前执行before()，在初始化方法后执行after()，它将作用于容器范围，即容器中的所有bean进行初始化时，都会经过该后处理bean。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>工厂勾子，用于修改实例对象，也可以用来生成代理对象，是AOP底层。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBeanPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前方法 ： "</span> + beanName);</span><br><span class="line">		<span class="keyword">return</span> bean;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">postProcessAfterInitialization</span><span class="params">(<span class="keyword">final</span> Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后方法 ： "</span> + beanName);</span><br><span class="line">		<span class="comment">// 生成 jdk 代理</span></span><br><span class="line">		<span class="keyword">return</span> Proxy.newProxyInstance(</span><br><span class="line">					MyBeanPostProcessor.class.getClassLoader(), </span><br><span class="line">					bean.getClass().getInterfaces(), </span><br><span class="line">					<span class="keyword">new</span> InvocationHandler()&#123;</span><br><span class="line">						<span class="meta">@Override</span></span><br><span class="line">						<span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">							</span><br><span class="line">							System.out.println(<span class="string">"------开启事务"</span>);</span><br><span class="line">							</span><br><span class="line">							<span class="comment">//执行目标方法</span></span><br><span class="line">							Object obj = method.invoke(bean, args);</span><br><span class="line">							</span><br><span class="line">							System.out.println(<span class="string">"------提交事务"</span>);</span><br><span class="line">							<span class="keyword">return</span> obj;</span><br><span class="line">						&#125;&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 将后处理的实现类注册给spring --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"demo4.MyBeanPostProcessor"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="依赖注入-——-基于XML"><a href="#依赖注入-——-基于XML" class="headerlink" title="依赖注入 —— 基于XML"></a>依赖注入 —— 基于XML</h4><ul>
+<li><p>使用构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> Integer uid;</span><br><span class="line">	<span class="keyword">private</span> String username;</span><br><span class="line">	<span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Address addr;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(Integer uid, String username)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.uid = uid;</span><br><span class="line">		<span class="keyword">this</span>.username = username;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(String username, Integer age)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.username = username;</span><br><span class="line">		<span class="keyword">this</span>.age = age;</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setUsername</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.username = username;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setAddr</span><span class="params">(Address addr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addr = addr;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 构造方法注入 </span></span><br><span class="line"><span class="comment">		* &lt;constructor-arg&gt; 用于配置构造方法一个参数argument</span></span><br><span class="line"><span class="comment">			name ：参数的名称</span></span><br><span class="line"><span class="comment">			value：设置普通数据</span></span><br><span class="line"><span class="comment">			ref：引用数据，一般是另一个bean id值</span></span><br><span class="line"><span class="comment">			index ：参数的索引号，从0开始 。如果只有索引，匹配到了多个构造方法时，默认使用第一个。</span></span><br><span class="line"><span class="comment">			type ：确定参数类型</span></span><br><span class="line"><span class="comment">		例如：使用名称name</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg name="username" value="jack"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg name="age" value="18"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">		例如2：【类型type 和  索引 index】</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg index="0" type="java.lang.String" value="1"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg index="1" type="java.lang.Integer" value="2"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"User"</span> <span class="attr">class</span>=<span class="string">"demo5.User"</span> &gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"0"</span> <span class="attr">type</span>=<span class="string">"java.lang.String"</span> <span class="attr">value</span>=<span class="string">"1"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"1"</span> <span class="attr">type</span>=<span class="string">"java.lang.Integer"</span> <span class="attr">value</span>=<span class="string">"2"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用setter方法</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- setter方法注入 </span></span><br><span class="line"><span class="comment">		* 普通数据 </span></span><br><span class="line"><span class="comment">			&lt;property name="" value="值"&gt;</span></span><br><span class="line"><span class="comment">		* 引用数据</span></span><br><span class="line"><span class="comment">			&lt;property name="" ref="另一个bean"&gt;</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"demo5.User"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"Lee"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"age"</span> <span class="attr">value</span>=<span class="string">"23"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"addr"</span> <span class="attr">ref</span>=<span class="string">"Address"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"Address"</span> <span class="attr">class</span>=<span class="string">"demo5.Address"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"country"</span> <span class="attr">value</span>=<span class="string">"China"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"city"</span> <span class="attr">value</span>=<span class="string">"Beijing"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>集合注入</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- </span></span><br><span class="line"><span class="comment">		集合的注入都是给&lt;property&gt;添加子标签</span></span><br><span class="line"><span class="comment">			数组：&lt;array&gt;</span></span><br><span class="line"><span class="comment">			List：&lt;list&gt;</span></span><br><span class="line"><span class="comment">			Set：&lt;set&gt;</span></span><br><span class="line"><span class="comment">			Map：&lt;map&gt; ，map存放k/v 键值对，使用&lt;entry&gt;描述</span></span><br><span class="line"><span class="comment">			Properties：&lt;props&gt;  &lt;prop key=""&gt;&lt;/prop&gt; </span></span><br><span class="line"><span class="comment">			</span></span><br><span class="line"><span class="comment">		普通数据：&lt;value&gt;</span></span><br><span class="line"><span class="comment">		引用数据：&lt;ref&gt;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">		集合中可以嵌套集合</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> &gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"array"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"list"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"set"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"map"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">"..."</span> <span class="attr">value</span>=<span class="string">"..."</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"properties"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"..."</span>&gt;</span>...<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"..."</span>&gt;</span>...<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="装配Bean-——-基于注解"><a href="#装配Bean-——-基于注解" class="headerlink" title="装配Bean —— 基于注解"></a>装配Bean —— 基于注解</h4><h5 id="实例化Bean"><a href="#实例化Bean" class="headerlink" title="实例化Bean"></a>实例化Bean</h5><ul>
+<li><p><code>@Component</code> 取代 <code>&lt;bean class=&quot;&quot;&gt;</code></p>
+<p><code>@Component(&quot;id&quot;)</code> 取代 <code>&lt;bean id=&quot;&quot; class=&quot;&quot;&gt;</code></p>
+</li>
+<li><p>web开发中，提供3个@Component注解衍生注解（功能一样）取代<code>&lt;bean class=&quot;&quot;&gt;</code></p>
+<ul>
+<li>@Repository：dao层</li>
+<li>@Service：service层</li>
+<li>@Controller：web层</li>
+</ul>
+</li>
+</ul>
+<h5 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h5><p>给私有字段设置，也可以给setter方法设置</p>
+<ul>
+<li><p>普通值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(<span class="string">""</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>引用值：</p>
+<ul>
+<li><p>按照类型注入 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>按照名称注入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方式一</span></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier</span>(<span class="string">"名称"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//方式二</span></span><br><span class="line"><span class="meta">@Resource</span>(<span class="string">"名称"</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>生命周期</p>
+<ul>
+<li><p>初始化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostConstruct</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>销毁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreDestroy</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>作用域</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scope</span>(<span class="string">"prototype"</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="注解使用前提，添加命名空间，让spring扫描含有注解类"><a href="#注解使用前提，添加命名空间，让spring扫描含有注解类" class="headerlink" title="注解使用前提，添加命名空间，让spring扫描含有注解类"></a>注解使用前提，添加命名空间，让spring扫描含有注解类</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/context </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 组件扫描，扫描含有注解的类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"demo5"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/03/spring学习笔记（一）/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1486,312 +1950,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/算法学习笔记1/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/09/27/算法学习笔记1/" itemprop="url">算法学习笔记1</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-27T15:35:11+08:00">
-                2017-09-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p> 在常数操作数量的表达式中，只要高阶项不要低阶项，不要高阶项系数，剩下记为f(n)， 则时间复杂度为O(f(n))；</p>
-<p>如果两个算法指标相同，则看系数．</p>
-<h5 id="二分查找o-log2N"><a href="#二分查找o-log2N" class="headerlink" title="二分查找o(log2N);"></a>二分查找o(log2N);</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A[] = &#123;1,2,4,6,7&#125;</span></span><br><span class="line"><span class="comment">// B[] = &#123;3,4,4,9,10&#125;</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] a(<span class="keyword">int</span>[] nums1,<span class="keyword">int</span>[] nums2)&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;j = <span class="number">0</span>;</span><br><span class="line">    List&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">while</span>(j　&lt; nums2.length &amp;&amp; i &lt; nums1.length)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums1[i] &gt; nums2[j])&#123;</span><br><span class="line">            list.add(nums2[j]);</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(nums1[i] &lt; nums2[j])&#123;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            j++;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(;j &lt; nums2.length;j++) list.add(nums2[j]);</span><br><span class="line">    <span class="keyword">return</span> list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] bubbleSort(<span class="keyword">int</span>[] nums)&#123;</span><br><span class="line">    <span class="keyword">if</span>(nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">2</span>) <span class="keyword">return</span> nums;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> end = nums.length - <span class="number">1</span>; end &gt; <span class="number">0</span>; end--)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; end; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(nums[i] &gt; nums[i+<span class="number">1</span>]) &#123;</span><br><span class="line">                <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">                nums[i] = nums[i+<span class="number">1</span>];</span><br><span class="line">                nums[i+<span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> nums;</span><br><span class="line">&#125;                <span class="comment">//O(n^2)</span></span><br></pre></td></tr></table></figure>
-<h5 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] selectionSort(<span class="keyword">int</span>[] nums)&#123;</span><br><span class="line">    <span class="keyword">if</span>(nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">2</span>) <span class="keyword">return</span> nums;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; nums.length;i++)&#123;</span><br><span class="line">        <span class="keyword">int</span> minIndex = i;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = i+<span class="number">1</span>;j &lt; nums.length;j++)&#123;</span><br><span class="line">            minIndex = nums[j] &lt; nums[minIndex] ? j : minIndex;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        nums[i] = nums[minIndex];</span><br><span class="line">        nums[minIndex] = temp;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> nums;</span><br><span class="line">&#125;              <span class="comment">//O(n^2)</span></span><br></pre></td></tr></table></figure>
-<h5 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] insertSort(<span class="keyword">int</span>[] nums)&#123;</span><br><span class="line">    <span class="keyword">if</span>(nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">2</span>) <span class="keyword">return</span> nums;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = i-<span class="number">1</span>;j &gt;=<span class="number">0</span> &amp;&amp; nums[j] &gt; nums[j+<span class="number">1</span>];j--)&#123;</span><br><span class="line">            swap(nums,j,j+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] nums,<span class="keyword">int</span> i ,<span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">         <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        nums[i] = nums[j];</span><br><span class="line">        nums[j] = temp;</span><br><span class="line">&#125;　　　<span class="comment">//O(N^2)</span></span><br></pre></td></tr></table></figure>
-<h5 id="递归："><a href="#递归：" class="headerlink" title="递归："></a>递归：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getMax</span><span class="params">(<span class="keyword">int</span>[] arr ,<span class="keyword">int</span> L,<span class="keyword">int</span> R)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(L == R) <span class="keyword">return</span> arr[L];</span><br><span class="line">        <span class="keyword">int</span> mid = (L+R)/<span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> maxLeft = getMax(arr,L,mid);</span><br><span class="line">        <span class="keyword">int</span> maxRight = getMax(arr,mid+<span class="number">1</span>,R);</span><br><span class="line">         <span class="keyword">return</span> Math.max = (maxLeft,maxRight);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = &#123;<span class="number">4</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>&#125;;</span><br><span class="line">        System.out.println(getMax(arr,<span class="number">0</span>,arr.length-<span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="master公式的使用"><a href="#master公式的使用" class="headerlink" title="master公式的使用"></a>master公式的使用</h5><p>T(N) = a*T(N/b) + 0(N^d^)</p>
-<p>a为递归函数的个数　b为子样本的数目</p>
-<ol>
-<li>log~b~a &gt; d   –&gt; 复杂度　O(N^log(b,a)^)</li>
-<li>log~b~a = d   –&gt; 复杂度　O(N^d^ * logN)</li>
-<li>log~b~a &lt; d   –&gt; 复杂度　O(N^d^)</li>
-</ol>
-<h5 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(<span class="keyword">int</span>[] arr,<span class="keyword">int</span> L,<span class="keyword">int</span> R)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">null</span> == arr || arr.length &lt; <span class="number">2</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(L == R) <span class="keyword">return</span> arr[L];</span><br><span class="line">    <span class="keyword">int</span> mid = L +(R - L) / <span class="number">2</span>;<span class="comment">//　=(L + R) / 2  原代码是为了防止溢出</span></span><br><span class="line">    mergeSort(arr,L,mid); <span class="comment">//左边归并排序，使左子序列有序</span></span><br><span class="line">    mergeSort(arr,mid+<span class="number">1</span>,R);<span class="comment">//右边归并排序，使右子序列有序</span></span><br><span class="line">    merge(arr,L,mid,R);<span class="comment">//将两个有序子数组组合进行排序操作</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span> arr[],<span class="keyword">int</span> L,<span class="keyword">int</span> mid,<span class="keyword">int</span> R)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> nums = <span class="keyword">new</span> <span class="keyword">int</span>[R-L+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> p = L;</span><br><span class="line">    <span class="keyword">int</span> p1 = mid + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(p &lt;= mid &amp;&amp; p1 &lt;= R) &#123;</span><br><span class="line">        nums[i++] = arr[p] &lt; arr[p1] ? arr[p++] : arr[p1++]; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(p &lt;= mid) &#123;</span><br><span class="line">        nums[i++] = arr[p++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(p1 &lt;= R) &#123;</span><br><span class="line">        nums[i++] = arr[p1++];</span><br><span class="line">    &#125;</span><br><span class="line">    i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(i &lt; nums.length) &#123;</span><br><span class="line">        arr[i++] = nums[i++];　<span class="comment">//将备用数组nums的元素排好序之后拷贝回原数组</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;　　　　　　　　　　　<span class="comment">//O(NlogN) 空间复杂度O(N)</span></span><br></pre></td></tr></table></figure>
-<h5 id="小和问题"><a href="#小和问题" class="headerlink" title="小和问题"></a>小和问题</h5><p>在随机元素，随机数组大小的数组中，找出左边比右边元素小的所有元素之和。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MergeSortSum</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mergeSortSum</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == arr || arr.length &lt; <span class="number">2</span>)&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 排序并返回最小和</span></span><br><span class="line">		<span class="keyword">return</span> mergeSortSumTest(arr,<span class="number">0</span>,arr.length-<span class="number">1</span>);</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mergeSortSumTest</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> L, <span class="keyword">int</span> R)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(L == R ) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">int</span> mid = L + (R -L) /<span class="number">2</span>;</span><br><span class="line">		<span class="comment">// 左边的最小和+右边的最小和+最后排序好的最小和就是最后的结果</span></span><br><span class="line">		<span class="keyword">return</span> mergeSortSumTest(arr, L, mid) + mergeSortSumTest(arr, mid+<span class="number">1</span>, R) + mergeSortSumArray(arr,L,mid,R);</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mergeSortSumArray</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> l, <span class="keyword">int</span> mid, <span class="keyword">int</span> r)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">int</span>[] arrs = <span class="keyword">new</span> <span class="keyword">int</span>[r-l+<span class="number">1</span>];</span><br><span class="line">		<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">int</span> p1 = l;</span><br><span class="line">		<span class="keyword">int</span> p2 = mid + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">int</span> sum = <span class="number">0</span>;<span class="comment">// 最小和</span></span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(p1&lt;=mid &amp;&amp; p2 &lt;= r)&#123;</span><br><span class="line">			<span class="comment">// 如果左边小于右边，那就有(r - p2 + 1)个arr[p1]元素的和是最小和</span></span><br><span class="line">			<span class="comment">// 如果大于右边，返回0</span></span><br><span class="line">			sum += arr[p1] &lt; arr[p2]?(r - p2 + <span class="number">1</span>)*arr[p1]:<span class="number">0</span>;</span><br><span class="line">                        <span class="comment">// sum += arr[p1] &gt; arr[p2]?(mid - p1 + 1):0; //求逆序对</span></span><br><span class="line">			arrs[i++] = arr[p1] &lt; arr[p2]?arr[p1++]:arr[p2++];</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(p1&lt;=mid)&#123;</span><br><span class="line">			arrs[i++] = arr[p1++];</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(p2&lt;=r)&#123;</span><br><span class="line">			arrs[i++] = arr[p2++];</span><br><span class="line">		&#125;		</span><br><span class="line">		<span class="keyword">return</span> sum;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> class <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(<span class="keyword">int</span>[] arr,<span class="keyword">int</span> L,<span class="keyword">int</span> R)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(L &lt; R) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] P = partition(arr,L,R);</span><br><span class="line">        swap(arr,L + (<span class="keyword">int</span>)Math.random() * (R - L + <span class="number">1</span>),R);<span class="comment">//加上就是随机快排，去掉就是经典快排</span></span><br><span class="line">        quickSort(arr,L,p[<span class="number">0</span>]-<span class="number">1</span>);</span><br><span class="line">        quickSort(arr,p[<span class="number">1</span>]+<span class="number">1</span>,R);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span>[] partition(<span class="keyword">int</span>[] arr,<span class="keyword">int</span> L,<span class="keyword">int</span> R)&#123;</span><br><span class="line">    <span class="keyword">int</span> less = L-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> more = R;</span><br><span class="line">    <span class="keyword">while</span>(L &lt; more)&#123;</span><br><span class="line">        <span class="keyword">if</span>(arr[L] &lt; arr[R]) &#123;</span><br><span class="line">            swap(arr,++less,L++);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(arr[L] &gt; arr[R]) &#123;</span><br><span class="line">            swap(arr,--more,L);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            L++;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    swap(arr,more,R);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123;less + <span class="number">1</span>,more&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[]arr,<span class="keyword">int</span> A,<span class="keyword">int</span> B)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> temp = arr[A];</span><br><span class="line">    arra[A] = arr[B];</span><br><span class="line">    arr[B] = temp;</span><br><span class="line">&#125;             <span class="comment">//O(NlogN) 空间复杂度O(logN)</span></span><br></pre></td></tr></table></figure>
-<h5 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h5><p>完全二叉树： 若设二叉树的深度为h，除第 h 层外，其它各层 (1～h-1) 的结点数都达到最大个数，第 h 层所有的结点都连续集中在最左边，这就是完全二叉树。</p>
-<p>满二叉树：除了叶结点外每一个结点都有左右子叶且叶子结点都处在最底层的二叉树。</p>
-<p>完全二叉树包含满二叉树.</p>
-<p>在一个数组中，若一个二叉树节点下标为i 怎么其左子孩子下标为 2*i+1 右子孩子下标为2*i+2 父节点下标为 (i-1)/2</p>
-<p>堆就是完全二叉树</p>
-<p>大根堆:任何一颗子树的头部都是最大值</p>
-<p>对于一个满二叉树有N个节点则二叉树的层数为logN</p>
-<p>建立一个大根堆每当加进来一个数时调整的复杂度为O(logN),则N个数都加进来复杂度为log1+log2+log3…..logN，为O(N)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(arr == <span class="keyword">null</span> &amp;&amp; arr.length &lt; <span class="number">2</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; arr.length;i++) &#123;</span><br><span class="line">        heapInsert(arr,i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> heapsize = arr.length;</span><br><span class="line">    swap(arr,<span class="number">0</span>,--heapsize);</span><br><span class="line">    <span class="keyword">while</span>(heapsize &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        heapify(arr,<span class="number">0</span>,heapsize);</span><br><span class="line">        swap(arr,<span class="number">0</span>,--heapsize);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">heapInsert</span><span class="params">(<span class="keyword">int</span>[] arr,index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(arr[index] &gt; arr[(index - <span class="number">1</span>)/<span class="number">2</span>]) &#123;</span><br><span class="line">        swap(arr,index,(index - <span class="number">1</span>)/<span class="number">2</span>);</span><br><span class="line">        index = (index - <span class="number">1</span>)/<span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">heapify</span><span class="params">(<span class="keyword">int</span>[] arr,index,<span class="keyword">int</span> heapsize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> left = <span class="number">2</span> * index + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(left &lt; heapsize) &#123;</span><br><span class="line">        <span class="keyword">int</span> largest = </span><br><span class="line">            left + <span class="number">1</span> &lt; heapsize &amp;&amp; arr[left + <span class="number">1</span>] &gt; arr[left] ? left + <span class="number">1</span> : left;</span><br><span class="line">        largest = arr[index] &gt; arr[largest] ? index : largest;</span><br><span class="line">        <span class="keyword">if</span>(largest == index) <span class="keyword">break</span>;</span><br><span class="line">        swap(arr,index,largest);</span><br><span class="line">        index = largest;</span><br><span class="line">        left = <span class="number">2</span> * index + <span class="number">1</span>; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[]arr,<span class="keyword">int</span> A,<span class="keyword">int</span> B)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> temp = arr[A];</span><br><span class="line">    arra[A] = arr[B];</span><br><span class="line">    arr[B] = temp;</span><br><span class="line">&#125;  　　　　<span class="comment">//O(N*logN) 空间复杂度O(1)</span></span><br></pre></td></tr></table></figure>
-<p>稳定性：假定在待排序的记录序列中，存在多个具有相同的关键字的记录，若经过排序，这些记录的相对次序保持不变，即在原序列中，r[i]=r[j]，且r[i]在r[j]之前，而在排序后的序列中，r[i]仍在r[j]之前，则称这种排序算法是稳定的；否则称为不稳定的。</p>
-<p>综合排序：如果数组元素为基础类型用快速排序（相同值无差异），如果数组元素为自定义类型（相同值有差异）用有稳定性的排序如归并等，样本容量＜６０用复杂度高的排序（常数项低）</p>
-<p>快速排序能做到稳定性，但很难(01stable sort) 　</p>
-<h5 id="比较器"><a href="#比较器" class="headerlink" title="比较器"></a>比较器</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">IdDescendingComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Stundent o1,Student o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(o1.id &lt; o2.id) &#123;</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(o1.id &gt; o2.id) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;         </span><br><span class="line">        <span class="comment">//return o1.id - o2.id;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个Student对象　students</span></span><br><span class="line"><span class="comment">// Arrays.sort(students, new IdDescendingComparator());</span></span><br><span class="line"><span class="comment">//　如果不重载Comparator　则会按照内存地址排序（无意义）</span></span><br><span class="line">priorityQueue&lt;Student&gt; heap = <span class="keyword">new</span> PriorityQueue&lt;&gt;(<span class="keyword">new</span> IdAscendingComparator());</span><br><span class="line">heap.add(student1);</span><br><span class="line">heap.add(student2);</span><br><span class="line">heap.add(student3);</span><br><span class="line"><span class="keyword">while</span>(!heap.isEmpty()) &#123;</span><br><span class="line">    Student student = heap.poll();<span class="comment">//弹出顶部</span></span><br><span class="line">    System.out.println(.......)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h5><h5 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h5><p>桶排序包含计数排序，基数排序　他们都不是基于比较的排序，与被排序的数据状况有关.</p>
-<p>［．．．．．．］范围为0～60长度为Ｎ的数组</p>
-<p>计数排序：创建一个长度为61数组　记录每个数的词频．</p>
-<h5 id="补充问题"><a href="#补充问题" class="headerlink" title="补充问题"></a>补充问题</h5><p>给定一个数组，求如果排序之后，相邻两个数的最大差值，要求时间复杂度为O(N),且要求不能使用非基于比较的排序</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">maxGap</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(nums == <span class="keyword">null</span> &amp;&amp; nums.length &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> len = nums.length;</span><br><span class="line">    <span class="keyword">int</span> min = Integer.MAX_VALUE;</span><br><span class="line">    <span class="keyword">int</span> max = Integer.MIN_VALUE;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; len;i++) &#123;</span><br><span class="line">        min = Math.min(min,nums[i]);　</span><br><span class="line">        max = Math.max(max,nums[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(min == max) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">//最大值＝最小值　差值为０</span></span><br><span class="line">    <span class="comment">//桶个数为len + 1时必存在一个空桶，且使得相邻元素的最大差值不在一个桶内</span></span><br><span class="line">    <span class="keyword">boolean</span>[] hasNum = <span class="keyword">new</span> <span class="keyword">boolean</span>[len + <span class="number">1</span>];　<span class="comment">// 存放桶是否为空　　　</span></span><br><span class="line">    <span class="keyword">int</span>[] maxs = <span class="keyword">new</span> <span class="keyword">int</span>[len + <span class="number">1</span>];　<span class="comment">//存放桶最大值</span></span><br><span class="line">    <span class="keyword">int</span>[] mins = <span class="keyword">new</span> <span class="keyword">int</span>[len + <span class="number">1</span>];<span class="comment">// 存放桶最小值</span></span><br><span class="line">    <span class="keyword">int</span> bid = <span class="number">0</span>;　<span class="comment">//桶号　　</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; len;i++) &#123;</span><br><span class="line">      　bid = bucket(nums[i],len,min,max); <span class="comment">//bucket用于计算i号元素应该放到几号桶</span></span><br><span class="line">        mins[bid] = hasNum[i] ? Math.min(mins[bid],nums[i]) : nums[i];</span><br><span class="line">        maxs[bid] = hasNum[i] ? Math.max(maxs[bid],nums[i]) : nums[i];</span><br><span class="line">        hasNum[i] = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> lastMax = maxs[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(;i &lt; len;i++) &#123;</span><br><span class="line">        res = Math.max(res,mins[i] - lastMax);</span><br><span class="line">        lastMax = maxs[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">bucket</span><span class="params">(<span class="keyword">long</span> num, <span class="keyword">long</span> len,<span class="keyword">long</span> min,<span class="keyword">long</span> max)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">int</span>)((num - min)*len/(max - min)); <span class="comment">//计算桶号的公式</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>　</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/13/回溯算法/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/09/13/回溯算法/" itemprop="url">回溯算法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-13T22:14:32+08:00">
-                2017-09-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>回溯法在问题的解空间树中，按深度优先策略，从根节点出发搜索空间树。算法搜索至解空间的任一节点时，先判断该节点是否包含问题的解。如果肯定不包含，则跳过对以该节点为根的子树的搜索，逐层向其祖先节点回溯；否则，进入该子树，继续按深度优先策略搜索。</p>
-<ul>
-<li><p>回溯框架：（深度优先遍历思想）</p>
-<p>递归回溯：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span> t)</span></span>&#123;   <span class="comment">//t表示递归深度</span></span><br><span class="line">    <span class="keyword">if</span>(t &gt; n) output(x);   <span class="comment">//已到叶节点</span></span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=f(n,t);i&lt;=g(n,t);i++)&#123; <span class="comment">//遍历当前节点的所有子节点</span></span><br><span class="line">            x[t] = h(i);   <span class="comment">//x[]表示当前搜索的路径</span></span><br><span class="line">            <span class="keyword">if</span>(constraint(t) &amp;&amp; bound(t)) backtrack(t+<span class="number">1</span>);  <span class="comment">//当前节点满足限制条件，继续深搜</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>迭代回溯：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">iteractiveBackTrack</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> t = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(t&gt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(f(n,t)&lt;=g(n,t))&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=f(n,t);i&lt;=g(n,t);i++)&#123;</span><br><span class="line">                x[t] = h(i);</span><br><span class="line">                <span class="keyword">if</span>(condtraint(t) &amp;&amp; bound(t))&#123;</span><br><span class="line">                    <span class="keyword">if</span>(solution(t)) output(x);</span><br><span class="line">                    <span class="keyword">else</span> t++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> t--;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>两棵典型的解空间树—-子集树、排列树：</p>
-<p>子集树：所给问题是从n个元素的集合S中找出S满足某种性质的子集。例如：n个物品的0-1背包问题。一般是二叉树，分叉表示要不要当前元素。</p>
-<p>回溯法搜索子集树(递归方式)：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span> t)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(t&gt;n) output(x);</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=n;i++)&#123;   <span class="comment">//二叉树最多2个子节点</span></span><br><span class="line">            x[t] = i;</span><br><span class="line">            <span class="keyword">if</span>(constraint(t) &amp;&amp; bound(t)) backtrack(t+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>排列树：所给问题是确定n个元素满足某种性质的排列。</p>
-<p>回溯法搜索排列树(递归方式)：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span> t)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(t&gt;n) output(x);   <span class="comment">//t表示树的层数，也表示排列序列的第个位置</span></span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=t;i&lt;=n;i++)&#123;   <span class="comment">//位置t上有n-t+1种选择</span></span><br><span class="line">            swap(x[t], x[i]);</span><br><span class="line">            <span class="keyword">if</span>(condtraint(t) &amp;&amp; bound(t)) backtrack(t+<span class="number">1</span>);</span><br><span class="line">            swap(x[t], x[i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="n后问题：-—子集树"><a href="#n后问题：-—子集树" class="headerlink" title="n后问题： —子集树"></a>n后问题： —子集树</h5><p>在n*n格的棋盘上放置n个皇后，任何两个后都不在同一行或同一列或同斜行。</p>
-<ul>
-<li><p>算法设计：用n元组x[1:n]表示n后问题的解，x[i]表示皇后i放在第i行第x[i]列。</p>
-</li>
-<li><p>剪枝条件：若2个后的位置分别是(i,j)和(k,l)，则要x[i]!=x[k](不在同一列)，|i-k|!=|j-l|(不在同一斜线)。</p>
-</li>
-<li><p>递归方式回溯：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NQueen</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> n;   <span class="comment">//皇后个数</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span>[] x;  <span class="comment">//当前解</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">long</span> sum;   <span class="comment">//当前已找到的可行方案数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">long</span> <span class="title">nQueen</span><span class="params">(<span class="keyword">int</span> nn)</span></span>&#123;</span><br><span class="line">        n=nn; sum=<span class="number">0</span>; x=<span class="keyword">new</span> <span class="keyword">int</span>[n+<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=n;i++) x[i] = <span class="number">0</span>;   <span class="comment">//第0列没有意义</span></span><br><span class="line">        backtrack(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">place</span><span class="params">(<span class="keyword">int</span> i)</span></span>&#123;  <span class="comment">//剪枝函数</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">1</span>;j&lt;k;j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>((Math.abs(k-j) == Math.abs(x[k]-x[j])) || (x[j] == x[k])) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span> t)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(t&gt;n) sum++;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123; <span class="comment">//每个皇后都有N个可选的列</span></span><br><span class="line">                x[t] = i;</span><br><span class="line">                <span class="keyword">if</span>(place(t)) backtrack(t+<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>迭代方式回溯：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//节省O(n)递推空间，只对backtrack函数作了变动</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">backtrack</span><span class="params">()</span></span>&#123;</span><br><span class="line">    x[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> k = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(k&gt;<span class="number">0</span>)&#123;</span><br><span class="line">        x[k] += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>((x[k]&lt;=n) &amp;&amp; !place(k)) x[k] += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(x[k] &lt;= n)&#123;</span><br><span class="line">            <span class="keyword">if</span>(k == n) sum++;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                k++;</span><br><span class="line">                x[k] = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> k--;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>​</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1844,7 +2002,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1857,7 +2015,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>

@@ -269,6 +269,340 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/18/Kafka原理1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/18/Kafka原理1/" itemprop="url">Kafka原理1</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-18T13:03:55+08:00">
+                2018-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="1-1-Kafka的特性"><a href="#1-1-Kafka的特性" class="headerlink" title="1.1  Kafka的特性"></a>1.1  Kafka的特性</h3><p>- 高吞吐量、低延迟：kafka每秒可以处理几十万条消息，它的延迟最低只有几毫秒，每个<a href="https://www.baidu.com/s?wd=topic&amp;tn=24004469_oem_dg&amp;rsv_dl=gh_pl_sl_csd" target="_blank" rel="noopener">topic</a>可以分多个partition, consumer group 对partition进行consume操作。</p>
+<p>- 可扩展性：kafka集群支持热扩展</p>
+<p>- 持久性、可靠性：消息被持久化到本地磁盘，并且支持数据备份防止数据丢失</p>
+<p>- 容错性：允许集群中节点失败（若副本数量为n,则允许n-1个节点失败）</p>
+<p>- 高并发：支持数千个客户端同时读写</p>
+<h3 id="1-2-Kafka的使用场景"><a href="#1-2-Kafka的使用场景" class="headerlink" title="1.2   Kafka的使用场景"></a>1.2   Kafka的使用场景</h3><p>- 日志收集：一个公司可以用Kafka可以收集各种服务的log，通过kafka以统一接口服务的方式开放给各种consumer，例如hadoop、Hbase、Solr等。</p>
+<p>- 消息系统：解耦和生产者和消费者、缓存消息等。</p>
+<p>- 用户活动跟踪：Kafka经常被用来记录web用户或者app用户的各种活动，如浏览网页、搜索、点击等活动，这些活动信息被各个服务器发布到kafka的topic中，然后订阅者通过订阅这些topic来做实时的监控分析，或者装载到hadoop、数据仓库中做离线分析和挖掘。</p>
+<p>- 运营指标：Kafka也经常用来记录运营监控数据。包括收集各种分布式应用的数据，生产各种操作的集中反馈，比如报警和报告。</p>
+<p>- 流式处理：比如spark streaming和storm</p>
+<p>- 事件源</p>
+<h3 id="1-3-Kakfa-Broker-Leader的选举"><a href="#1-3-Kakfa-Broker-Leader的选举" class="headerlink" title="1.3    Kakfa Broker Leader的选举"></a>1.3    Kakfa Broker Leader的选举</h3><p>Broker：Kafka节点，一个Kafka节点就是一个broker，多个broker可以组成一个Kafka集群。</p>
+<p>Kakfa Broker集群受Zookeeper管理。所有的Kafka Broker节点一起去Zookeeper上注册一个临时节点，因为只有一个Kafka Broker会注册成功，其他的都会失败，所以这个成功在Zookeeper上注册临时节点的这个Kafka Broker会成为Kafka Broker Controller，其他的Kafka broker叫Kafka Broker follower。（这个过程叫Controller在ZooKeeper注册Watch）。</p>
+<p>这个Controller会监听其他的Kafka Broker的所有信息，如果这个kafka broker controller宕机了，在zookeeper上面的那个临时节点就会消失，此时所有的kafka broker又会一起去Zookeeper上注册一个临时节点，因为只有一个Kafka Broker会注册成功，其他的都会失败，所以这个成功在Zookeeper上注册临时节点的这个Kafka Broker会成为Kafka Broker Controller，其他的Kafka broker叫Kafka Broker follower。</p>
+<p>例如：一旦有一个broker宕机了，这个kafka broker controller会读取该宕机broker上所有的partition在zookeeper上的状态，并选取ISR列表中的一个replica作为partition leader（如果ISR列表中的replica全挂，选一个幸存的replica作为leader; 如果该partition的所有的replica都宕机了，则将新的leader设置为-1，等待恢复，等待ISR中的任一个Replica“活”过来，并且选它作为Leader；或选择第一个“活”过来的Replica（不一定是ISR中的）作为Leader），这个broker宕机的事情，kafka controller也会通知zookeeper，zookeeper就会通知其他的kafka broker。</p>
+<h3 id="Topic-amp-Partition"><a href="#Topic-amp-Partition" class="headerlink" title="Topic &amp; Partition"></a>Topic &amp; Partition</h3><p><strong>Partition：</strong>topic物理上的分组，一个topic可以分为多个partition，每个partition是一个有序的队列。</p>
+<p><strong>Segment：</strong>partition物理上由多个segment组成，每个Segment存着message信息。</p>
+<p>Topic相当于传统消息系统MQ中的一个队列queue，producer端发送的message必须指定是发送到哪个topic，但是不需要指定topic下的哪个partition，因为kafka会把收到的message进行load balance，均匀的分布在这个topic下的不同的partition上（ hash(message) % [broker数量]  ）。</p>
+<p>物理上存储上，这个topic会分成一个或多个partition，每个partiton相当于是一个子queue。在物理结构上，每个partition对应一个物理的目录（文件夹），文件夹命名是[topicname]<em>[partition]</em>[序号]，一个topic可以有无数多的partition，根据业务需求和数据量来设置。</p>
+<p>在kafka配置文件中可随时更高num.partitions参数来配置更改topic的partition数量，在创建Topic时通过参数指定parittion数量。Topic创建之后通过Kafka提供的工具也可以修改partiton数量。</p>
+<p>   一般来说</p>
+<p>（1）一个Topic的Partition数量大于等于Broker的数量，可以提高吞吐率。</p>
+<p>（2）同一个Partition的Replica尽量分散到不同的机器，高可用。</p>
+<p> <strong>当add a new partition的时候</strong>，partition里面的message不会重新进行分配，原来的partition里面的message数据不会变，新加的这个partition刚开始是空的，随后进入这个topic的message就会重新参与所有partition的load balance.</p>
+<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><p> Consumer处理partition里面的message的时候是o（1）顺序读取的。所以必须维护着上一次读到哪里的offsite信息。high level API,offset存于Zookeeper中，low level API的offset由自己维护。一般来说都是使用high level api的。Consumer的delivery gurarantee，默认是读完message先commmit再处理message，autocommit默认是true，这时候先commit就会更新offsite+1，一旦处理失败，offsite已经+1，这个时候就会丢message；也可以配置成读完消息处理再commit，这种情况下consumer端的响应就会比较慢的，需要等处理完才行。</p>
+<h3 id="Consumergroup"><a href="#Consumergroup" class="headerlink" title="Consumergroup"></a>Consumergroup</h3><p>各个consumer（consumer 线程）可以组成一个组（Consumer group ），partition中的每个message只能被组（Consumer group ）中的一个consumer（consumer 线程）消费，如果一个message可以被多个consumer（consumer 线程）消费的话，那么这些consumer必须在不同的组。</p>
+<p>Kafka不支持一个partition中的message由两个或两个以上的同一个consumer group下的consumer thread来处理，除非再启动一个新的consumer group。所以如果想同时对一个topic做消费的话，启动多个consumer group就可以了，但是要注意的是，这里的多个consumer的消费都必须是顺序读取partition里面的message，新启动的consumer默认从partition队列最头端最新的地方开始阻塞的读message。</p>
+<p>如果觉得效率不高的时候，可以加partition的数量来横向扩展，那么再加新的consumer thread去消费。如果想多个不同的业务都需要这个topic的数据，起多个consumer group就好了，大家都是顺序的读取message，offsite的值互不影响。这样没有锁竞争，充分发挥了横向的扩展性，吞吐量极高。这也就形成了分布式消费的概念。</p>
+<p>一个consumer group下，无论有多少个consumer，这个consumer group一定回去把这个topic下所有的partition都消费了。</p>
+<ol>
+<li>当consumer group里面的consumer数量小于这个topic下的partition数量的时候就会出现一个conusmer thread消费多个partition的情况。</li>
+<li>如果consumer group里面的consumer数量等于这个topic下的partition数量的时候，此时效率是最高的，每个partition都有一个consumer thread去消费。</li>
+<li>当consumer group里面的consumer数量大于这个topic下的partition数量的时候，就会有一个consumer thread空闲。</li>
+</ol>
+<p>设定consumer group的时候，只需要指明里面有几个consumer数量即可，无需指定对应的消费partition序号，consumer会自动进行rebalance。</p>
+<p><img src="/2018/10/18/Kafka原理1/kafka1.png" alt="1"></p>
+<p>Consumer Rebalance的触发条件：</p>
+<p>（1）Consumer增加或删除会触发 Consumer Group的Rebalance</p>
+<p>（2）Broker的增加或者减少都会触发 Consumer Rebalance</p>
+<h3 id="Delivery-Mode"><a href="#Delivery-Mode" class="headerlink" title="Delivery Mode"></a>Delivery Mode</h3><p>Kafka producer 发送message不用维护message的offsite信息，因为这个时候，offsite就相当于一个自增id，producer就尽管发送message就好了。而且Kafka与AMQ不同，AMQ大都用在处理业务逻辑上，而Kafka大都是日志，所以Kafka的producer一般都是大批量的batch发送message，向这个topic一次性发送一大批message，load balance到一个partition上，一起插进去，offsite作为自增id自己增加就好。但是Consumer端是需要维护这个partition当前消费到哪个message的offsite信息的，这个offsite信息，high level api是维护在Zookeeper上，low level api是自己的程序维护。</p>
+<h3 id="Partition-Replica"><a href="#Partition-Replica" class="headerlink" title="Partition Replica"></a>Partition Replica</h3><p>每个partition可以在其他的kafka broker节点上存副本，以便某个kafka broker节点宕机不会影响这个kafka集群。存replica副本的方式是按照kafka broker的顺序存。例如有5个kafka broker节点，某个topic有3个partition，每个partition存2个副本，那么partition1存broker1,broker2，partition2存broker2,broker3。。。以此类推（replica副本数目不能大于kafka broker节点的数目，否则报错。这里的replica数其实就是partition的副本总数，其中包括一个leader，其他的就是copy副本）。</p>
+<h3 id="Producer如何发送消息"><a href="#Producer如何发送消息" class="headerlink" title="Producer如何发送消息"></a>Producer如何发送消息</h3><p>partition也有leader和follower之分。leader是主partition，producer写kafka的时候先写partition leader，再由partition leader push给其他的partition follower。partition leader与follower的信息受Zookeeper控制，一旦partition leader所在的broker节点宕机，zookeeper会冲其他的broker的partition follower上选择follower变为parition leader。</p>
+<h3 id="消息投递的可靠性"><a href="#消息投递的可靠性" class="headerlink" title="消息投递的可靠性"></a>消息投递的可靠性</h3><p>一个消息如何算投递成功，Kafka提供了三种模式：</p>
+<p>- 第一种是啥都不管，发送出去就当作成功，这种情况当然不能保证消息成功投递到broker；</p>
+<p>- 第二种是Master-Slave模型，只有当Master和所有Slave都接收到消息时，才算投递成功，这种模型提供了最高的投递可靠性，但是损伤了性能；</p>
+<p>- 第三种模型，即只要Master确认收到消息就算投递成功；实际使用时，根据应用特性选择，绝大多数情况下都会中和可靠性和性能选择第三种模型</p>
+<p>  消息在broker上的可靠性，因为消息会持久化到磁盘上，所以如果正常stop一个broker，其上的数据不会丢失；但是如果不正常stop，可能会使存在页面缓存来不及写入磁盘的消息丢失。</p>
+<p>  消息消费的可靠性，Kafka提供的是“At least once”模型，因为消息的读取进度由offset提供，offset可以由消费者自己维护也可以维护在zookeeper里，但是当消息消费后consumer挂掉，offset没有即时写回，就有可能发生重复读的情况，这种情况同样可以通过调整commit offset周期、阈值缓解，甚至消费者自己把消费和commit offset做成一个事务解决，但是如果你的应用不在乎重复消费，那就干脆不要解决，以换取最大的性能。</p>
+<h3 id="Partition-ack"><a href="#Partition-ack" class="headerlink" title="Partition ack"></a>Partition ack</h3><p>当ack=1，表示producer写partition leader成功后，broker就返回成功，无论其他的partition follower是否写成功。这里需要注意的是，如果ack=1的时候，一旦有个broker宕机导致partition的follower和leader切换，会导致丢数据。</p>
+<p>当ack=2，表示producer写partition leader和其他一个follower成功的时候，broker就返回成功，无论其他的partition follower是否写成功。</p>
+<p>当ack=-1[parition的数量]的时候，表示只有producer全部写成功的时候，才算成功，kafka broker才返回成功信息。</p>
+<p><img src="/2018/10/18/Kafka原理1/kafka3.png" alt="2"></p>
+<p><img src="/2018/10/18/Kafka原理1/kafka2.png" alt="3"></p>
+<h5 id="message持久化："><a href="#message持久化：" class="headerlink" title="message持久化："></a>message持久化：</h5><p>Kafka中会把消息持久化到本地文件系统中，并且保持o(1)极高的效率。我们众所周知IO读取是非常耗资源的性能也是最慢的，这就是为了数据库的瓶颈经常在IO上，需要换SSD硬盘的原因。但是Kafka作为吞吐量极高的MQ，却可以非常高效的message持久化到文件。这是因为Kafka是顺序写入o（1）的时间复杂度，速度非常快。也是高吞吐量的原因。由于message的写入持久化是顺序写入的，因此message在被消费的时候也是按顺序被消费的，保证partition的message是顺序消费的。一般的机器,单机每秒100k条数据。</p>
+<h5 id="批量发送："><a href="#批量发送：" class="headerlink" title="批量发送："></a>批量发送：</h5><p>Kafka支持以消息集合为单位进行批量发送，以提高push效率。</p>
+<h5 id="push-and-pull"><a href="#push-and-pull" class="headerlink" title="push-and-pull :"></a>push-and-pull :</h5><p>Kafka中的Producer和consumer采用的是push-and-pull模式，即Producer只管向broker push消息，consumer只管从broker pull消息，两者对消息的生产和消费是异步的。</p>
+<h5 id="负载均衡方面："><a href="#负载均衡方面：" class="headerlink" title="负载均衡方面："></a>负载均衡方面：</h5><p> Kafka提供了一个 metadata API来管理broker之间的负载（对Kafka0.8.x而言，对于0.7.x主要靠zookeeper来实现负载均衡）。</p>
+<h5 id="缓冲："><a href="#缓冲：" class="headerlink" title="缓冲："></a>缓冲：</h5><p>由于producer那面可能业务很简单，而后端consumer业务会很复杂并有数据库的操作，因此肯定是producer会比consumer处理速度快，如果没有kafka，producer直接调用consumer，那么就会造成整个系统的处理速度慢，加一层kafka作为MQ，可以起到缓冲的作用。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/16/redis过期策略和内存淘汰/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/16/redis过期策略和内存淘汰/" itemprop="url">redis过期策略和内存淘汰</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-16T12:51:01+08:00">
+                2018-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="redis的过期策略以及内存淘汰机制"><a href="#redis的过期策略以及内存淘汰机制" class="headerlink" title="redis的过期策略以及内存淘汰机制"></a>redis的过期策略以及内存淘汰机制</h3><p>redis采用的是定期删除+惰性删除策略。</p>
+<p><strong>定期删除：</strong>redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p>
+<p><strong>惰性删除：</strong>获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p>
+<p>如果定期删除没删除key。然后也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用内存淘汰机制。</p>
+<h4 id="内存淘汰机制"><a href="#内存淘汰机制" class="headerlink" title="内存淘汰机制"></a>内存淘汰机制</h4><p>在redis.conf中有一行配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># maxmemory-policy volatile-lru</span><br></pre></td></tr></table></figure>
+<p>该配置就是配内存淘汰策略</p>
+<p>1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。应该没人用吧。</p>
+<p>2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。推荐使用。</p>
+<p>3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。</p>
+<p>4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐</p>
+<p>5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。依然不推荐</p>
+<p>6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。不推荐</p>
+<p>ps：如果没有设置 expire 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</p>
+<h3 id="如何应对缓存穿透和缓存雪崩问题"><a href="#如何应对缓存穿透和缓存雪崩问题" class="headerlink" title="如何应对缓存穿透和缓存雪崩问题"></a>如何应对缓存穿透和缓存雪崩问题</h3><p><strong>缓存穿透：</strong>即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试</p>
+<p>(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。</p>
+<p>(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。</p>
+<p><strong>缓存雪崩：</strong>即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)给缓存的失效时间，加上一个随机值，避免集体失效。</p>
+<p>(二)使用互斥锁，但是该方案吞吐量明显下降了。</p>
+<p>(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点</p>
+<ul>
+<li>I 从缓存A读数据库，有则直接返回</li>
+<li>II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。</li>
+<li>III 更新线程同时更新缓存A和缓存B。</li>
+</ul>
+<h3 id="如何解决redis的并发竞争key问题"><a href="#如何解决redis的并发竞争key问题" class="headerlink" title="如何解决redis的并发竞争key问题"></a>如何解决redis的并发竞争key问题</h3><p>使用redis事务机制，但基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，redis的事务机制，十分鸡肋。</p>
+<p>(1)如果对这个key操作，不要求顺序</p>
+<p>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。</p>
+<p>(2)如果对这个key操作，要求顺序</p>
+<p>假设有一个key1,系统A需要将key1设置为valueA,系统B需要将key1设置为valueB,系统C需要将key1设置为valueC.</p>
+<p>期望按照key1的value值按照 valueA–&gt;valueB–&gt;valueC的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line"></span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line"></span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br></pre></td></tr></table></figure>
+<p>那么，假设这会系统B先抢到锁，将key1设置为{valueB 3:05}。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做set操作了。以此类推。</p>
+<p>其他方法，比如利用队列，将set方法变成串行访问也可以。总之，灵活变通。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/14/netty学习笔记3/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1688,305 +2022,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/18/JVM垃圾回收/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/18/JVM垃圾回收/" itemprop="url">JVM垃圾回收</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-18T10:33:28+08:00">
-                2018-08-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="回收堆内存"><a href="#回收堆内存" class="headerlink" title="回收堆内存"></a>回收堆内存</h4><h5 id="标记－清除（Mark-Sweep）算法"><a href="#标记－清除（Mark-Sweep）算法" class="headerlink" title="标记－清除（Mark-Sweep）算法"></a>标记－清除（Mark-Sweep）算法</h5><p>最基础的垃圾收集算法，后续的收集算法都是基于它的思路并对其不足进行改进而得到的。顾名思义，算法分成“标记”、“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象，标记过程在前一节讲述对象标记判定时已经讲过了。</p>
-<p>标记－清除算法的不足主要有以下两点：</p>
-<ul>
-<li>空间问题，标记清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后在程序运行过程中需要分配较大对象时，无法找到足够的连续内存而不得不触发另一次垃圾收集动作。</li>
-<li>效率问题，因为内存碎片的存在，操作会变得更加费时，因为查找下一个可用空闲块已不再是一个简单操作。</li>
-</ul>
-<p>标记－清除算法的执行过程如下图所示：</p>
-<p><img src="/2018/08/18/JVM垃圾回收/jvm5.jpeg" alt="jvm5"></p>
-<h5 id="复制（Copying）算法"><a href="#复制（Copying）算法" class="headerlink" title="复制（Copying）算法"></a>复制（Copying）算法</h5><p>为了解决标记-清除算法的效率问题，一种称为“复制”（Copying）的收集算法出现了，思想为：它将可用内存按容量分成大小相等的两块，每次只使用其中的一块。当这一块内存用完，就将还存活着的对象复制到另一块上面，然后再把已使用过的内存空间一次清理掉。</p>
-<p>这样做使得每次都是对整个半区进行内存回收，内存分配时也就不用考虑内存碎片等复杂情况，只要移动堆顶指针，按顺序分配内存即可，实现简单，运行高效。只是这种算法的代价是将内存缩小为原来的一半，代价可能过高了。复制算法的执行过程如下图所示：</p>
-<p><img src="/2018/08/18/JVM垃圾回收/jvm6.jpeg" alt="jvm6"></p>
-<h5 id="Minor-GC与复制算法"><a href="#Minor-GC与复制算法" class="headerlink" title="Minor GC与复制算法"></a>Minor GC与复制算法</h5><p>现在的商业虚拟机都使用复制算法来回收新生代。新生代的GC又叫“Minor GC”，IBM公司的专门研究表明：新生代中的对象98%是“朝生夕死”的，所以Minor GC非常频繁，一般回收速度也比较快，同时“朝生夕死”的特性也使得Minor GC使用复制算法时不需要按照1:1的比例来划分新生代内存空间。</p>
-<p>Minor GC过程</p>
-<p>事实上，新生代将内存分为一块较大的Eden空间和两块较小的Survivor空间（From Survivor和To Survivor），每次Minor GC都使用Eden和From Survivor，当回收时，将Eden和From Survivor中还存活着的对象都一次性地复制到另外一块To Survivor空间上，最后清理掉Eden和刚使用的Survivor空间。一次Minor GC结束的时候，Eden空间和From Survivor空间都是空的，而To Survivor空间里面存储着存活的对象。在下次MinorGC的时候，两个Survivor空间交换他们的标签，现在是空的“From” Survivor标记成为“To”，“To” Survivor标记为“From”。因此，在MinorGC结束的时候，Eden空间是空的，两个Survivor空间中的一个是空的，而另一个存储着存活的对象。</p>
-<p>HotSpot虚拟机默认的Eden : Survivor的比例是8 : 1，由于一共有两块Survivor，所以每次新生代中可用内存空间为整个新生代容量的90%（80%＋10%），只有10%的容量会被“浪费”。</p>
-<p>分配担保</p>
-<p>上文说的98%的对象可回收只是一般场景下的数据，我们没有办法保证每次回收都只有不多于10%的对象存活，当Survivor空间不够用时，需要依赖老年代内存进行分配担保（Handle Promotion）。如果另外一块Survivor上没有足够空间存放上一次新生代收集下来的存活对象，这些对象将直接通过分配担保机制进入老年代。</p>
-<h5 id="标记－整理（Mark-Compact）算法"><a href="#标记－整理（Mark-Compact）算法" class="headerlink" title="标记－整理（Mark-Compact）算法"></a>标记－整理（Mark-Compact）算法</h5><p>复制算法在对象存活率较高时要进行较多的复制操作，效率将会变低。更关键的是：如果不想浪费50%的空间，就需要有额外的空间进行分配担保，以应对被使用的内存中所有对象都100%存活的极端情况，所以在老年代一般不能直接选用复制算法。</p>
-<p>根据老年代的特点，标记－整理（Mark-Compact）算法被提出来，主要思想为：此算法的标记过程与标记－清除算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存。具体示意图如下所示：</p>
-<p><img src="/2018/08/18/JVM垃圾回收/jvm7.jpeg" alt="jvm7"></p>
-<h5 id="分代收集（Generational-Collection）算法"><a href="#分代收集（Generational-Collection）算法" class="headerlink" title="分代收集（Generational Collection）算法"></a>分代收集（Generational Collection）算法</h5><p>当前商业虚拟机的垃圾收集都采用分代收集（Generational Collection）算法，此算法相较于前几种没有什么新的特征，主要思想为：根据对象存活周期的不同将内存划分为几块，一般是把Java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适合的收集算法：</p>
-<ul>
-<li>新生代 在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。</li>
-<li>老年代在老年代中，因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清除”或“标记-整理”算法来进行回收。</li>
-</ul>
-<h5 id="Full-GC的触发条件"><a href="#Full-GC的触发条件" class="headerlink" title="Full GC的触发条件"></a>Full GC的触发条件</h5><p>对于Minor GC，其触发条件非常简单，当Eden区空间满时，就将触发一次Minor GC。而Full GC则相对复杂。</p>
-<ul>
-<li><p>调用System.gc()</p>
-<p>此方法的调用是建议JVM进行Full GC,虽然只是建议而非一定,但很多情况下它会触发 Full GC,从而增加Full GC的频率,也即增加了间歇性停顿的次数。因此强烈建议能不使用此方法就不要使用，让虚拟机自己去管理它的内存，可通过-XX:+ DisableExplicitGC来禁止RMI调用System.gc()。</p>
-</li>
-<li><p>老年代空间不足</p>
-<p>老年代空间不足的常见场景为前文所讲的大对象直接进入老年代、长期存活的对象进入老年代等，当执行Full GC后空间仍然不足，则抛出如下错误：<code>Java.lang.OutOfMemoryError: Java heap space</code>为避免以上两种状况引起的Full GC，调优时应尽量做到让对象在Minor GC阶段被回收、让对象在新生代多存活一段时间及不要创建过大的对象及数组。</p>
-</li>
-<li><p>空间分配担保失败</p>
-<p>前文介绍过，使用复制算法的Minor GC需要老年代的内存空间作担保，如果出现了HandlePromotionFailure担保失败，则会触发Full GC。</p>
-</li>
-</ul>
-<h4 id="回收方法区内存"><a href="#回收方法区内存" class="headerlink" title="回收方法区内存"></a>回收方法区内存</h4><p>很多人认为方法区没有垃圾回收，Java虚拟机规范中确实说过不要求，而且在方法区中进行垃圾收集的“性价比”较低：在堆中，尤其是新生代，常规应用进行一次垃圾收集可以回收70%~95%的空间，而方法区的效率远低于此。在JDK 1.8中，JVM摒弃了永久代，用元空间来作为方法区的实现，下面介绍的将是元空间的垃圾回收。</p>
-<p>元空间的内存管理由元空间虚拟机来完成。先前，对于类的元数据我们需要不同的垃圾回收器进行处理，现在只需要执行元空间虚拟机的C++代码即可完成。在元空间中，类和其元数据的生命周期和其对应的类加载器是相同的。话句话说，只要类加载器存活，其加载的类的元数据也是存活的，因而不会被回收掉。当一个类加载器被垃圾回收器标记为不再存活，其对应的元空间会被回收。在元空间的回收过程中没有重定位和压缩等操作。但是元空间内的元数据会进行扫描来确定Java引用。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/06/JVM内存分配/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/06/JVM内存分配/" itemprop="url">JVM内存分配</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-06T10:42:58+08:00">
-                2018-08-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Java的自动内存管理最终可以归结为自动化地解决了两个问题：</p>
-<ul>
-<li>给对象分配内存</li>
-<li>回收分配给对象的内存</li>
-</ul>
-<h5 id="内存分配策略"><a href="#内存分配策略" class="headerlink" title="内存分配策略"></a>内存分配策略</h5><p>对象的内存分配通常是在堆上分配（除此以外还有可能经过JIT编译后被拆散为标量类型并间接地栈上分配），对象主要分配在新生代的Eden区上，如果启动了本地线程分配缓冲，将按线程优先在TLAB上分配。少数情况下也可能会直接分配在老年代中，分配的规则并不是固定的，实际取决于垃圾收集器的具体组合以及虚拟机中与内存相关的参数的设置。</p>
-<ul>
-<li><p>对象优先在Eden区分配</p>
-<p>大多数情况下，对象在新生代的Eden区中分配。当Eden区没有足够空间进行分配时，虚拟机将发起一次Minor GC。</p>
-</li>
-<li><p>大对象直接进入老年代</p>
-<p>所谓的大对象是指，需要大量连续内存空间的Java对象，最典型的大对象就是很长的字符串以及数组。大对象对虚拟机的内存分配来说是一个坏消息（尤其是遇到朝生夕灭的“短命大对象”，写程序时应避免），经常出现大对象容易导致内存还有不少空间时就提前触发GC以获取足够的连续空间来安置它们。</p>
-<p>虚拟机提供了一个-XX:PretenureSizeThreshold参数，令大于这个设置值的对象直接在老年代分配。这样做的目的是避免在Eden区及两个Survivor区之间发生大量的内存复制（新生代采用复制算法回收内存）。</p>
-</li>
-<li><p>长期存活的对象将进入老年代</p>
-<p>既然虚拟机采用了分代收集的思想来管理内存，那么内存回收时就必须能识别哪些对象应放在新生代，哪些对象应放在老年代中。为了做到这点，虚拟机给每个对象定义了一个对象年龄（Age）计数器。如果对象在Eden出生并经过第一次Minor GC后仍然存活，并且能被Survivor容纳的话，将被移动到Survivor空间中，并且对象年龄设为1。对象在Survivor区中每“熬过”一次Minor GC，年龄就增加1岁，当它的年龄增加到一定程度（默认为15岁），就将会被晋升到老年代中。对象晋升老年代的年龄阈值，可以通过参数-XX:MaxTenuringThreshold设置。</p>
-</li>
-</ul>
-<h5 id="动态对象年龄判定"><a href="#动态对象年龄判定" class="headerlink" title="动态对象年龄判定"></a>动态对象年龄判定</h5><p>为了能更好地适应不同程序的内存状况，虚拟机并不是永远地要求对象的年龄必须达到了MaxTenuringThreshold才能晋升老年代，如果在Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，无须等到MaxTenuringThreshold中要求的年龄。</p>
-<h5 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h5><p>在发生Minor GC之前，虚拟机会先检查老年代最大可用的连续空间是否大于新生代所有对象总空间，如果这个条件成立，那么Minor GC可以确保是安全的。如果不成立，则虚拟机会查看HandlePromotionFailure设置值是否允许担保失败。如果允许，那么会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，将尝试着进行一次Minor GC，尽管这次Minor GC是有风险的；如果小于，或者HandlePromotionFailure设置不允许冒险，那这时也要改为进行一次Full GC。</p>
-<p>前面提到过，新生代使用复制收集算法，但为了内存利用率，只使用其中一个Survivor空间来作为轮换备份，因此当出现大量对象在Minor GC后仍然存活的情况（最极端的情况就是内存回收后新生代中所有对象都存活），就需要老年代进行分配担保，把Survivor无法容纳的对象直接进入老年代。与生活中的贷款担保类似，老年代要进行这样的担保，前提是老年代本身还有容纳这些对象的剩余空间，一共有多少对象会活下来在实际完成内存回收之前是无法明确知道的，所以只好取之前每一次回收晋升到老年代对象容量的平均大小值作为经验值，与老年代的剩余空间进行比较，决定是否进行Full GC来让老年代腾出更多空间。</p>
-<p>取平均值进行比较其实仍然是一种动态概率的手段，也就是说，如果某次Minor GC存活后的对象突增，远远高于平均值的话，依然会导致担保失败（Handle Promotion Failure）。如果出现了HandlePromotionFailure失败，那就只好在失败后重新发起一次Full GC。虽然担保失败时绕的圈子是最大的，但大部分情况下都还是会将HandlePromotionFailure开关打开，避免Full GC过于频繁。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2039,7 +2074,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2052,7 +2087,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>

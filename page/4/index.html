@@ -269,6 +269,334 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/21/Java源码分析-ArrayList/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/21/Java源码分析-ArrayList/" itemprop="url">Java源码分析--ArrayList</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-21T20:04:51+08:00">
+                2018-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h5><p>ArrayList是基于数组实现的，是一个动态数组，其容量能自动增长，类似于C语言中的动态申请内存，动态增长内存。 ArrayList不是线程安全的，只能用在单线程环境下，多线程环境下可以考虑用Collections.synchronizedList(List l)函数返回一个线程安全的ArrayList类，也可以使用concurrent并发包下的CopyOnWriteArrayList类。</p>
+<h5 id="类的声明"><a href="#类的声明" class="headerlink" title="类的声明"></a>类的声明</h5><p>ArrayList实现了Serializable接口，因此它支持序列化，能够通过序列化传输，实现了RandomAccess接口，支持快速随机访问，实际上就是通过下标序号进行快速访问，实现了Cloneable接口，能被克隆。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArrayList</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt;, <span class="title">RandomAccess</span>, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span></span></span><br></pre></td></tr></table></figure>
+<h5 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">8683452581122892189L</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Default initial capacity.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_CAPACITY = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Shared empty array instance used for empty instances.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object[] EMPTY_ELEMENTDATA = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Shared empty array instance used for default sized empty instances. We</span></span><br><span class="line"><span class="comment">    * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when</span></span><br><span class="line"><span class="comment">    * first element is added.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * The array buffer into which the elements of the ArrayList are stored.</span></span><br><span class="line"><span class="comment">    * The capacity of the ArrayList is the length of this array buffer. Any</span></span><br><span class="line"><span class="comment">    * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA</span></span><br><span class="line"><span class="comment">    * will be expanded to DEFAULT_CAPACITY when the first element is added.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">transient</span> Object[] elementData; <span class="comment">// non-private to simplify nested class access</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * The size of the ArrayList (the number of elements it contains).</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@serial</span></span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">int</span> size;</span><br></pre></td></tr></table></figure>
+<h5 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h5><p>有三个不同的构造方法。无参构造方法构造的ArrayList的容量默认为10，带有Collection参数的构造方法，将Collection转化为数组赋给ArrayList的实现数组elementData。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Constructs an empty list with the specified initial capacity.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>  initialCapacity  the initial capacity of the list</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException if the specified initial capacity</span></span><br><span class="line"><span class="comment">     *         is negative</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ArrayList</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (initialCapacity &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.elementData = <span class="keyword">new</span> Object[initialCapacity];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (initialCapacity == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.elementData = EMPTY_ELEMENTDATA;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Illegal Capacity: "</span>+</span><br><span class="line">                                               initialCapacity);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Constructs an empty list with an initial capacity of ten.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ArrayList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Constructs a list containing the elements of the specified</span></span><br><span class="line"><span class="comment">     * collection, in the order they are returned by the collection's</span></span><br><span class="line"><span class="comment">     * iterator.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> c the collection whose elements are to be placed into this list</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NullPointerException if the specified collection is null</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ArrayList</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">        elementData = c.toArray();</span><br><span class="line">        <span class="keyword">if</span> ((size = elementData.length) != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (elementData.getClass() != Object[].class)</span><br><span class="line">                elementData = Arrays.copyOf(elementData, size, Object[].class);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// replace with empty array.</span></span><br><span class="line">            <span class="keyword">this</span>.elementData = EMPTY_ELEMENTDATA;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h5><p>扩容：ArrayList在每次增加元素（可能是1个，也可能是一组）时，都要调用ensureCapacity方法来确保足够的容量。当容量不足以容纳当前的元素个数时，就设置新的容量为旧的容量的1.5倍加1，如果设置后的新容量还不够，则直接新容量设置为传入的参数（也就是所需的容量），而后用Arrays.copyof()方法将元素拷贝到新的数组。从中可以看出，当容量不够时，每次增加元素，都要将原来的元素拷贝到一个新的数组中，非常之耗时，也因此建议在事先能确定元素数量的情况下，才使用ArrayList，否则建议使用LinkedList。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Increases the capacity of this  ArrayList  instance, if</span></span><br><span class="line"><span class="comment">    * necessary, to ensure that it can hold at least the number of elements</span></span><br><span class="line"><span class="comment">    * specified by the minimum capacity argument.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span>   minCapacity   the desired minimum capacity</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ensureCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">int</span> minExpand = (elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA)</span><br><span class="line">           <span class="comment">// any size if not default element table</span></span><br><span class="line">           ? <span class="number">0</span></span><br><span class="line">           <span class="comment">// larger than default for default empty table. It's already</span></span><br><span class="line">           <span class="comment">// supposed to be at default size.</span></span><br><span class="line">           : DEFAULT_CAPACITY;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (minCapacity &gt; minExpand) &#123;</span><br><span class="line">           ensureExplicitCapacity(minCapacity);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureExplicitCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">       modCount++;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// overflow-conscious code</span></span><br><span class="line">       <span class="keyword">if</span> (minCapacity - elementData.length &gt; <span class="number">0</span>)</span><br><span class="line">           grow(minCapacity);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * The maximum size of array to allocate.</span></span><br><span class="line"><span class="comment">    * Some VMs reserve some header words in an array.</span></span><br><span class="line"><span class="comment">    * Attempts to allocate larger arrays may result in</span></span><br><span class="line"><span class="comment">    * OutOfMemoryError: Requested array size exceeds VM limit</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_ARRAY_SIZE = Integer.MAX_VALUE - <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Increases the capacity to ensure that it can hold at least the</span></span><br><span class="line"><span class="comment">    * number of elements specified by the minimum capacity argument.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> minCapacity the desired minimum capacity</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grow</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// overflow-conscious code</span></span><br><span class="line">       <span class="keyword">int</span> oldCapacity = elementData.length;</span><br><span class="line">       <span class="keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="number">1</span>);</span><br><span class="line">       <span class="keyword">if</span> (newCapacity - minCapacity &lt; <span class="number">0</span>)</span><br><span class="line">           newCapacity = minCapacity;</span><br><span class="line">       <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>)</span><br><span class="line">           newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">       <span class="comment">// minCapacity is usually close to size, so this is a win:</span></span><br><span class="line">       elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hugeCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (minCapacity &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> OutOfMemoryError();</span><br><span class="line">       <span class="keyword">return</span> (minCapacity &gt; MAX_ARRAY_SIZE) ?</span><br><span class="line">           Integer.MAX_VALUE :</span><br><span class="line">           MAX_ARRAY_SIZE;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>添加：不指定添加位置时会添加到最后一位，时间复杂度为O(1)，指定位置时需要将整个数组拷贝到新的地址空间，性能消耗较大。也可以直接将一个集合添加进去，并且可以指定添加的位置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Appends the specified element to the end of this list.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> e element to be appended to this list</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  true  (as specified by &#123;<span class="doctag">@link</span> Collection#add&#125;)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></span><br><span class="line">    elementData[size++] = e;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Inserts the specified element at the specified position in this</span></span><br><span class="line"><span class="comment"> * list. Shifts the element currently at that position (if any) and</span></span><br><span class="line"><span class="comment"> * any subsequent elements to the right (adds one to their indices).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> index index at which the specified element is to be inserted</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> element element to be inserted</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    rangeCheckForAdd(index);</span><br><span class="line"></span><br><span class="line">    ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></span><br><span class="line">    System.arraycopy(elementData, index, elementData, index + <span class="number">1</span>,</span><br><span class="line">                     size - index);</span><br><span class="line">    elementData[index] = element;</span><br><span class="line">    size++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Appends all of the elements in the specified collection to the end of</span></span><br><span class="line"><span class="comment"> * this list, in the order that they are returned by the</span></span><br><span class="line"><span class="comment"> * specified collection's Iterator.  The behavior of this operation is</span></span><br><span class="line"><span class="comment"> * undefined if the specified collection is modified while the operation</span></span><br><span class="line"><span class="comment"> * is in progress.  (This implies that the behavior of this call is</span></span><br><span class="line"><span class="comment"> * undefined if the specified collection is this list, and this</span></span><br><span class="line"><span class="comment"> * list is nonempty.)</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> c collection containing elements to be added to this list</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  true  if this list changed as a result of the call</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> NullPointerException if the specified collection is null</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    Object[] a = c.toArray();</span><br><span class="line">    <span class="keyword">int</span> numNew = a.length;</span><br><span class="line">    ensureCapacityInternal(size + numNew);  <span class="comment">// Increments modCount</span></span><br><span class="line">    System.arraycopy(a, <span class="number">0</span>, elementData, size, numNew);</span><br><span class="line">    size += numNew;</span><br><span class="line">    <span class="keyword">return</span> numNew != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Inserts all of the elements in the specified collection into this</span></span><br><span class="line"><span class="comment"> * list, starting at the specified position.  Shifts the element</span></span><br><span class="line"><span class="comment"> * currently at that position (if any) and any subsequent elements to</span></span><br><span class="line"><span class="comment"> * the right (increases their indices).  The new elements will appear</span></span><br><span class="line"><span class="comment"> * in the list in the order that they are returned by the</span></span><br><span class="line"><span class="comment"> * specified collection's iterator.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> index index at which to insert the first element from the</span></span><br><span class="line"><span class="comment"> *              specified collection</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> c collection containing elements to be added to this list</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  true  if this list changed as a result of the call</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> NullPointerException if the specified collection is null</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> index, Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    rangeCheckForAdd(index);</span><br><span class="line"></span><br><span class="line">    Object[] a = c.toArray();</span><br><span class="line">    <span class="keyword">int</span> numNew = a.length;</span><br><span class="line">    ensureCapacityInternal(size + numNew);  <span class="comment">// Increments modCount</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> numMoved = size - index;</span><br><span class="line">    <span class="keyword">if</span> (numMoved &gt; <span class="number">0</span>)</span><br><span class="line">        System.arraycopy(elementData, index, elementData, index + numNew,</span><br><span class="line">                         numMoved);</span><br><span class="line"></span><br><span class="line">    System.arraycopy(a, <span class="number">0</span>, elementData, index, numNew);</span><br><span class="line">    size += numNew;</span><br><span class="line">    <span class="keyword">return</span> numNew != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>删除：可以删除指定位置的元素，也可以直接删除指定元素，不需要返回被删除元素时调用fastRemove。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Removes the element at the specified position in this list.</span></span><br><span class="line"><span class="comment">    * Shifts any subsequent elements to the left (subtracts one from their</span></span><br><span class="line"><span class="comment">    * indices).</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> index the index of the element to be removed</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> the element that was removed from the list</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">       rangeCheck(index);</span><br><span class="line"></span><br><span class="line">       modCount++;</span><br><span class="line">       E oldValue = elementData(index);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">int</span> numMoved = size - index - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">if</span> (numMoved &gt; <span class="number">0</span>)</span><br><span class="line">           System.arraycopy(elementData, index+<span class="number">1</span>, elementData, index,</span><br><span class="line">                            numMoved);</span><br><span class="line">       elementData[--size] = <span class="keyword">null</span>; <span class="comment">// clear to let GC do its work</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> oldValue;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Removes the first occurrence of the specified element from this list,</span></span><br><span class="line"><span class="comment">    * if it is present.  If the list does not contain the element, it is</span></span><br><span class="line"><span class="comment">    * unchanged.  More formally, removes the element with the lowest index</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> o element to be removed from this list, if present</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> true if this list contained the specified element</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; size; index++)</span><br><span class="line">               <span class="keyword">if</span> (elementData[index] == <span class="keyword">null</span>) &#123;</span><br><span class="line">                   fastRemove(index);</span><br><span class="line">                   <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">               &#125;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; size; index++)</span><br><span class="line">               <span class="keyword">if</span> (o.equals(elementData[index])) &#123;</span><br><span class="line">                   fastRemove(index);</span><br><span class="line">                   <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">               &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * Private remove method that skips bounds checking and does not</span></span><br><span class="line"><span class="comment">    * return the value removed.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fastRemove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">       modCount++;</span><br><span class="line">       <span class="keyword">int</span> numMoved = size - index - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">if</span> (numMoved &gt; <span class="number">0</span>)</span><br><span class="line">           System.arraycopy(elementData, index+<span class="number">1</span>, elementData, index,</span><br><span class="line">                            numMoved);</span><br><span class="line">       elementData[--size] = <span class="keyword">null</span>; <span class="comment">// clear to let GC do its work</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>修改：直接修改内部维护的数组。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Replaces the element at the specified position in this list with</span></span><br><span class="line"><span class="comment"> * the specified element.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> index index of the element to replace</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> element element to be stored at the specified position</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the element previously at the specified position</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    rangeCheck(index);</span><br><span class="line"></span><br><span class="line">    E oldValue = elementData(index);</span><br><span class="line">    elementData[index] = element;</span><br><span class="line">    <span class="keyword">return</span> oldValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查找：ArrayList基于数组实现，可以通过下标索引直接查找到指定位置的元素，因此查找效率高，但每次插入或删除元素，就要大量地移动元素，插入删除元素的效率低。在查找给定元素索引值等的方法中，源码都将该元素的值分为null和不为null两种情况处理，ArrayList中允许元素为null。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Returns the element at the specified position in this list.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span>  index index of the element to return</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> the element at the specified position in this list</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">       rangeCheck(index);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> elementData(index);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Returns the index of the first occurrence of the specified element</span></span><br><span class="line"><span class="comment">    * in this list, or -1 if this list does not contain the element.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++)</span><br><span class="line">               <span class="keyword">if</span> (elementData[i]==<span class="keyword">null</span>)</span><br><span class="line">                   <span class="keyword">return</span> i;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++)</span><br><span class="line">               <span class="keyword">if</span> (o.equals(elementData[i]))</span><br><span class="line">                   <span class="keyword">return</span> i;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Returns the index of the last occurrence of the specified element</span></span><br><span class="line"><span class="comment">    * in this list, or -1 if this list does not contain the element.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lastIndexOf</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = size-<span class="number">1</span>; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">               <span class="keyword">if</span> (elementData[i]==<span class="keyword">null</span>)</span><br><span class="line">                   <span class="keyword">return</span> i;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = size-<span class="number">1</span>; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">               <span class="keyword">if</span> (o.equals(elementData[i]))</span><br><span class="line">                   <span class="keyword">return</span> i;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>转化为静态数组：</p>
+<ul>
+<li>Object[] toArray()方法。该方法返回一个Object数组，如果直接用向下转型的方法，将整个ArrayList集合转变为指定类型的Array数组(例如：强转为String[])，便会抛出java.lang.ClassCastException异常。</li>
+<li>\<t> T[] toArray(T[] a)方法。该方法可以直接将ArrayList转换得到的Array进行整体向下转型，且参数a的大小不足时，内部会调用Arrays.copyOf方法，该方法内部创建一个新的数组返回。</t></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回ArrayList的Object数组  </span></span><br><span class="line"><span class="keyword">public</span> Object[] toArray() &#123;  </span><br><span class="line">    <span class="keyword">return</span> Arrays.copyOf(elementData, size);  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="comment">// 返回ArrayList元素组成的数组</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; T[] toArray(T[] a) &#123;  </span><br><span class="line">    <span class="comment">// 若数组a的大小 &lt; ArrayList的元素个数；  </span></span><br><span class="line">    <span class="comment">// 则新建一个T[]数组，数组大小是“ArrayList的元素个数”，并将“ArrayList”全部拷贝到新数组中  </span></span><br><span class="line">    <span class="keyword">if</span> (a.length &lt; size)  </span><br><span class="line">        <span class="keyword">return</span> (T[]) Arrays.copyOf(elementData, size, a.getClass());  </span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 若数组a的大小 &gt;= ArrayList的元素个数；  </span></span><br><span class="line">    <span class="comment">// 则将ArrayList的全部元素都拷贝到数组a中。  </span></span><br><span class="line">    System.arraycopy(elementData, <span class="number">0</span>, a, <span class="number">0</span>, size);  </span><br><span class="line">    <span class="keyword">if</span> (a.length &gt; size)  </span><br><span class="line">        a[size] = <span class="keyword">null</span>;  </span><br><span class="line">    <span class="keyword">return</span> a;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因此对该方法的常用形式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Integer[] vectorToArray(ArrayList&lt;Integer&gt; v) &#123;  </span><br><span class="line">    Integer[] newText = (Integer[])v.toArray(<span class="keyword">new</span> Integer[<span class="number">0</span>]);  </span><br><span class="line">    <span class="keyword">return</span> newText;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Arrays-copyof-和-System-arraycopy"><a href="#Arrays-copyof-和-System-arraycopy" class="headerlink" title="Arrays.copyof() 和 System.arraycopy()"></a>Arrays.copyof() 和 System.arraycopy()</h5><p>ArrayList的实现中大量地调用了Arrays.copyof()和System.arraycopy()方法。</p>
+<p>首先来看Arrays.copyof()方法。它有很多个重载的方法，但实现思路都是一样的，泛型版本的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T[] copyOf(T[] original, <span class="keyword">int</span> newLength) &#123;</span><br><span class="line">	<span class="keyword">return</span> (T[]) copyOf(original, newLength, original.getClass());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明显调用了另一个copyof方法，该方法有三个参数，最后一个参数指明要转换的数据的类型，其源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T,U&gt; T[] copyOf(U[] original, <span class="keyword">int</span> newLength, Class&lt;? extends T[]&gt; newType) &#123;</span><br><span class="line">	T[] copy = ((Object)newType == (Object)Object[].class)</span><br><span class="line">            ? (T[]) <span class="keyword">new</span> Object[newLength]</span><br><span class="line">            : (T[]) Array.newInstance(newType.getComponentType(), newLength);</span><br><span class="line">    System.arraycopy(original, <span class="number">0</span>, copy, <span class="number">0</span>, Math.min(original.length, newLength));</span><br><span class="line">    <span class="keyword">return</span> copy;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法实际上是在其内部又创建了一个长度为newlength的数组，调用System.arraycopy()方法，将原来数组中的元素复制到了新的数组中。</p>
+<p>System.arraycopy()方法被标记了native，该函数实际上最终调用了C语言的memmove()函数，因此它可以保证同一个数组内元素的正确复制和移动，比一般的复制方法的实现效率要高很多，很适合用来批量处理数组。Java强烈推荐在复制大量数组元素时用该方法，以取得更高的效率。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/18/Java集合框架/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/18/Java集合框架/" itemprop="url">Java集合框架</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-18T16:29:27+08:00">
+                2018-01-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="/2018/01/18/Java集合框架/java集合关系图.jpeg" alt="java集合关系图"></p>
+<p>所有集合类都位于<strong>java.util</strong>包下。Java的集合类主要由两个接口派生而出：<strong>Collection</strong>和<strong>Map</strong>，Collection和Map是Java集合框架的根接口，这两个接口又包含了一些子接口或实现类。​    </p>
+<p>抽象类AbstractCollection、AbstractList和AbstractSet分别实现了Collection、List和Set接口，这就是适配器设计模式，用这些抽象类去实现接口，在抽象类中实现接口中的若干或全部方法，这样下面的一些类只需直接继承该抽象类，并实现自己需要的方法即可，而不用实现接口中的全部抽象方法。</p>
+<p>同样抽象类AbstractMap通过适配器模式实现了Map接口中的大部分函数，另外，不常用的HashTable直接实现了Map接口，它和Vector都是JDK1.0就引入的集合类。</p>
+<p>​    Iterator是遍历集合的迭代器（不能遍历Map，只用来遍历Collection），Collection的实现类都实现了iterator()函数，它返回一个Iterator对象，用来遍历集合，ListIterator则专门用来遍历List。而Enumeration则是JDK1.0时引入的，作用与Iterator相同，它只能再Hashtable、Vector和Stack中使用。</p>
+<p>​    Arrays和Collections是用来操作数组、集合的两个工具类，例如在ArrayList和Vector中大量调用了Arrays.Copyof()方法，而Collections中有很多静态方法可以返回各集合类的synchronized版本，即线程安全的版本，当然了，如果要用线程安全的结合类，首选Concurrent并发包下的对应的集合类。</p>
+<h5 id="Collection-接口"><a href="#Collection-接口" class="headerlink" title="Collection 接口"></a>Collection 接口</h5><p>是高度抽象出来的集合，它包含了集合的基本操作和属性。想要尽可能以常规方式处理一组元素时，就使用这一接口。 此外，还可以把集合转换成任何其它的对象数组。但是，不能直接把集合转换成基本数据类型的数组，因为集合必须持有对象。 Collection不提供get()方法。如果要遍历Collectin中的元素，就必须用Iterator。 </p>
+<h5 id="Queue接口"><a href="#Queue接口" class="headerlink" title="Queue接口"></a>Queue接口</h5><p>Queue接口与List、Set同一级别，都是继承了Collection接口。LinkedList实现了Queue接口。Queue接口窄化了对LinkedList的方法的访问权限（即在方法中的参数类型如果是Queue时，就完全只能访问Queue接口所定义的方法 了，而不能直接访问 LinkedList的非Queue的方法），以使得只有恰当的方法才可以使用。</p>
+<h5 id="List接口"><a href="#List接口" class="headerlink" title="List接口"></a>List接口</h5><p>List接口继承于Collection接口，它可以定义一个允许重复的有序集合。因为List中的元素是有序的，所以我们可以通过使用索引（元素在List中的位置，类似于数组下标）来访问List中的元素，这类似于Java的数组。</p>
+<ul>
+<li><p>ArrayList</p>
+<p>ArrayList是一个动态数组，底层使用数组实现。它允许任何符合规则的元素插入甚至包括null。ArrayList适用于随机访问较多，插入和删除较少的情况。ArrayList是非线程安全的。</p>
+</li>
+<li><p>LinkedList</p>
+<p>同样实现List接口的LinkedList与ArrayList不同，ArrayList是一个动态数组，而LinkedList是一个双向链表。由于Linklist底层使用双向链表实现，所以不能随机访问。在列表中索引的操作将从开头或结尾遍历列表(从靠近指定索引的一端)。LinkList是非线程安全的。</p>
+</li>
+<li><p>Vector</p>
+</li>
+</ul>
+<p>​      与ArrayList相似，但是Vector是线程安全的。它的操作与ArrayList几乎一样。</p>
+<ul>
+<li><p>Stack</p>
+<p>Stack继承自Vector，实现一个栈。Stack提供5个额外的方法：基本的push和pop 方法，还有peek方法得到栈顶的元素，empty方法测试堆栈是否为空，search方法检测一个元素在堆栈中的位置。Stack刚创建后是空栈。</p>
+</li>
+</ul>
+<h5 id="Set接口"><a href="#Set接口" class="headerlink" title="Set接口"></a>Set接口</h5><p>Set是一种不包括重复元素的Collection。无序，所以随机访问没有任何意义。与List一样，它同样允许null的存在但是仅有一个。由于Set接口的特殊性，所有传入Set集合中的元素都必须不同。Set接口有三个具体实现类，分别是散列集HashSet、链式散列集LinkedHashSet和树形集TreeSet。</p>
+<p>此外需要说明一点，在set接口中的不重复是有特殊要求的。举一个例子：对象A和对象B，本来是不同的两个对象，正常情况下它们是能够放入到Set里面的，但是如果对象A和B的都重写了hashcode和equals方法，并且重写后的hashcode和equals方法是相同的话。那么A和B是不能同时放入到Set集合中去的，也就是Set集合中的去重和hashcode与equals方法直接相关。 </p>
+<ul>
+<li><p>HashSet</p>
+<p> HashSet是由HashMap实现的，HashSet按Hash算法来存储集合的元素，因此具有很好的存取和查找性能。但不保证元素的顺序(不保证元素插入的顺序与输出的顺序一致)。而且HashSet允许使用null元素。HashSet是非线程安全的。 </p>
+</li>
+<li><p>LinkedHashSet</p>
+<p>LinkedHashSet继承自HashSet，其底层是基于LinkedHashMap来实现的，有序，非线程安全。LinkedHashSet集合同样是根据元素的hashCode值来决定元素的存储位置，但是它同时使用链表维护元素的次序。这样使得元素看起来像是以插入顺序保存的，也就是说，当遍历该集合时候，LinkedHashSet将会以元素的添加顺序访问集合的元素。</p>
+</li>
+<li><p>TreeSet</p>
+<p> TreeSet是一个有序集合，其底层是基于TreeMap实现的，非线程安全。TreeSet可以确保集合元素处于排序状态。TreeSet支持两种排序方式，自然排序和定制排序，其中自然排序为默认的排序方式。当我们构造TreeSet时，若使用不带参数的构造函数，则TreeSet的使用自然比较器；若用户需要使用自定义的比较器，则需要使用带比较器的参数。</p>
+<p>注意：TreeSet集合不是通过hashcode和equals函数来比较元素的.它是通过compare或者comparaeTo函数来判断元素是否相等。</p>
+</li>
+</ul>
+<h5 id="Map接口"><a href="#Map接口" class="headerlink" title="Map接口"></a>Map接口</h5><p>由一系列键值对组成的集合，提供了key到Value的映射，一个key对应一个value，所以它不能存在相同的key值，当然value值可以相同。</p>
+<ul>
+<li><p>HashMap</p>
+<p>以哈希表数据结构实现，查找对象时通过哈希函数计算其位置，它是为快速查询而设计的，其内部定义了一个hash表数组（Entry[ ] table），元素会通过哈希转换函数将元素的哈希地址转换成数组中存放的索引，如果有冲突，则使用散列链表的形式将所有相同哈希地址的元素串起来。</p>
+</li>
+<li><p>LinkedHashMap</p>
+<p>LinkedHashMap是HashMap的一个子类，它保留插入的顺序，如果需要输出的顺序和输入时的相同，那么就选用LinkedHashMap。</p>
+</li>
+<li><p>TreeMap</p>
+<p>TreeMap 是一个有序的key-value集合，非同步，基于红黑树（Red-Black tree）实现，每一个key-value节点作为红黑树的一个节点。TreeMap存储时会进行排序的，会根据key来对key-value键值对进行排序，其中排序方式也是分为两种，一种是自然排序，一种是定制排序，具体取决于使用的构造方法。</p>
+</li>
+</ul>
+<h5 id="Iterator-接口"><a href="#Iterator-接口" class="headerlink" title="Iterator 接口"></a>Iterator 接口</h5><p>Collection 接口的iterator()方法返回一个 Iterator。Iterator接口方法能以迭代方式逐个访问集合中各个元素，并安全的从Collection 中除去适当的元素。 迭代器是“快速失败”(fail-fast)的。这意味着，如果正在用 Iterator 遍历集合时，另一个线程要修改底层集合，那么，Iterator就会抛出 <code>ConcurrentModificationException</code> 异常并立刻失败，Iterator提供的API接口如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">hasNext</span><span class="params">()</span></span>&#123;&#125;;  <span class="comment">//判断集合里是否存在下一个元素。如果有，hasNext()方法返回 true。</span></span><br><span class="line"><span class="function">Object <span class="title">next</span><span class="params">()</span></span>&#123;&#125;;    <span class="comment">//返回集合里下一个元素。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span></span>&#123;&#125;;     <span class="comment">//删除集合里上一次next方法返回的元素。</span></span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<ul>
+<li>Iterator只能单向移动。</li>
+<li>Iterator.remove()是唯一安全的方式来在迭代过程中修改集合；如果在迭代过程中以任何其它的方式修改了基本集合将会产生未知的行为。而且每调用一次next()方法，remove()方法只能被调用一次，如果违反这个规则将抛出一个异常。</li>
+</ul>
+<h5 id="ListIterator接口"><a href="#ListIterator接口" class="headerlink" title="ListIterator接口"></a>ListIterator接口</h5><p>ListIterator是一个功能更加强大的迭代器, 它继承于Iterator接口,只能用于各种List类型的访问。可以通过调用listIterator()方法产生一个指向List开始处的ListIterator, 还可以调用listIterator(n)方法创建一个一开始就指向列表索引为n的元素处的ListIterator。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/09/Java实现断点续传/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1428,470 +1756,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/14/spring学习笔记（三）/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/14/spring学习笔记（三）/" itemprop="url">spring学习笔记（三）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T15:03:40+08:00">
-                2017-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="AOP概述"><a href="#AOP概述" class="headerlink" title="AOP概述"></a>AOP概述</h4><ul>
-<li>AOP(Aspect Oriented Programming)，意为：面向切面编程，通过预编译方式和运行期动态代理实现程序功能的统一维护的一种技术。AOP是OOP（面向对象编程）的延续，是软件开发中的一个热点，也是Spring框架中的一个重要内容，是函数式编程的一种衍生范型。利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。</li>
-<li>AOP采取<strong>横向抽取</strong>机制，取代了传统<strong>纵向继承</strong>体系重复性代码。<br>经典应用：事务管理、性能监视、安全检查、缓存    、日志等。</li>
-<li>Spring AOP使用纯Java实现，不需要专门的编译过程和类加载器，在运行期通过代理方式向目标类织入增强代码。<br>AspectJ是一个基于Java语言的AOP框架，Spring2.0开始，Spring    AOP引入对Aspect的支持，AspectJ扩展了Java语言，提供了一个专门的编译器，在编译时提供横向代码的织入。</li>
-</ul>
-<h4 id="AOP实现原理"><a href="#AOP实现原理" class="headerlink" title="AOP实现原理"></a>AOP实现原理</h4><ul>
-<li>aop底层采用代理机制实现。</li>
-<li>接口+实现类的情况下，spring采用jdk动态代理Proxy。</li>
-<li>只有实现类时，spring采用cglib字节码增强。</li>
-</ul>
-<h4 id="AOP术语"><a href="#AOP术语" class="headerlink" title="AOP术语"></a>AOP术语</h4><ul>
-<li>target 目标类：需要被代理的类。例如：UserService</li>
-<li>Joinpoint 连接点：所谓连接点是指那些可能被拦截到的方法。例如：所有的方法</li>
-<li>PointCut 切入点：已经被增强的连接点。例如：addUser()</li>
-<li>advice 通知/增强：增强代码。例如：after、before</li>
-<li>Weaving 织入：是指把增强advice应用到目标对象target来创建新的代理对象proxy的过程.</li>
-<li>proxy 代理类</li>
-<li>Aspect 切面：是切入点pointcut和通知advice的结合</li>
-</ul>
-<h4 id="代理模式的实现"><a href="#代理模式的实现" class="headerlink" title="代理模式的实现"></a>代理模式的实现</h4><h5 id="JDK动态代理"><a href="#JDK动态代理" class="headerlink" title="JDK动态代理"></a>JDK动态代理</h5><p>JDK动态代理是对“装饰者”设计模式的简化。使用前提是必须有接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//切面类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"before"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">after</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"after"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserService <span class="title">createService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> UserService userService = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">        <span class="keyword">final</span> MyAspect myAspect = <span class="keyword">new</span> MyAspect();</span><br><span class="line">        UserService userService = Proxy.newProxyInstance(MyFactory.class.getClassLoader(), userService.getClass.getInterfaces(), <span class="keyword">new</span> InvocationHandler()&#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                myAspect.before();</span><br><span class="line">                Object obj = method.invoke(userService, args);</span><br><span class="line">                myAspect.after();</span><br><span class="line">                <span class="keyword">return</span> obj;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> userService;  <span class="comment">//返回代理类</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo6</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    UserService proxy = MyFactory.createService();</span><br><span class="line">    proxy.addUser();</span><br><span class="line">    proxy.updateUser();</span><br><span class="line">    proxy.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="CGLIB字节码增强"><a href="#CGLIB字节码增强" class="headerlink" title="CGLIB字节码增强"></a>CGLIB字节码增强</h5><p>没有接口，只有实现类时，采用字节码增强框架cglib，在运行时创建目标类的子类，从而对目标类进行增强。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserServiceImpl <span class="title">createService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> UserSerrviceImpl userService = <span class="keyword">new</span> UserService();</span><br><span class="line">        <span class="keyword">final</span> MyAspect myAspect = <span class="keyword">new</span> MyAspect();</span><br><span class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();</span><br><span class="line">        enhancer.setSuperclass(userService.getClass());</span><br><span class="line">        enhancer.setCallback(<span class="keyword">new</span> MethodInterceptor()&#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object proxy, Method method, Object[] args, MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                myAspect.before();</span><br><span class="line">                <span class="comment">//执行生成子类的方法</span></span><br><span class="line">                Object obj = method.invoke(userService, args);</span><br><span class="line">                <span class="comment">//执行原始类的方法</span></span><br><span class="line">                Object obj = methodProxy.invokeSuper(proxy, args);</span><br><span class="line">                myAspect.after();</span><br><span class="line">                <span class="keyword">return</span> obj;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        UserServiceImpl proxy = (UserServiceImpl)enhancer.create();</span><br><span class="line">        <span class="keyword">return</span> proxy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="Spring中AOP实现方式"><a href="#Spring中AOP实现方式" class="headerlink" title="Spring中AOP实现方式"></a>Spring中AOP实现方式</h4><h5 id="AOP联盟通知类型"><a href="#AOP联盟通知类型" class="headerlink" title="AOP联盟通知类型"></a>AOP联盟通知类型</h5><p>AOP联盟为通知Advice定义了<code>org.aopalliance.aop.Advice</code>，Spring按照通知Advice在目标类方法的连接点位置可以分为5类：</p>
-<ul>
-<li><p>前置通知    <code>org.springframework.aop.MethodBeforeAdvice</code>，在目标方法执行前实施增强</p>
-<p>后置通知    <code>org.springframework.aop.AfterReturningAdvice</code>，在目标方法执行后实施增强</p>
-<p>环绕通知    <code>org.aopalliance.intercept.MethodInterceptor</code>，在目标方法执行前后实施增强</p>
-<p>异常抛出通知<code>org.springframework.aop.ThrowsAdvice</code>，在方法抛出异常后实施增强</p>
-<p>引介通知    <code>org.springframework.aop.IntroductionInterceptor</code>，在目标类中添加一些新的方法和属性</p>
-</li>
-</ul>
-<h5 id="Spring编写代理：半自动-需要手动为代理bean注入目标类、切面类等"><a href="#Spring编写代理：半自动-需要手动为代理bean注入目标类、切面类等" class="headerlink" title="Spring编写代理：半自动(需要手动为代理bean注入目标类、切面类等)"></a>Spring编写代理：半自动(需要手动为代理bean注入目标类、切面类等)</h5><p>让spring创建代理对象，从spring容器中手动获取代理对象。</p>
-<p>除4+1核心包外还需要导入AOP联盟(规范)<code>com.springsource.org.aopalliance-1.0.0.jar</code>与spring-aop(实现)<code>spring-aop-3.2.0.RELEASE.jar</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**切面类</span></span><br><span class="line"><span class="comment"> * 切面类中确定通知，需要实现不同接口，接口就是规范，从而就确定方法名称。</span></span><br><span class="line"><span class="comment"> * 此处采用“环绕通知” MethodInterceptor</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation mi)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"before"</span>);</span><br><span class="line">        <span class="comment">//环绕通知需要调用proceed（）方法以执行目标方法</span></span><br><span class="line">        Object obj = mi.proceed();</span><br><span class="line">        System.out.println(<span class="string">"after"</span>);</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 创建目标类 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo7.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 创建切面类 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo7.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 创建代理类 </span></span><br><span class="line"><span class="comment">	使用工厂bean FactoryBean ，底层调用 getObject() 返回特殊bean</span></span><br><span class="line"><span class="comment">	ProxyFactoryBean 用于创建代理工厂bean，生成特殊代理对象</span></span><br><span class="line"><span class="comment">		interfaces : 确定接口们，通过&lt;array&gt;可以设置多个值，只有一个值时，value=""</span></span><br><span class="line"><span class="comment">		target : 确定目标类</span></span><br><span class="line"><span class="comment">		interceptorNames : 通，切面类的名称，类型String[]，如果设置一个值 value=""</span></span><br><span class="line"><span class="comment">		optimize :强制使用cglib</span></span><br><span class="line"><span class="comment">				&lt;property name="optimize" value="true"&gt;&lt;/property&gt;</span></span><br><span class="line"><span class="comment">	底层机制</span></span><br><span class="line"><span class="comment">		如果目标类有接口，采用jdk动态代理</span></span><br><span class="line"><span class="comment">		如果没有接口，采用cglib 字节码增强</span></span><br><span class="line"><span class="comment">		如果声明 optimize = true ，无论是否有接口，都采用cglib</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"proxy"</span> <span class="attr">class</span>=<span class="string">"org.springframework.aop.framework.ProxyFactoryBean"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"interfaces"</span> <span class="attr">value</span>=<span class="string">"demo7.UserService"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proterty</span> <span class="attr">name</span>=<span class="string">"target"</span> <span class="attr">value</span>=<span class="string">"userService"</span>&gt;</span><span class="tag">&lt;/<span class="name">proterty</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proterty</span> <span class="attr">name</span>=<span class="string">"interceptorNames"</span> <span class="attr">value</span>=<span class="string">"myAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">proterty</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Teat</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo7</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String xmlPath = <span class="string">"demo7.beans.xml"</span>;</span><br><span class="line">    ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">    UserService proxy = applicatinContext.getBean(<span class="string">"proxy"</span>);</span><br><span class="line">    proxy.addUser();</span><br><span class="line">    proxy.updateUser();</span><br><span class="line">    proxy.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="Spring-AOP编程：全自动"><a href="#Spring-AOP编程：全自动" class="headerlink" title="Spring AOP编程：全自动"></a>Spring AOP编程：全自动</h5><p>从spring容器获得目标类，如果配置aop，spring将自动生成代理。需要导入jar包<code>spring-framework-3.0.2.RELEASE-dependencies\org.aspectj\com.springsource.org.aspectj.weaver\1.6.8.RELEASE</code>。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/aop </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/aop/spring-aop.xsd"</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 1 创建目标类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo8.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 2 创建切面类（通知） --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo8.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 3 aop编程 </span></span><br><span class="line"><span class="comment">		3.1 导入命名空间</span></span><br><span class="line"><span class="comment">		3.2 使用 &lt;aop:config&gt;进行配置，proxy-target-class="true" 声明时使用cglib代理</span></span><br><span class="line"><span class="comment">			&lt;aop:pointcut&gt; 切入点 ，从目标对象获得具体方法</span></span><br><span class="line"><span class="comment">			&lt;aop:advisor&gt; 特殊的切面，只有一个通知和一个切入点</span></span><br><span class="line"><span class="comment">				advice-ref 通知引用</span></span><br><span class="line"><span class="comment">				pointcut-ref 切入点引用</span></span><br><span class="line"><span class="comment">		3.3 切入点表达式</span></span><br><span class="line"><span class="comment">			execution(* demo8.*.*(..))</span></span><br><span class="line"><span class="comment">			返回值任意 包为demo8 类名任意 方法名任意 参数任意</span></span><br><span class="line"><span class="comment">		</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span> <span class="attr">proxy-target-class</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">"execution(* demo8.*.*(..))"</span> <span class="attr">id</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">"myAspect"</span> <span class="attr">pointcut-ref</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Teat</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo8</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String xmlPath = <span class="string">"demo8.beans.xml"</span>;</span><br><span class="line">    ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">    UserService userService = applicatinContext.getBean(<span class="string">"userService"</span>);</span><br><span class="line">    userService.addUser();</span><br><span class="line">    userService.updateUser();</span><br><span class="line">    userService.deleteUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="AspectJ"><a href="#AspectJ" class="headerlink" title="AspectJ"></a>AspectJ</h4><h5 id="关于AspectJ"><a href="#关于AspectJ" class="headerlink" title="关于AspectJ"></a>关于AspectJ</h5><ul>
-<li>AspectJ是一个基于Java语言的AOP框架</li>
-<li>Spring2.0以后新增了对AspectJ切点表达式支持</li>
-<li><code>@AspectJ</code>是AspectJ1.5新增功能，通过JDK5注解技术，允许直接在Bean类中定义切面</li>
-</ul>
-<ul>
-<li>主要用途：自定义开发</li>
-<li>除了spring4+1核心包与两个aop相关包外，还需要导入aspect规范<code>com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar</code>和spring aspect实现<code>spring-aspects-3.2.0.RELEASE.jar</code>。</li>
-</ul>
-<h5 id="切入点表达式"><a href="#切入点表达式" class="headerlink" title="切入点表达式"></a>切入点表达式</h5><ul>
-<li>execution() 用于描述方法，语法为<code>execution(修饰符 返回值  包.类.方法名(参数)throws异常)</code>，修饰符一般省略。</li>
-<li>within() 匹配包或子包中的方法</li>
-<li>this() 匹配实现接口的代理对象中的方法</li>
-<li>target() 匹配实现接口的目标对象中的方法</li>
-<li>args() 匹配参数格式符合标准的方法</li>
-<li>bean(id) 对指定的bean所有的方法</li>
-</ul>
-<h5 id="AspectJ通知类型"><a href="#AspectJ通知类型" class="headerlink" title="AspectJ通知类型"></a>AspectJ通知类型</h5><p>aop联盟定义通知类型，具有特性接口，必须实现，从而确定方法名称，但aspectj通知类型只定义类型名称以及方法格式。</p>
-<ul>
-<li>before:前置通知(应用：各种校验)，在方法执行前执行，如果通知抛出异常，阻止方法运行</li>
-<li>afterReturning:后置通知(应用：常规数据处理)，方法正常返回后执行，如果方法中抛出异常，通知无法执行，必须在方法执行后才执行，所以可以获得方法的返回值。</li>
-<li>around:环绕通知(应用：十分强大，可以做任何事情)，方法执行前后分别执行，可以阻止方法的执行，必须手动执行目标方法。</li>
-<li>afterThrowing:抛出异常通知(应用：包装异常信息)，方法抛出异常后执行，如果方法没有抛出异常，无法执行。</li>
-<li>after:最终通知(应用：清理现场)，方法执行完毕后执行，无论方法中是否出现异常</li>
-</ul>
-<h5 id="基于XML"><a href="#基于XML" class="headerlink" title="基于XML"></a>基于XML</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 切面类，含有多个通知</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myBefore</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前置通知 ： "</span> + joinPoint.getSignature().getName());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterReturning</span><span class="params">(JoinPoint joinPoint,Object ret)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后置通知 ： "</span> + joinPoint.getSignature().getName() + <span class="string">" , --&gt;"</span> + ret);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">myAround</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable</span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前"</span>);</span><br><span class="line">		<span class="comment">//手动执行目标方法</span></span><br><span class="line">		Object obj = joinPoint.proceed();</span><br><span class="line">		</span><br><span class="line">		System.out.println(<span class="string">"后"</span>);</span><br><span class="line">		<span class="keyword">return</span> obj;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterThrowing</span><span class="params">(JoinPoint joinPoint,Throwable e)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"抛出异常通知 ： "</span> + e.getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfter</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"最终通知"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 1 创建目标类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo9.UserServiceImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 2 创建切面类（通知） --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myAspect"</span> <span class="attr">class</span>=<span class="string">"demo9.MyAspect"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 3 aop编程 </span></span><br><span class="line"><span class="comment">		&lt;aop:aspect&gt; 声明"切面"，从而获得通知（方法）</span></span><br><span class="line"><span class="comment">			ref 切面类引用</span></span><br><span class="line"><span class="comment">		&lt;aop:pointcut&gt; 声明一个"切入点"，所有的通知都可以使用。</span></span><br><span class="line"><span class="comment">			expression 切入点表达式</span></span><br><span class="line"><span class="comment">			id 名称，用于其它通知引用</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">ref</span>=<span class="string">"myAspect"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">"execution(* demo9.UserServiceImpl.*(..))"</span> <span class="attr">id</span>=<span class="string">"myPointCut"</span>/&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.1 前置通知 </span></span><br><span class="line"><span class="comment">				&lt;aop:before method="" pointcut="" pointcut-ref=""/&gt;</span></span><br><span class="line"><span class="comment">					method : 通知，及方法名</span></span><br><span class="line"><span class="comment">					pointcut :切入点表达式，此表达式只能当前通知使用。</span></span><br><span class="line"><span class="comment">					pointcut-ref ： 切入点引用，可以与其他通知共享切入点。</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myBefore(JoinPoint joinPoint)&#123;</span></span><br><span class="line"><span class="comment">					参数：org.aspectj.lang.JoinPoint 用于描述连接点（目标方法），获得目标方法名等</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">					&lt;aop:before method="myBefore" pointcut-ref="myPointCut"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.2后置通知  ,目标方法后执行，获得返回值</span></span><br><span class="line"><span class="comment">				&lt;aop:after-returning method="" pointcut-ref="" returning=""/&gt;</span></span><br><span class="line"><span class="comment">					returning 通知方法第二个参数的名称</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myAfterReturning(JoinPoint joinPoint,Object ret)&#123;</span></span><br><span class="line"><span class="comment">					参数1：连接点描述</span></span><br><span class="line"><span class="comment">					参数2：类型Object，参数名 returning="ret" </span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:after-returning method="myAfterReturning" pointcut-ref="myPointCut" returning="ret" /&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">&lt;!-- 3.3 环绕通知 </span></span><br><span class="line"><span class="comment">				&lt;aop:around method="" pointcut-ref=""/&gt;</span></span><br><span class="line"><span class="comment">				通知方法格式：public Object myAround(ProceedingJoinPoint joinPoint) throws Throwable&#123;&#125;，内部执行目标方法：Object obj = joinPoint.proceed();</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:around method="myAround" pointcut-ref="myPointCut"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- 3.4 抛出异常</span></span><br><span class="line"><span class="comment">				&lt;aop:after-throwing method="" pointcut-ref="" throwing=""/&gt;</span></span><br><span class="line"><span class="comment">					throwing ：通知方法的第二个参数名称</span></span><br><span class="line"><span class="comment">				通知方法格式：public void myAfterThrowing(JoinPoint joinPoint,Throwable e)&#123;&#125;</span></span><br><span class="line"><span class="comment">					参数1：连接点描述对象</span></span><br><span class="line"><span class="comment">					参数2：获得异常信息，类型Throwable ，参数名由throwing="e" 配置</span></span><br><span class="line"><span class="comment">				例如：</span></span><br><span class="line"><span class="comment">				&lt;aop:after-throwing method="myAfterThrowing" pointcut-ref="myPointCut" throwing="e"/&gt;</span></span><br><span class="line"><span class="comment">			--&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- 3.5 最终通知 --&gt;</span>			</span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">method</span>=<span class="string">"myAfter"</span> <span class="attr">pointcut-ref</span>=<span class="string">"myPointCut"</span>/&gt;</span>		</span><br><span class="line">		<span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h5 id="基于注解"><a href="#基于注解" class="headerlink" title="基于注解"></a>基于注解</h5><ul>
-<li><p>切面</p>
-<p><code>@Aspect</code> 声明切面，修饰切面类，从而获得通知。</p>
-</li>
-<li><p>通知</p>
-<p><code>@Before</code>前置</p>
-<p><code>@AfterReturning</code>后置</p>
-<p><code>@Around</code>环绕</p>
-<p><code>@AfterThrowing</code>抛出异常</p>
-<p><code>@After</code>最终</p>
-</li>
-<li><p>切入点</p>
-<p><code>@PointCut</code>，修饰方法<code>privatevoid xxx(){}</code> 之后通过“方法名”获得切入点引用</p>
-</li>
-<li><p>配置扫描</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 1.扫描注解类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"demo10"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="comment">&lt;!-- 2.确定aop注解生效 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span>&gt;</span><span class="tag">&lt;/<span class="name">aop:aspectj-autoproxy</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 切面类，含有多个通知</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAspect</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Before</span>(<span class="string">"execution(* demo10.UserServiceImpl.*(..))"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myBefore</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前置通知 ： "</span> + joinPoint.getSignature().getName());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//声明公共切入点</span></span><br><span class="line">	<span class="meta">@Pointcut</span>(<span class="string">"execution(* demo10.UserServiceImpl.*(..))"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">myPointCut</span><span class="params">()</span></span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@AfterReturning</span>(value=<span class="string">"myPointCut()"</span> ,returning=<span class="string">"ret"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterReturning</span><span class="params">(JoinPoint joinPoint,Object ret)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后置通知 ： "</span> + joinPoint.getSignature().getName() + <span class="string">" , --&gt;"</span> + ret);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Around</span>(value = <span class="string">"myPointCut()"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">myAround</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable</span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前"</span>);</span><br><span class="line">		<span class="comment">//手动执行目标方法</span></span><br><span class="line">		Object obj = joinPoint.proceed();</span><br><span class="line">		</span><br><span class="line">		System.out.println(<span class="string">"后"</span>);</span><br><span class="line">		<span class="keyword">return</span> obj;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@AfterThrowing</span>(value=<span class="string">"execution(* demo.UserServiceImpl.*(..))"</span> ,throwing=<span class="string">"e"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfterThrowing</span><span class="params">(JoinPoint joinPoint,Throwable e)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"抛出异常通知 ： "</span> + e.getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@After</span>(<span class="string">"myPointCut()"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myAfter</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"最终通知"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>​</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/10/spring学习笔记（二）/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/10/spring学习笔记（二）/" itemprop="url">spring学习笔记（二）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-10T13:43:19+08:00">
-                2017-11-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="Bean的种类"><a href="#Bean的种类" class="headerlink" title="Bean的种类"></a>Bean的种类</h4><ul>
-<li><p>普通bean：之前操作的都是普通bean。<code>&lt;bean id=&quot;&quot; class=&quot;&quot;&gt;</code> ，spring直接创建实例，并返回。</p>
-</li>
-<li><p>FactoryBean：是一个特殊的bean，具有工厂生成对象能力，只能生成特定的对象。</p>
-<p>这种bean对应的类必须实现FactoryBean接口，此接口提供方法 getObject() 用于获得特定bean。配置方式与普通bean相同。</p>
-</li>
-<li><p>BeanFactory 和 FactoryBean 对比？</p>
-<ul>
-<li>BeanFactory：工厂类，用于生成任意bean。</li>
-<li>FactoryBean：特殊bean，用于生成另一个特定的bean。例如：ProxyFactoryBean ，此工厂bean用于生产代理。<code>&lt;bean id=&quot;Proxy&quot; class=&quot;ProxyFactoryBean&quot;&gt;</code> 获得代理对象实例。</li>
-</ul>
-</li>
-</ul>
-<h4 id="实例化Bean-——-基于XML"><a href="#实例化Bean-——-基于XML" class="headerlink" title="实例化Bean —— 基于XML"></a>实例化Bean —— 基于XML</h4><ul>
-<li><p>默认构造：必须提供默认构造函数</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>静态工厂：需要一个静态工厂类(所有方法必须为static)，用于生成实例对象。这种方式常用于spring整合其他框架/工具。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"工厂的全限定类名"</span> <span class="attr">factory-method</span>=<span class="string">"静态方法"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>实例工厂：必须先有工厂实例对象，通过实例对象创建对象。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 创建工厂实例 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"myBeanFactory"</span> <span class="attr">class</span>=<span class="string">"demo2.MyBeanFactory"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 获得userservice </span></span><br><span class="line"><span class="comment">		* factory-bean 确定工厂实例</span></span><br><span class="line"><span class="comment">		* factory-method 确定普通方法</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">factory-bean</span>=<span class="string">"myBeanFactory"</span> <span class="attr">factory-method</span>=<span class="string">"createService"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h4><ul>
-<li><p>作用域：用于确定spring创建bean实例个数。</p>
-</li>
-<li><p>取值：</p>
-<ul>
-<li>singleton：在Spring IoC容器中仅存在一个Bean实例，Bean以单例方式存在，默认值。</li>
-<li>prototype：每次从容其中调用Bean时，都返回一个新的实例，即每次调用getBean()时，相当于执行new xxxBean()。</li>
-<li>request：每次HTTP请求都会创建一个新的Bean，该作用域仅适用于WebApplicationContext环境。</li>
-<li>session：同一个HTTP Session共享一个Bean，不同Session使用不同Bean，该作用域仅适用于WebApplicationContext环境。</li>
-<li>globalSession：一般用于Protlet应用环境，该作用域仅适用于WebApplicationContext环境。</li>
-</ul>
-</li>
-<li><p>配置方式：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> <span class="attr">scope</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h4><p><img src="/2017/11/10/spring学习笔记（二）/spring2-1.png" alt="spring2-1"></p>
-<h5 id="Bean实例生命周期的执行过程："><a href="#Bean实例生命周期的执行过程：" class="headerlink" title="Bean实例生命周期的执行过程："></a>Bean实例生命周期的执行过程：</h5><ul>
-<li>Spring对bean进行实例化，默认bean是单例；    </li>
-<li>Spring对bean进行依赖注入；    </li>
-<li>如果bean实现了BeanNameAware接口，spring将bean的id传给setBeanName()方法；    </li>
-<li>如果bean实现了BeanFactoryAware接口，spring将调用setBeanFactory方法，将BeanFactory实例传进来；    </li>
-<li>如果bean实现了ApplicationContextAware接口，它的setApplicationContext()方法将被调用，将应用上下文的引用传入到bean中；    </li>
-<li>如果bean实现了BeanPostProcessor接口，它的postProcessBeforeInitialization方法将被调用；    </li>
-<li>如果bean实现了InitializingBean接口，spring将调用它的afterPropertiesSet接口方法，类似的如果bean使用了init-method属性声明了初始化方法，该方法也会被调用；    </li>
-<li>如果bean实现了BeanPostProcessor接口，它的postProcessAfterInitialization接口方法将被调用；    </li>
-<li>此时bean已经准备就绪，可以被应用程序使用了，他们将一直驻留在应用上下文中，直到该应用上下文被销毁；    </li>
-<li>若bean实现了DisposableBean接口，spring将调用它的distroy()接口方法。同样的，如果bean使用了destroy-method属性声明了销毁方法，则该方法被调用。</li>
-</ul>
-<h5 id="单例管理的对象"><a href="#单例管理的对象" class="headerlink" title="单例管理的对象"></a>单例管理的对象</h5><ul>
-<li><p>当scope=”singleton”，即默认情况下，会在启动容器时（即实例化容器时）时实例化。但我们可以指定Bean节点的lazy-init=”true”来延迟初始化bean，这时候，只有在第一次获取bean时才会初始化bean，即第一次请求该bean时才初始化。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"Service"</span> <span class="attr">class</span>=<span class="string">"demo3.Service"</span> <span class="attr">lazy-init</span>=<span class="string">"true"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果想对所有的默认单例bean都应用延迟初始化，可以在根节点beans设置default-lazy-init属性为true。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">default-lazy-init</span>=<span class="string">"true"</span> <span class="attr">...</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>默认情况下，Spring在读取xml文件的时候，就会创建对象。在创建对象的时候先调用构造器，然后调用init-method属性值中所指定的方法。对象在被销毁的时候，会调用destroy-method属性值中所指定的方法（例如调用Container.destroy()方法的时候）。</p>
-</li>
-</ul>
-<h5 id="非单例管理的对象"><a href="#非单例管理的对象" class="headerlink" title="非单例管理的对象"></a>非单例管理的对象</h5><ul>
-<li>当scope=”prototype”时，容器也会延迟初始化bean，Spring读取xml文件的时候，并不会立刻创建对象，而是在第一次请求该bean时才初始化（如调用getBean方法时）。</li>
-<li>在第一次请求每一个prototype的bean时，Spring容器都会调用其构造器创建这个对象，然后调用init-method属性值中所指定的方法。</li>
-<li>对象销毁的时候，Spring容器不会帮我们调用任何方法，因为是非单例，这个类型的对象有很多个，Spring容器一旦把这个对象交给你之后，就不再管理这个对象了。</li>
-</ul>
-<h5 id="初始化与销毁"><a href="#初始化与销毁" class="headerlink" title="初始化与销毁"></a>初始化与销毁</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> <span class="attr">init-method</span>=<span class="string">""</span> <span class="attr">destroy-method</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"add user"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"初始化"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myDestroy</span><span class="params">()</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"销毁"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--  </span></span><br><span class="line"><span class="comment">		init-method 用于配置初始化方法,准备数据等</span></span><br><span class="line"><span class="comment">		destroy-method 用于配置销毁方法,清理资源等</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"demo3.UserServiceImpl"</span> </span></span><br><span class="line"><span class="tag">		<span class="attr">init-method</span>=<span class="string">"myInit"</span> <span class="attr">destroy-method</span>=<span class="string">"myDestroy"</span> &gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo03</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">		String xmlPath = <span class="string">"demo3/beans.xml"</span>;</span><br><span class="line">		ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(xmlPath);</span><br><span class="line">		UserService userService = (UserService) applicationContext.getBean(<span class="string">"userService"</span>);</span><br><span class="line">		userService.addUser();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//要求：1.容器必须close，销毁方法才会执行; 2.必须是单例的</span></span><br><span class="line">		<span class="comment">//applicationContext.getClass().getMethod("close").invoke(applicationContext);</span></span><br><span class="line">		<span class="comment">// * 此方法接口中没有定义，实现类提供，可以通过反射调用，也可以直接声明为实现类再直接调用</span></span><br><span class="line">		applicationContext.close();</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="BeanPostProcessor后处理Bean"><a href="#BeanPostProcessor后处理Bean" class="headerlink" title="BeanPostProcessor后处理Bean"></a>BeanPostProcessor后处理Bean</h5><ul>
-<li><p>spring提供一种机制，只要实现此接口BeanPostProcessor，并将实现类提供给spring容器，spring容器将自动执行，在初始化方法前执行before()，在初始化方法后执行after()，它将作用于容器范围，即容器中的所有bean进行初始化时，都会经过该后处理bean。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置语法 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>工厂勾子，用于修改实例对象，也可以用来生成代理对象，是AOP底层。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBeanPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"前方法 ： "</span> + beanName);</span><br><span class="line">		<span class="keyword">return</span> bean;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">postProcessAfterInitialization</span><span class="params">(<span class="keyword">final</span> Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"后方法 ： "</span> + beanName);</span><br><span class="line">		<span class="comment">// 生成 jdk 代理</span></span><br><span class="line">		<span class="keyword">return</span> Proxy.newProxyInstance(</span><br><span class="line">					MyBeanPostProcessor.class.getClassLoader(), </span><br><span class="line">					bean.getClass().getInterfaces(), </span><br><span class="line">					<span class="keyword">new</span> InvocationHandler()&#123;</span><br><span class="line">						<span class="meta">@Override</span></span><br><span class="line">						<span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">							</span><br><span class="line">							System.out.println(<span class="string">"------开启事务"</span>);</span><br><span class="line">							</span><br><span class="line">							<span class="comment">//执行目标方法</span></span><br><span class="line">							Object obj = method.invoke(bean, args);</span><br><span class="line">							</span><br><span class="line">							System.out.println(<span class="string">"------提交事务"</span>);</span><br><span class="line">							<span class="keyword">return</span> obj;</span><br><span class="line">						&#125;&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 将后处理的实现类注册给spring --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"demo4.MyBeanPostProcessor"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="依赖注入-——-基于XML"><a href="#依赖注入-——-基于XML" class="headerlink" title="依赖注入 —— 基于XML"></a>依赖注入 —— 基于XML</h4><ul>
-<li><p>使用构造方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> Integer uid;</span><br><span class="line">	<span class="keyword">private</span> String username;</span><br><span class="line">	<span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Address addr;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(Integer uid, String username)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.uid = uid;</span><br><span class="line">		<span class="keyword">this</span>.username = username;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(String username, Integer age)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.username = username;</span><br><span class="line">		<span class="keyword">this</span>.age = age;</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setUsername</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.username = username;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">setAddr</span><span class="params">(Address addr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addr = addr;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 构造方法注入 </span></span><br><span class="line"><span class="comment">		* &lt;constructor-arg&gt; 用于配置构造方法一个参数argument</span></span><br><span class="line"><span class="comment">			name ：参数的名称</span></span><br><span class="line"><span class="comment">			value：设置普通数据</span></span><br><span class="line"><span class="comment">			ref：引用数据，一般是另一个bean id值</span></span><br><span class="line"><span class="comment">			index ：参数的索引号，从0开始 。如果只有索引，匹配到了多个构造方法时，默认使用第一个。</span></span><br><span class="line"><span class="comment">			type ：确定参数类型</span></span><br><span class="line"><span class="comment">		例如：使用名称name</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg name="username" value="jack"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg name="age" value="18"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">		例如2：【类型type 和  索引 index】</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg index="0" type="java.lang.String" value="1"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">			&lt;constructor-arg index="1" type="java.lang.Integer" value="2"&gt;&lt;/constructor-arg&gt;</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"User"</span> <span class="attr">class</span>=<span class="string">"demo5.User"</span> &gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"0"</span> <span class="attr">type</span>=<span class="string">"java.lang.String"</span> <span class="attr">value</span>=<span class="string">"1"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"1"</span> <span class="attr">type</span>=<span class="string">"java.lang.Integer"</span> <span class="attr">value</span>=<span class="string">"2"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用setter方法</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- setter方法注入 </span></span><br><span class="line"><span class="comment">		* 普通数据 </span></span><br><span class="line"><span class="comment">			&lt;property name="" value="值"&gt;</span></span><br><span class="line"><span class="comment">		* 引用数据</span></span><br><span class="line"><span class="comment">			&lt;property name="" ref="另一个bean"&gt;</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"demo5.User"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"Lee"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"age"</span> <span class="attr">value</span>=<span class="string">"23"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"addr"</span> <span class="attr">ref</span>=<span class="string">"Address"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"Address"</span> <span class="attr">class</span>=<span class="string">"demo5.Address"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"country"</span> <span class="attr">value</span>=<span class="string">"China"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"city"</span> <span class="attr">value</span>=<span class="string">"Beijing"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>集合注入</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- </span></span><br><span class="line"><span class="comment">		集合的注入都是给&lt;property&gt;添加子标签</span></span><br><span class="line"><span class="comment">			数组：&lt;array&gt;</span></span><br><span class="line"><span class="comment">			List：&lt;list&gt;</span></span><br><span class="line"><span class="comment">			Set：&lt;set&gt;</span></span><br><span class="line"><span class="comment">			Map：&lt;map&gt; ，map存放k/v 键值对，使用&lt;entry&gt;描述</span></span><br><span class="line"><span class="comment">			Properties：&lt;props&gt;  &lt;prop key=""&gt;&lt;/prop&gt; </span></span><br><span class="line"><span class="comment">			</span></span><br><span class="line"><span class="comment">		普通数据：&lt;value&gt;</span></span><br><span class="line"><span class="comment">		引用数据：&lt;ref&gt;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">		集合中可以嵌套集合</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">""</span> &gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"array"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"list"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"set"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">value</span>&gt;</span>...<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"map"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">"..."</span> <span class="attr">value</span>=<span class="string">"..."</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"properties"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"..."</span>&gt;</span>...<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"..."</span>&gt;</span>...<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="装配Bean-——-基于注解"><a href="#装配Bean-——-基于注解" class="headerlink" title="装配Bean —— 基于注解"></a>装配Bean —— 基于注解</h4><h5 id="实例化Bean"><a href="#实例化Bean" class="headerlink" title="实例化Bean"></a>实例化Bean</h5><ul>
-<li><p><code>@Component</code> 取代 <code>&lt;bean class=&quot;&quot;&gt;</code></p>
-<p><code>@Component(&quot;id&quot;)</code> 取代 <code>&lt;bean id=&quot;&quot; class=&quot;&quot;&gt;</code></p>
-</li>
-<li><p>web开发中，提供3个@Component注解衍生注解（功能一样）取代<code>&lt;bean class=&quot;&quot;&gt;</code></p>
-<ul>
-<li>@Repository：dao层</li>
-<li>@Service：service层</li>
-<li>@Controller：web层</li>
-</ul>
-</li>
-</ul>
-<h5 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h5><p>给私有字段设置，也可以给setter方法设置</p>
-<ul>
-<li><p>普通值：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(<span class="string">""</span>)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>引用值：</p>
-<ul>
-<li><p>按照类型注入 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>按照名称注入</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方式一</span></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier</span>(<span class="string">"名称"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//方式二</span></span><br><span class="line"><span class="meta">@Resource</span>(<span class="string">"名称"</span>)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>生命周期</p>
-<ul>
-<li><p>初始化：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostConstruct</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>销毁：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreDestroy</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>作用域</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scope</span>(<span class="string">"prototype"</span>)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="注解使用前提，添加命名空间，让spring扫描含有注解类"><a href="#注解使用前提，添加命名空间，让spring扫描含有注解类" class="headerlink" title="注解使用前提，添加命名空间，让spring扫描含有注解类"></a>注解使用前提，添加命名空间，让spring扫描含有注解类</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/context </span></span></span><br><span class="line"><span class="tag"><span class="string">       					   http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 组件扫描，扫描含有注解的类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"demo5"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1944,7 +1808,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1957,7 +1821,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
