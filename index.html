@@ -269,7 +269,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/18/Kafka原理1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/08/Kafka原理1/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -288,7 +288,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/18/Kafka原理1/" itemprop="url">Kafka原理1</a></h1>
+                <a class="post-title-link" href="/2019/01/08/Kafka原理1/" itemprop="url">Kafka原理1</a></h1>
         
 
         <div class="post-meta">
@@ -300,8 +300,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-18T13:03:55+08:00">
-                2018-10-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-08T13:03:55+08:00">
+                2019-01-08
               </time>
             
 
@@ -375,7 +375,7 @@
 <li>当consumer group里面的consumer数量大于这个topic下的partition数量的时候，就会有一个consumer thread空闲。</li>
 </ol>
 <p>设定consumer group的时候，只需要指明里面有几个consumer数量即可，无需指定对应的消费partition序号，consumer会自动进行rebalance。</p>
-<p><img src="/2018/10/18/Kafka原理1/kafka1.png" alt="1"></p>
+<p><img src="/2019/01/08/Kafka原理1/kafka1.png" alt="1"></p>
 <p>Consumer Rebalance的触发条件：</p>
 <p>（1）Consumer增加或删除会触发 Consumer Group的Rebalance</p>
 <p>（2）Broker的增加或者减少都会触发 Consumer Rebalance</p>
@@ -391,8 +391,8 @@
 <h3 id="Partition-ack"><a href="#Partition-ack" class="headerlink" title="Partition ack"></a>Partition ack</h3><p>当ack=1，表示producer写partition leader成功后，broker就返回成功，无论其他的partition follower是否写成功。这里需要注意的是，如果ack=1的时候，一旦有个broker宕机导致partition的follower和leader切换，会导致丢数据。</p>
 <p>当ack=2，表示producer写partition leader和其他一个follower成功的时候，broker就返回成功，无论其他的partition follower是否写成功。</p>
 <p>当ack=-1[parition的数量]的时候，表示只有producer全部写成功的时候，才算成功，kafka broker才返回成功信息。</p>
-<p><img src="/2018/10/18/Kafka原理1/kafka3.png" alt="2"></p>
-<p><img src="/2018/10/18/Kafka原理1/kafka2.png" alt="3"></p>
+<p><img src="/2019/01/08/Kafka原理1/kafka3.png" alt="2"></p>
+<p><img src="/2019/01/08/Kafka原理1/kafka2.png" alt="3"></p>
 <h5 id="message持久化："><a href="#message持久化：" class="headerlink" title="message持久化："></a>message持久化：</h5><p>Kafka中会把消息持久化到本地文件系统中，并且保持o(1)极高的效率。我们众所周知IO读取是非常耗资源的性能也是最慢的，这就是为了数据库的瓶颈经常在IO上，需要换SSD硬盘的原因。但是Kafka作为吞吐量极高的MQ，却可以非常高效的message持久化到文件。这是因为Kafka是顺序写入o（1）的时间复杂度，速度非常快。也是高吞吐量的原因。由于message的写入持久化是顺序写入的，因此message在被消费的时候也是按顺序被消费的，保证partition的message是顺序消费的。一般的机器,单机每秒100k条数据。</p>
 <h5 id="批量发送："><a href="#批量发送：" class="headerlink" title="批量发送："></a>批量发送：</h5><p>Kafka支持以消息集合为单位进行批量发送，以提高push效率。</p>
 <h5 id="push-and-pull"><a href="#push-and-pull" class="headerlink" title="push-and-pull :"></a>push-and-pull :</h5><p>Kafka中的Producer和consumer采用的是push-and-pull模式，即Producer只管向broker push消息，consumer只管从broker pull消息，两者对消息的生产和消费是异步的。</p>
@@ -446,7 +446,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/16/redis过期策略和内存淘汰/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/10/netty学习笔记3/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -465,7 +465,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/16/redis过期策略和内存淘汰/" itemprop="url">redis过期策略和内存淘汰</a></h1>
+                <a class="post-title-link" href="/2018/12/10/netty学习笔记3/" itemprop="url">netty学习笔记3</a></h1>
         
 
         <div class="post-meta">
@@ -477,165 +477,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-16T12:51:01+08:00">
-                2018-10-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="redis的过期策略以及内存淘汰机制"><a href="#redis的过期策略以及内存淘汰机制" class="headerlink" title="redis的过期策略以及内存淘汰机制"></a>redis的过期策略以及内存淘汰机制</h3><p>redis采用的是定期删除+惰性删除策略。</p>
-<p><strong>定期删除：</strong>redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p>
-<p><strong>惰性删除：</strong>获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p>
-<p>如果定期删除没删除key。然后也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用内存淘汰机制。</p>
-<h4 id="内存淘汰机制"><a href="#内存淘汰机制" class="headerlink" title="内存淘汰机制"></a>内存淘汰机制</h4><p>在redis.conf中有一行配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># maxmemory-policy volatile-lru</span><br></pre></td></tr></table></figure>
-<p>该配置就是配内存淘汰策略</p>
-<p>1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。应该没人用吧。</p>
-<p>2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。推荐使用。</p>
-<p>3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。</p>
-<p>4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐</p>
-<p>5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。依然不推荐</p>
-<p>6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。不推荐</p>
-<p>ps：如果没有设置 expire 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</p>
-<h3 id="如何应对缓存穿透和缓存雪崩问题"><a href="#如何应对缓存穿透和缓存雪崩问题" class="headerlink" title="如何应对缓存穿透和缓存雪崩问题"></a>如何应对缓存穿透和缓存雪崩问题</h3><p><strong>缓存穿透：</strong>即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。</p>
-<p>解决方案:</p>
-<p>(一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试</p>
-<p>(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。</p>
-<p>(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。</p>
-<p><strong>缓存雪崩：</strong>即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。</p>
-<p>解决方案:</p>
-<p>(一)给缓存的失效时间，加上一个随机值，避免集体失效。</p>
-<p>(二)使用互斥锁，但是该方案吞吐量明显下降了。</p>
-<p>(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点</p>
-<ul>
-<li>I 从缓存A读数据库，有则直接返回</li>
-<li>II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。</li>
-<li>III 更新线程同时更新缓存A和缓存B。</li>
-</ul>
-<h3 id="如何解决redis的并发竞争key问题"><a href="#如何解决redis的并发竞争key问题" class="headerlink" title="如何解决redis的并发竞争key问题"></a>如何解决redis的并发竞争key问题</h3><p>使用redis事务机制，但基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，redis的事务机制，十分鸡肋。</p>
-<p>(1)如果对这个key操作，不要求顺序</p>
-<p>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。</p>
-<p>(2)如果对这个key操作，要求顺序</p>
-<p>假设有一个key1,系统A需要将key1设置为valueA,系统B需要将key1设置为valueB,系统C需要将key1设置为valueC.</p>
-<p>期望按照key1的value值按照 valueA–&gt;valueB–&gt;valueC的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line"></span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line"></span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br></pre></td></tr></table></figure>
-<p>那么，假设这会系统B先抢到锁，将key1设置为{valueB 3:05}。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做set操作了。以此类推。</p>
-<p>其他方法，比如利用队列，将set方法变成串行访问也可以。总之，灵活变通。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/14/netty学习笔记3/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Cooper">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cooper's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/14/netty学习笔记3/" itemprop="url">netty学习笔记3</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-14T21:47:07+08:00">
-                2018-10-14
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-10T21:47:07+08:00">
+                2018-12-10
               </time>
             
 
@@ -681,7 +524,7 @@
 </ol>
 <p>对于第一种情况，服务端的处理流程可以是这样的：当客户端与服务端的连接建立成功之后，服务端不断读取客户端发送过来的数据，当客户端与服务端连接断开之后，服务端知道已经读完了一条消息，然后进行解码和后续处理。</p>
 <p>对于第二种情况，客户端发送的两条消息递交到服务端有可能出现的情况如下：</p>
-<p><img src="/2018/10/14/netty学习笔记3/111.png" alt="p1"></p>
+<p><img src="/2018/12/10/netty学习笔记3/111.png" alt="p1"></p>
 <p>（1）服务端分两次读取到了两个独立的数据包，分别是D1和D2，没有粘包和拆包；</p>
 <p>（2）服务端一次接收到了两个数据包，D1和D2粘合在一起，被称为TCP粘包；</p>
 <p>（3）服务端分两次读取到了两个数据包，第一次读取到了完整的D1包和D2包的部分内容，第二次读取到了D2包的剩余内容，这被称为TCP拆包；</p>
@@ -753,7 +596,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/13/netty学习笔记2/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/03/netty学习笔记2/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -772,7 +615,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/13/netty学习笔记2/" itemprop="url">netty学习笔记2</a></h1>
+                <a class="post-title-link" href="/2018/12/03/netty学习笔记2/" itemprop="url">netty学习笔记2</a></h1>
         
 
         <div class="post-meta">
@@ -784,8 +627,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-13T13:01:11+08:00">
-                2018-10-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-03T13:01:11+08:00">
+                2018-12-03
               </time>
             
 
@@ -845,7 +688,7 @@
 <li>支持引用计数</li>
 </ul>
 <h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>ByteBuf维护两个不同的索引：读索引和写索引。当从ByteBuf中读，它的<code>readerIndex</code>增加了读取的字节数；同理，当你向ByteBuf中写，<code>writerIndex</code>增加。下图显示了一个空的ByteBuf的布局和状态：</p>
-<p><img src="/2018/10/13/netty学习笔记2/11.png" alt="p1"></p>
+<p><img src="/2018/12/03/netty学习笔记2/11.png" alt="p1"></p>
 <p>如果读数据时<code>readerIndex</code>已经和<code>writerIndex</code>一样，表示已经读完了可读的数据。尝试继续往下读会引发一个<code>IndexOutOfBoundsException</code>，就像引发数组越界那样。</p>
 <h3 id="ByteBuf的使用模式"><a href="#ByteBuf的使用模式" class="headerlink" title="ByteBuf的使用模式"></a>ByteBuf的使用模式</h3><h4 id="堆缓冲区-HEAP-BUFFER"><a href="#堆缓冲区-HEAP-BUFFER" class="headerlink" title="堆缓冲区(HEAP BUFFER)"></a>堆缓冲区(HEAP BUFFER)</h4><p>最常使用的ByteBuf模式将数据保存到JVM的堆中。被称为支持数组(backing array),这个模式提供了在没有使用池技术的情况下快速分配和释放(在堆缓冲区中)。如下所示：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf heapBuf = ...;</span><br><span class="line"><span class="keyword">if</span> (heapBuf.hasArray())&#123;<span class="comment">//检查是否有支持数组</span></span><br><span class="line">    <span class="keyword">byte</span>[] array = heapBuf.array();     <span class="comment">//得到支持数组</span></span><br><span class="line">    <span class="keyword">int</span> offset = heapBuf.arrayOffset() + heapBuf.readerIndex();<span class="comment">//计算第一个字节的偏移量</span></span><br><span class="line">    <span class="keyword">int</span> length = heapBuf.readableBytes();<span class="comment">//计算可读字节数</span></span><br><span class="line">    handleArray(array, offset, length); <span class="comment">//调用你的方法来处理这个array</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//当hasArray()返回false时尝试访问支持数组会抛出UnsupportedOperationException。</span></span><br></pre></td></tr></table></figure>
@@ -856,14 +699,14 @@
 <h4 id="复合缓冲区-COMPOSITE-BUFFER"><a href="#复合缓冲区-COMPOSITE-BUFFER" class="headerlink" title="复合缓冲区(COMPOSITE BUFFER)"></a>复合缓冲区(COMPOSITE BUFFER)</h4><p>Composite Buffer是Netty特有的缓冲区。本质上类似于提供一个或多个ByteBuf的组合视图，可以根据需要添加和删除不同类型的ByteBuf。</p>
 <p>Composite Buffer：它是一个组合视图。它提供一种访问方式让使用者自由的组合多个ByteBuf，避免了拷贝和分配新的缓冲区。<br>Composite Buffer不支持访问其支撑数组。因此如果要访问，需要先将内容拷贝到堆内存中，再进行访问</p>
 <p>下图是将两个ByteBuf：头部+Body组合在一起，没有进行任何复制过程。仅仅创建了一个视图</p>
-<p><img src="/2018/10/13/netty学习笔记2/22.png" alt="p2"></p>
+<p><img src="/2018/12/03/netty学习笔记2/22.png" alt="p2"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public static void byteBufComposite() &#123;</span><br><span class="line">    // 复合缓冲区，只是提供一个视图</span><br><span class="line">    CompositeByteBuf messageBuf = Unpooled.compositeBuffer();</span><br><span class="line">    ByteBuf headerBuf = Unpooled.buffer(); // can be backing or direct</span><br><span class="line">    ByteBuf bodyBuf = Unpooled.directBuffer();   // can be backing or direct</span><br><span class="line">    messageBuf.addComponents(headerBuf, bodyBuf);</span><br><span class="line">    messageBuf.removeComponent(0); // remove the header</span><br><span class="line">    for (ByteBuf buf : messageBuf) &#123;</span><br><span class="line">        System.out.println(buf.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="字节级操作"><a href="#字节级操作" class="headerlink" title="字节级操作"></a>字节级操作</h3><h4 id="随机访问索引"><a href="#随机访问索引" class="headerlink" title="随机访问索引"></a>随机访问索引</h4><p>ByteBuf的索引与普通的Java字节数组一样。第一个字节的索引是0，最后一个字节索引总是capacity()-1。下列两条，非常有用:</p>
 <p>readXXX()和writeXXX()方法将会推进其对应的索引readerIndex和writerIndex。自动推进<br>getXXX()和setXXX()方法用于访问数据，对writerIndex和readerIndex无影响</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteBufRelativeAccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ByteBuf buffer = Unpooled.buffer(); <span class="comment">//get reference form somewhere</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; buffer.capacity(); i++) &#123;</span><br><span class="line">        <span class="keyword">byte</span> b = buffer.getByte(i);<span class="comment">// 不改变readerIndex值</span></span><br><span class="line">        System.out.println((<span class="keyword">char</span>) b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="顺序访问索引"><a href="#顺序访问索引" class="headerlink" title="顺序访问索引"></a>顺序访问索引</h4><p>Netty的ByteBuf同时具有读索引和写索引，但JDK的ByteBuffer只有一个索引，所以JDK需要调用flip()方法在读模式和写模式之间切换。</p>
 <p> ByteBuf被读索引和写索引划分成3个区域：可丢弃字节区域，可读字节区域和可写字节区域 </p>
-<p><img src="/2018/10/13/netty学习笔记2/33.png" alt="p3"></p>
+<p><img src="/2018/12/03/netty学习笔记2/33.png" alt="p3"></p>
 <h5 id="可丢弃字节区域"><a href="#可丢弃字节区域" class="headerlink" title="可丢弃字节区域"></a>可丢弃字节区域</h5><p>可丢弃字节区域是指:[0，readerIndex)之间的区域。可调用discardReadBytes()方法丢弃已经读过的字节。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. discardReadBytes()效果 ----- 将可读字节区域(CONTENT)[readerIndex, writerIndex)往前移动readerIndex位，同时修改读索引和写索引。</span><br><span class="line"></span><br><span class="line">2. discardReadBytes()方法会移动可读字节区域内容(CONTENT)。如果频繁调用，会有多次数据复制开销，对性能有一定的影响</span><br></pre></td></tr></table></figure>
 <h5 id="可读字节区域"><a href="#可读字节区域" class="headerlink" title="可读字节区域"></a>可读字节区域</h5><p>可读字节区域是指:[readerIndex, writerIndex)之间的区域。任何名称以read和skip开头的操作方法，都会改变readerIndex索引。</p>
@@ -992,7 +835,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/11/netty学习笔记1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/01/netty学习笔记1/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -1011,7 +854,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/11/netty学习笔记1/" itemprop="url">netty学习笔记1</a></h1>
+                <a class="post-title-link" href="/2018/12/01/netty学习笔记1/" itemprop="url">netty学习笔记1</a></h1>
         
 
         <div class="post-meta">
@@ -1023,8 +866,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-11T23:01:11+08:00">
-                2018-10-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-01T23:01:11+08:00">
+                2018-12-01
               </time>
             
 
@@ -1077,7 +920,7 @@
 <p>​      ServerBootstrap用来绑定本地端口，有2个EventLoopGroup（实际上使用的是相同的实例）。</p>
 <p>​      ServerBootstrap在服务器端监听一个端口，轮询客户端的“Bootstrap”或DatagramChannel是否连接服务器，通常需要调用“Bootstrap”类的connect()方法，但是也可以先调用bind()再调用connect()进行连接，之后使用的Channel包含在bind()返回的ChannelFuture中。</p>
 <p>​       一个ServerBootstrap可以认为有2个channel组，第一组包含一个单例的ServerChannel，代表持有了一个保存本地端口的socket；第二组包含所有的Channel,代表服务器已经接受了的链接。</p>
-<p><img src="/2018/10/11/netty学习笔记1/1.png" alt="tu1"></p>
+<p><img src="/2018/12/01/netty学习笔记1/1.png" alt="tu1"></p>
 <p>  上图中EventLoopGroup A的唯一目的就是接收所有连接请求，然后交给EventLoopGroup B。</p>
 <h3 id="ChannelPipeline"><a href="#ChannelPipeline" class="headerlink" title="ChannelPipeline"></a>ChannelPipeline</h3><p>ChannelPipeline为ChannelHandler链提供了一个容器，并提供了沿着链入站和出站的事件流动的管理API。每个Channel都有自己的ChannelPipeline，当Channel创建时自动创建。ChannelHandler通过ChannelInitializer接口安装到ChannelPipeline中。ChannelInitializer子类通过ServerBootstrap进行注册，当它的方法initChannel被调用时，这个对象将安装自定义的ChannelHandler集合到pipeline中，当这个操作完成时，ChannelInitializer子类则从ChannelPipeline自动删除自身。</p>
 <h3 id="ByteBuf"><a href="#ByteBuf" class="headerlink" title="ByteBuf"></a>ByteBuf</h3><p>ByteBuf是一个很好的经过优化的数据容器，我们可以将字节数据有效的添加到ByteBuf中或从ByteBuf中获取数据。ByteBuf有2部分：一个用于读，一个用于写。我们可以按顺序的读取数据，也可以通过调整读取数据的索引或者直接将读取位置索引作为参数传递给get方法来重复读取数据。写入数据到ByteBuf后，writerIndex（写入索引）增加。开始读字节后，readerIndex（读取索引）增加。你可以读取字节，直到写入索引和读取索引处在相同的位置，ByteBuf变为不可读。当访问数据超过数组的最后位，则会抛出 IndexOutOfBoundsException。调用ByteBuf的”read”或”write”开头的任何方法都会提升 相应的索引。另一方面，”set”、”get”操作字节将不会移动索引位置；他们只会操作相关的通过参数传入方法的相对索引。可以给ByteBuf指定一个最大容量值，这个值限制着ByteBuf的容量。任何尝试将写入索引超过这个值的行为都将导致抛出异常。ByteBuf的默认最大容量限制是Integer.MAX_VALUE。</p>
@@ -1132,7 +975,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/08/redis学习笔记1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/16/redis过期策略和内存淘汰/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -1151,7 +994,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/08/redis学习笔记1/" itemprop="url">redis学习笔记1</a></h1>
+                <a class="post-title-link" href="/2018/11/16/redis过期策略和内存淘汰/" itemprop="url">redis过期策略和内存淘汰</a></h1>
         
 
         <div class="post-meta">
@@ -1163,8 +1006,165 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-08T22:55:27+08:00">
-                2018-10-08
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-16T12:51:01+08:00">
+                2018-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="redis的过期策略以及内存淘汰机制"><a href="#redis的过期策略以及内存淘汰机制" class="headerlink" title="redis的过期策略以及内存淘汰机制"></a>redis的过期策略以及内存淘汰机制</h3><p>redis采用的是定期删除+惰性删除策略。</p>
+<p><strong>定期删除：</strong>redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p>
+<p><strong>惰性删除：</strong>获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p>
+<p>如果定期删除没删除key。然后也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用内存淘汰机制。</p>
+<h4 id="内存淘汰机制"><a href="#内存淘汰机制" class="headerlink" title="内存淘汰机制"></a>内存淘汰机制</h4><p>在redis.conf中有一行配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># maxmemory-policy volatile-lru</span><br></pre></td></tr></table></figure>
+<p>该配置就是配内存淘汰策略</p>
+<p>1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。应该没人用吧。</p>
+<p>2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。推荐使用。</p>
+<p>3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。</p>
+<p>4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐</p>
+<p>5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。依然不推荐</p>
+<p>6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。不推荐</p>
+<p>ps：如果没有设置 expire 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</p>
+<h3 id="如何应对缓存穿透和缓存雪崩问题"><a href="#如何应对缓存穿透和缓存雪崩问题" class="headerlink" title="如何应对缓存穿透和缓存雪崩问题"></a>如何应对缓存穿透和缓存雪崩问题</h3><p><strong>缓存穿透：</strong>即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试</p>
+<p>(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。</p>
+<p>(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。</p>
+<p><strong>缓存雪崩：</strong>即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)给缓存的失效时间，加上一个随机值，避免集体失效。</p>
+<p>(二)使用互斥锁，但是该方案吞吐量明显下降了。</p>
+<p>(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点</p>
+<ul>
+<li>I 从缓存A读数据库，有则直接返回</li>
+<li>II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。</li>
+<li>III 更新线程同时更新缓存A和缓存B。</li>
+</ul>
+<h3 id="如何解决redis的并发竞争key问题"><a href="#如何解决redis的并发竞争key问题" class="headerlink" title="如何解决redis的并发竞争key问题"></a>如何解决redis的并发竞争key问题</h3><p>使用redis事务机制，但基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，redis的事务机制，十分鸡肋。</p>
+<p>(1)如果对这个key操作，不要求顺序</p>
+<p>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。</p>
+<p>(2)如果对这个key操作，要求顺序</p>
+<p>假设有一个key1,系统A需要将key1设置为valueA,系统B需要将key1设置为valueB,系统C需要将key1设置为valueC.</p>
+<p>期望按照key1的value值按照 valueA–&gt;valueB–&gt;valueC的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line"></span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line"></span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br></pre></td></tr></table></figure>
+<p>那么，假设这会系统B先抢到锁，将key1设置为{valueB 3:05}。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做set操作了。以此类推。</p>
+<p>其他方法，比如利用队列，将set方法变成串行访问也可以。总之，灵活变通。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/12/redis学习笔记1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/12/redis学习笔记1/" itemprop="url">redis学习笔记1</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-12T22:55:27+08:00">
+                2018-11-12
               </time>
             
 
@@ -1224,7 +1224,7 @@
 <p>AOF持久化原理：开启后，Redis每执行一个修改数据的命令，都会把这个命令添加到AOF文件中。</p>
 <p>优点：实时持久化。</p>
 <p>缺点：所以AOF文件体积逐渐变大，需要定期执行重写操作来降低文件体积，加载慢</p>
-<p><img src="/2018/10/08/redis学习笔记1/111.png" alt="tu1"></p>
+<p><img src="/2018/11/12/redis学习笔记1/111.png" alt="tu1"></p>
 <h3 id="redis持久化的意义"><a href="#redis持久化的意义" class="headerlink" title="redis持久化的意义"></a>redis持久化的意义</h3><p>在于数据备份和故障恢复。持久化主要是做灾难恢复，数据恢复</p>
 <p>部署一个redis作为cache缓存，或保存一些较为重要的数据</p>
 <p>如果没有持久化，redis遇到灾难性故障时，由于redis数据存储在内存中，就会丢失所有的数据</p>
@@ -1303,7 +1303,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/04/B树和B-树/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/04/B树和B-树/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -1322,7 +1322,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/10/04/B树和B-树/" itemprop="url">B树和B+树</a></h1>
+                <a class="post-title-link" href="/2018/11/04/B树和B-树/" itemprop="url">B树和B+树</a></h1>
         
 
         <div class="post-meta">
@@ -1334,8 +1334,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-04T22:50:16+08:00">
-                2018-10-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-04T22:50:16+08:00">
+                2018-11-04
               </time>
             
 
@@ -1379,17 +1379,17 @@
 <p>　　（1）<strong>每个节点存储多个元素</strong><br>​       （2）<strong>摒弃二叉树结构，采用多叉树</strong></p>
 <p>一个个m阶的B树具有如下几个<strong>特征</strong>：B树中所有结点的孩子结点最大值称为B树的阶，通常用m表示。一个结点有k个孩子时，必有k-1个关键字才能将子树中所有关键字划分为k个子集。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>.根结点至少有两个子女。</span><br><span class="line"><span class="number">2</span>.每个中间节点都包含k-<span class="number">1</span>个元素和k个孩子，其中 ceil（m/<span class="number">2</span>） ≤ k ≤ m </span><br><span class="line"><span class="number">3</span>.每一个叶子节点都包含k-<span class="number">1</span>个元素，其中 ceil（m/<span class="number">2</span>） ≤ k ≤ m </span><br><span class="line"><span class="number">4</span>.所有的叶子结点都位于同一层。 </span><br><span class="line"><span class="number">5</span>.每个节点中的元素从小到大排列，节点当中k-<span class="number">1</span>个元素正好是k个孩子包含的元素的值域划分 </span><br><span class="line"><span class="number">6</span>.每个结点的结构为：（n，A0，K1，A1，K2，A2，… ，Kn，An）</span><br><span class="line">其中，Ki(<span class="number">1</span>≤i≤n)为关键字，且Ki&lt;Ki+<span class="number">1</span>(<span class="number">1</span>≤i≤n-<span class="number">1</span>)。 Ai(<span class="number">0</span>≤i≤n)为指向子树根结点的指针。且Ai所指子树所有结点中的关键字均小于Ki+<span class="number">1</span>。 n为结点中关键字的个数，满足ceil(m/<span class="number">2</span>)-<span class="number">1</span>≤n≤m-<span class="number">1</span>。</span><br></pre></td></tr></table></figure>
-<p><img src="/2018/10/04/B树和B-树/btree-1.jpg" alt="tu1"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-1.jpg" alt="tu1"></p>
 <h5 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h5><p>以上图为例：若查询的数值为５：<br>　　第一次磁盘ＩＯ：在内存中定位（与17、35比较），比17小，左子树；<br>　　第二次磁盘ＩＯ：在内存中定位（与８、12比较），比８小，左子树；<br>　　第三次磁盘ＩＯ：在内存中定位（与3、5比较），找到5，终止。</p>
 <p>整个过程中，我们可以看出：比较的次数并不比二叉查找树少，尤其适当某一节点中的数据很多时，但是磁盘IO的次数却是大大减少。比较是在内存中进行的，相比于磁盘IO的速度，比较的耗时几乎可以忽略。所以当树的高度足够低的话，就可以极大的提高效率。相比之下，节点中的元素多点也没关系，仅仅是多了几次内存交互而已，只要不超过磁盘页的大小即可。</p>
 <h5 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h5><p>　对高度为ｋ的m阶B树，新结点一般是插在叶子层。通过检索可以确定关键码应插入的结点位置。然后分两种情况讨论：<br>　　1、 若该结点中关键码个数小于m-1，则直接插入即可。<br>　　2、 若该结点中关键码个数等于m-1，则将引起结点的分裂。以中间关键码为界将结点一分为二，产生一个新结点，并把中间关键码插入到父结点(ｋ-1层)中<br>　　重复上述工作，最坏情况一直分裂到根结点，建立一个新的根结点，整个B树增加一层。</p>
 <p>例如：在下面的B树中插入key：4</p>
-<p><img src="/2018/10/04/B树和B-树/btree-2.jpg" alt="tu2"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-2.jpg" alt="tu2"></p>
 <p>第一步：检索key插入的节点位置如上图所示，在3,5之间；</p>
 <p>第二步：判断节点中的关键码个数：<br>　　节点3，5已经是两元素节点，无法再增加。父亲节点 2， 6 也是两元素节点，也无法再增加。根节点9是单元素节点，可以升级为两元素节点。；</p>
 <p>第三步：结点分裂：<br>　　拆分节点3，5与节点2，6，让根节点9升级为两元素节点4，9。节点6独立为根节点的第二个孩子。</p>
 <p>最终结果如下图：虽然插入比较麻烦，但是这也能确保Ｂ树是一个自平衡的树</p>
-<p><img src="/2018/10/04/B树和B-树/btree-3.jpg" alt="tu3"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-3.jpg" alt="tu3"></p>
 <h5 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h5><p>在B树上删除关键字k的过程分两步完成：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">（1）找出该关键字所在的结点。然后根据 k所在结点是否为叶子结点有不同的处理方法。</span><br><span class="line">（2）若该结点为非叶结点，且被删关键字为该结点中第i个关键字key[i]，则可从指针son[i]所指的子     树中找出最小关键字Y，代替key[i]的位置，然后在叶结点中删去Y。</span><br></pre></td></tr></table></figure>
 <p>因此，把在非叶结点删除关键字k的问题就变成了删除叶子结点中的关键字的问题了。</p>
@@ -1397,28 +1397,28 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">（1）如果被删关键字所在结点的原关键字个数n&gt;=ceil(m/2)，说明删去该关键字后该结点仍满足B树的定义。 这种情况最为简单，只需从该结点中直接删去关键字即可。 </span><br><span class="line">（2）如果被删关键字所在结点的关键字个数n等于ceil(m/2)-1，说明删去该关键字后该结点将不满足B树的定义，需要调整。 </span><br><span class="line"></span><br><span class="line">调整过程为： </span><br><span class="line">如果其左右兄弟结点中有“多余”的关键字,即与该结点相邻的右（左）兄弟结点中的关键字数目大于 ceil(m/2)-1。则可将右（左）兄弟结点中最小（大）关键字上移至双亲结点。而将双亲结点中小（大）于该上 移关键字的关键字下移至被删关键字所在结点中。</span><br><span class="line">如果左右兄弟结点中没有“多余”的关键字，即与该结点相邻的右（左）兄弟结点中的关键字数目均等于 ceil(m/2)-1。这种情况比较复杂。需把要删除关键字的结点与其左（或右）兄弟结点以及双亲结点中分割二者 的关键字合并成一个结点,即在删除关键字后，该结点中剩余的关键字加指针，加上双亲结点中的关键字Ki一起， 合并到Ai（是双亲结点指向该删除关键字结点的左（右）兄弟结点的指针）所指的兄弟结点中去。如果因此使双亲 结点中关键字个数小于ceil(m/2)-1，则对此双亲结点做同样处理。以致于可能直到对根结点做这样的处理而使 整个树减少一层。</span><br></pre></td></tr></table></figure>
 <p>总之，设所删关键字为非终端结点中的Ki，则可以指针Ai所指子树中的最小关键字Y代替Ki，然后在相应结点中删除Y。对任意关键字的删除都可以转化为对最下层关键字的删除。</p>
 <p>下面举一个简单的例子：删除元素11. </p>
-<p><img src="/2018/10/04/B树和B-树/btree-4.jpg" alt="tu4"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-4.jpg" alt="tu4"></p>
 <p>第一步：判断该元素是否在叶子结点上。<br>　　　该元素在叶子节点上，可以直接删去，但是删除之后，中间节点12只有一个孩子，不符合B树的定义：每个中间节点都包含k个孩子，（其中 ceil（m/2） &lt;= k &lt;= m）所以需要调整；</p>
 <p>第二步：判断其左右兄弟结点中有“多余”的关键字，即：原关键字个数n&gt;=ceil(m/2) - 1；</p>
 <p>　　显然结点11的右兄弟节点中有多余的关键字。那么可将右兄弟结点中最小关键字上移至双亲结点。而将双亲结点中小于该上移关键字的关键字下移至被删关键字所在结点中即可</p>
-<p><img src="/2018/10/04/B树和B-树/btree-5.jpg" alt="tu5"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-5.jpg" alt="tu5"></p>
 <h5 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h5><p>​        ①、B树主要用于文件系统以及部分数据库索引，例如： MongoDB。而大部分关系数据库则使用       B+树做 索引，例如：mysql数据库；<br>　　②、从查找效率考虑一般要求B树的阶数m &gt;= 3;</p>
 <p>　　③、B-树上算法的执行时间主要由读、写磁盘的次数来决定，故一次I/O操作应读写尽可能多的信息。因此B-树的结点规模一般以一个磁盘页为单位。一个结点包含的关键字及其孩子个数取决于磁盘页的大小。</p>
 <h2 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h2><p>Ｂ＋树是Ｂ树的变种，有着比Ｂ树更高的查询效率。</p>
 <h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><p>一个m阶的B+树具有如下几个特征：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.有k个子树的中间节点包含有k个元素（B树中是k-1个元素），每个元素不保存数据，只用来索引，所有数据 都保存在叶子节点。 </span><br><span class="line">2.所有的叶子结点中包含了全部元素的信息，及指向含这些元素记录的指针，且叶子结点本身依关键字的大小 自小而大顺序链接。</span><br><span class="line">3.所有的中间节点元素都同时存在于子节点，在子节点元素中是最大（或最小）元素。</span><br></pre></td></tr></table></figure>
 <p>下面是一棵3阶的B+树：</p>
-<p>​    <img src="/2018/10/04/B树和B-树/btree-6.jpg" alt="tu6"></p>
+<p>​    <img src="/2018/11/04/B树和B-树/btree-6.jpg" alt="tu6"></p>
 <p>　　B+树通常有两个指针，一个指向根结点，另一个指向关键字最小的叶子结点。因些，对于B+树进行查找两种运算：一种是从最小关键字起顺序查找，另一种是从根结点开始，进行随机查找。</p>
 <h5 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h5><p>B+树的优势在于查找效率上，下面我们做一具体说明：<br>　　首先，Ｂ＋树的查找和Ｂ树一样，类似于二叉查找树。起始于根节点，自顶向下遍历树，选择其分离值在要查找值的任意一边的子指针。在节点内部典型的使用是二分查找来确定这个位置。<br>　　（1）、不同的是，Ｂ＋树中间节点没有卫星数据（索引元素所指向的数据记录），只有索引，而Ｂ树每个结点中的每个关键字都有卫星数据；这就意味着同样的大小的磁盘页可以容纳更多节点元素，在相同的数据量下，Ｂ＋树更加“矮胖”，ＩＯ操作更少</p>
 <p>　　B树的卫星数据： </p>
-<p><img src="/2018/10/04/B树和B-树/btree-7.jpg" alt="tu7"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-7.jpg" alt="tu7"></p>
 <p>   B树的卫星数据：</p>
-<p><img src="/2018/10/04/B树和B-树/btree-8.jpg" alt="tu8"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-8.jpg" alt="tu8"></p>
 <p>需要补充的是，在数据库的聚集索引（Clustered Index）中，叶子节点直接包含卫星数据。在非聚集索引（NonClustered Index）中，叶子节点带有指向卫星数据的指针。<br>　　<br>　　（2）、其次，因为卫星数据的不同，导致查询过程也不同；Ｂ树的查找只需找到匹配元素即可，最好情况下查找到根节点，最坏情况下查找到叶子结点，所说性能很不稳定，而Ｂ＋树每次必须查找到叶子结点，性能稳定<br>　　（3）、在范围查询方面，B+树的优势更加明显<br>　　B树的范围查找需要不断依赖中序遍历。首先二分查找到范围下限，在不断通过中序遍历，知道查找到范围的上限即可。整个过程比较耗时。<br>　　而B+树的范围查找则简单了许多。首先通过二分查找，找到范围下限，然后同过叶子结点的链表顺序遍历，直至找到上限即可，整个过程简单许多，效率也比较高。<br>　　例如：同样查找范围[3-11]，两者的查询过程如下：</p>
-<h5 id="B树的查找过程："><a href="#B树的查找过程：" class="headerlink" title="B树的查找过程："></a>B树的查找过程：</h5><p><img src="/2018/10/04/B树和B-树/btree-png1.png" alt="png1"></p>
+<h5 id="B树的查找过程："><a href="#B树的查找过程：" class="headerlink" title="B树的查找过程："></a>B树的查找过程：</h5><p><img src="/2018/11/04/B树和B-树/btree-png1.png" alt="png1"></p>
 <p>B树的查找过程：</p>
-<p><img src="/2018/10/04/B树和B-树/btree-png2.png" alt="png2"></p>
+<p><img src="/2018/11/04/B树和B-树/btree-png2.png" alt="png2"></p>
 <h5 id="插入-1"><a href="#插入-1" class="headerlink" title="插入"></a>插入</h5><p>　　 B+树的插入与B树的插入过程类似。不同的是B+树在叶结点上进行，如果叶结点中的关键码个数超过m，就必须分裂成关键码数目大致相同的两个结点，并保证上层结点中有这两个结点的最大关键码。</p>
 <h5 id="删除-1"><a href="#删除-1" class="headerlink" title="删除"></a>删除</h5><p>　　B+树中的关键码在叶结点层删除后，其在上层的复本可以保留，作为一个”分解关键码”存在，如果因为删除而造成结点中关键码数小于ceil(m/2)，其处理过程与B-树的处理一样。在此，我就不多做介绍了。<br>总结</p>
 <h5 id="B-树相比B树的优势："><a href="#B-树相比B树的优势：" class="headerlink" title="B+树相比B树的优势："></a>B+树相比B树的优势：</h5><p>　　1.单一节点存储更多的元素，使得查询的IO次数更少；</p>

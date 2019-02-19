@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="redis,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="redisRedis 是完全开源免费的，遵守BSD协议，是一个高性能的key-value数据库。 Redis 与其他 key - value 缓存产品有以下三个特点：  Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。 Redis不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。 Redis支持">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis学习笔记1">
+<meta property="og:url" content="http://yoursite.com/2018/11/12/redis学习笔记1/index.html">
+<meta property="og:site_name" content="Cooper&#39;s Blog">
+<meta property="og:description" content="redisRedis 是完全开源免费的，遵守BSD协议，是一个高性能的key-value数据库。 Redis 与其他 key - value 缓存产品有以下三个特点：  Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。 Redis不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。 Redis支持">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/11/12/redis学习笔记1/111.png">
+<meta property="og:updated_time" content="2019-02-19T08:27:01.605Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis学习笔记1">
+<meta name="twitter:description" content="redisRedis 是完全开源免费的，遵守BSD协议，是一个高性能的key-value数据库。 Redis 与其他 key - value 缓存产品有以下三个特点：  Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。 Redis不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。 Redis支持">
+<meta name="twitter:image" content="http://yoursite.com/2018/11/12/redis学习笔记1/111.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/12/redis学习笔记1/">
+
+
+
+
+
+  <title>redis学习笔记1 | Cooper's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e18013fc23ab3fa51489f41dc6ab6120";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Cooper's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/12/redis学习笔记1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cooper">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cooper's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">redis学习笔记1</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-12T22:55:27+08:00">
+                2018-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="redis"><a href="#redis" class="headerlink" title="redis"></a>redis</h3><p>Redis 是完全开源免费的，遵守BSD协议，是一个高性能的key-value数据库。</p>
+<p>Redis 与其他 key - value 缓存产品有以下三个特点：</p>
+<ul>
+<li>Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。</li>
+<li>Redis不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。</li>
+<li>Redis支持数据的备份，即master-slave模式的数据备份。</li>
+</ul>
+<h3 id="redis的优势"><a href="#redis的优势" class="headerlink" title="redis的优势"></a>redis的优势</h3><ul>
+<li>性能极高 – Redis能读的速度是110000次/s,写的速度是81000次/s 。</li>
+<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
+<li>原子 – Redis的所有操作都是原子性的，同时Redis还支持对几个操作全并后的原子性执行。</li>
+<li>丰富的特性 – Redis还支持 publish/subscribe, 通知, key 过期等等特性。</li>
+<li>Redis运行在内存中但是可以持久化到磁盘，所以在对不同数据集进行高速读写时需要权衡内存，应为数据量不能大于硬件内存。在内存数据库方面的另一个优点是， 相比在磁盘上相同的复杂的数据结构，在内存中操作起来非常简单，这样Redis可以做很多内部复杂性很强的事情。 同时，在磁盘格式方面他们是紧凑的以追加的方式产生的，因为他们并不需要进行随机访问。</li>
+</ul>
+<h3 id="redis数据持久化"><a href="#redis数据持久化" class="headerlink" title="redis数据持久化"></a>redis数据持久化</h3><p>将内存中的数据异步写入硬盘中，两种方式：RDB（默认）和AOF</p>
+<p>RDB持久化原理：通过bgsave命令触发，然后父进程执行fork操作创建子进程，子进程创建RDB文件，根据父进程内存生成临时快照文件，完成后对原有文件进行原子替换（定时一次性将所有数据进行快照生成一份副本存储在硬盘中）</p>
+<p>优点：是一个紧凑压缩的二进制文件，Redis加载RDB恢复数据远远快于AOF的方式。</p>
+<p>缺点：由于每次生成RDB开销较大，非实时持久化，</p>
+<p>AOF持久化原理：开启后，Redis每执行一个修改数据的命令，都会把这个命令添加到AOF文件中。</p>
+<p>优点：实时持久化。</p>
+<p>缺点：所以AOF文件体积逐渐变大，需要定期执行重写操作来降低文件体积，加载慢</p>
+<p><img src="/2018/11/12/redis学习笔记1/111.png" alt="tu1"></p>
+<h3 id="redis持久化的意义"><a href="#redis持久化的意义" class="headerlink" title="redis持久化的意义"></a>redis持久化的意义</h3><p>在于数据备份和故障恢复。持久化主要是做灾难恢复，数据恢复</p>
+<p>部署一个redis作为cache缓存，或保存一些较为重要的数据</p>
+<p>如果没有持久化，redis遇到灾难性故障时，由于redis数据存储在内存中，就会丢失所有的数据</p>
+<p>如果通过持久化将数据搞一份儿在磁盘上去，然后定期比如说同步和备份到一些云存储服务上去，就可以保证数据不丢失全部，还是可以恢复一部分数据回来的。</p>
+<h3 id="redis主从同步"><a href="#redis主从同步" class="headerlink" title="redis主从同步"></a>redis主从同步</h3><p>像MySQL一样，redis是支持主从同步的，而且也支持一主多从以及多级从结构。</p>
+<p>主从结构，一是为了纯粹的冗余备份，二是为了提升读性能，比如很消耗性能的SORT就可以由从服务器来承担。</p>
+<p>redis的主从同步是异步进行的，这意味着主从同步不会影响主逻辑，也不会降低redis的处理性能。</p>
+<p>主从架构中，可以考虑关闭主服务器的数据持久化功能，只让从服务器进行持久化，这样可以提高主服务器的处理性能。</p>
+<p>在主从架构中，从服务器通常被设置为只读模式，这样可以避免从服务器的数据被误修改。但是从服务器仍然可以接受CONFIG等指令，所以还是不应该将从服务器直接暴露到不安全的网络环境中。如果必须如此，那可以考虑给重要指令进行重命名，来避免命令被外人误执行。</p>
+<h3 id="同步原理"><a href="#同步原理" class="headerlink" title="同步原理"></a>同步原理</h3><p>从服务器会向主服务器发出SYNC指令，当主服务器接到此命令后，就会调用BGSAVE指令来创建一个子进程专门进行数据持久化工作，也就是将主服务器的数据写入RDB文件中。在数据持久化期间，主服务器将执行的写指令都缓存在内存中。</p>
+<p>在BGSAVE指令执行完成后，主服务器会将持久化好的RDB文件发送给从服务器，从服务器接到此文件后会将其存储到磁盘上，然后再将其读取到内存中。这个动作完成后，主服务器会将这段时间缓存的写指令再以redis协议的格式发送给从服务器。</p>
+<p>另外，要说的一点是，即使有多个从服务器同时发来SYNC指令，主服务器也只会执行一次BGSAVE，然后把持久化好的RDB文件发给多个下游。在redis2.8版本之前，如果从服务器与主服务器因某些原因断开连接的话，都会进行一次主从之间的全量的数据同步；而在2.8版本之后，redis支持了效率更高的增量同步策略，这大大降低了连接断开的恢复成本。</p>
+<p>主服务器会在内存中维护一个缓冲区，缓冲区中存储着将要发给从服务器的内容。从服务器在与主服务器出现网络瞬断之后，从服务器会尝试再次与主服务器连接，一旦连接成功，从服务器就会把“希望同步的主服务器ID”和“希望请求的数据的偏移位置（replication offset）”发送出去。主服务器接收到这样的同步请求后，首先会验证主服务器ID是否和自己的ID匹配，其次会检查“请求的偏移位置”是否存在于自己的缓冲区中，如果两者都满足的话，主服务器就会向从服务器发送增量内容。</p>
+<p>增量同步功能，需要服务器端支持全新的PSYNC指令。这个指令，只有在redis-2.8之后才具有。</p>
+<h3 id="redis事务处理"><a href="#redis事务处理" class="headerlink" title="redis事务处理"></a>redis事务处理</h3><p>事务是指“一个完整的动作，要么全部执行，要么什么也没有做”。</p>
+<p>四个redis指令，即MULTI、EXEC、DISCARD、WATCH。这四个指令构成了redis事务处理的基础。</p>
+<p>1.MULTI用来组装一个事务；<br>2.EXEC用来执行一个事务；<br>3.DISCARD用来取消一个事务；<br>4.WATCH用来监视一些key，一旦这些key在事务执行之前被改变，则取消事务的执行。</p>
+<p>以下是MULTI和EXEC的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; MULTI //标记事务开始</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id //多条命令按顺序入队</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; PING</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; EXEC //执行</span><br><span class="line"></span><br><span class="line">1) (integer) 1</span><br><span class="line"></span><br><span class="line">2) (integer) 2</span><br><span class="line"></span><br><span class="line">3) (integer) 3</span><br><span class="line"></span><br><span class="line">4) PONG</span><br></pre></td></tr></table></figure>
+<p>在上面的例子中，我们看到了QUEUED的字样，这表示我们在用MULTI组装事务时，每一个命令都会进入到内存队列中缓存起来，如果出现QUEUED则表示我们这个命令成功插入了缓存队列，在将来执行EXEC时，这些被QUEUED的命令都会被组装成一个事务来执行。</p>
+<p>对于事务的执行来说，如果redis开启了AOF持久化的话，那么一旦事务被成功执行，事务中的命令就会通过write命令一次性写到磁盘中去，如果在向磁盘中写的过程中恰好出现断电、硬件故障等问题，那么就可能出现只有部分命令进行了AOF持久化，这时AOF文件就会出现不完整的情况，这时，我们可以使用redis-check-aof工具来修复这一问题，这个工具会将AOF文件中不完整的信息移除，确保AOF文件完整可用。</p>
+<p>有关事务，大家经常会遇到的是两类错误：</p>
+<p>1.调用EXEC之前的错误<br>2.调用EXEC之后的错误</p>
+<p>“调用EXEC之前的错误”，有可能是由于语法有误导致的，也可能时由于内存不足导致的。只要出现某个命令无法成功写入缓冲队列的情况，redis都会进行记录，在客户端调用EXEC时，redis会拒绝执行这一事务。（这时2.6.5版本之后的策略。在2.6.5之前的版本中，redis会忽略那些入队失败的命令，只执行那些入队成功的命令）。我们来看一个这样的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; haha //一个明显错误的指令</span><br><span class="line"></span><br><span class="line">(error) ERR unknown command &apos;haha&apos;</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line"></span><br><span class="line">//redis无情的拒绝了事务的执行，原因是“之前出现了错误”</span><br><span class="line"></span><br><span class="line">(error) EXECABORT Transaction discarded because of previous errors.</span><br></pre></td></tr></table></figure>
+<p>而对于“调用EXEC之后的错误”，redis则采取了完全不同的策略，即redis不会理睬这些错误，而是继续向下执行事务中的其他命令。这是因为，对于应用层面的错误，并不是redis自身需要考虑和处理的问题，所以一个事务中如果某一条命令执行失败，并不会影响接下来的其他命令的执行。我们也来看一个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; set age 23</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">//age不是集合，所以如下是一条明显错误的指令</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; sadd age 15 </span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; set age 29</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; exec //执行事务时，redis不会理睬第2条指令执行错误</span><br><span class="line"></span><br><span class="line">1) OK</span><br><span class="line"></span><br><span class="line">2) (error) WRONGTYPE Operation against a key holding the wrong kind of value</span><br><span class="line"></span><br><span class="line">3) OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line"></span><br><span class="line">&quot;29&quot; //可以看出第3条指令被成功执行了</span><br></pre></td></tr></table></figure>
+<p>好了，我们来说说最后一个指令“WATCH”，这是一个很好用的指令，它可以帮我们实现类似于“乐观锁”的效果，即CAS（check and set）。</p>
+<p>WATCH本身的作用是“监视key是否被改动过”，而且支持同时监视多个key，只要还没真正触发事务，WATCH都会尽职尽责的监视，一旦发现某个key被修改了，在执行EXEC时就会返回nil，表示事务无法触发。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set age 23</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; watch age //开始监视age</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; set age 24 //在EXEC之前，age的值被修改了</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line"></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; set age 25</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line"></span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; exec //触发EXEC</span><br><span class="line"></span><br><span class="line">(nil) //事务无法被执行</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/04/B树和B-树/" rel="next" title="B树和B+树">
+                <i class="fa fa-chevron-left"></i> B树和B+树
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/16/redis过期策略和内存淘汰/" rel="prev" title="redis过期策略和内存淘汰">
+                redis过期策略和内存淘汰 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar.jpeg" alt="Cooper">
+            
+              <p class="site-author-name" itemprop="name">Cooper</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/coper0413" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:837409785@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-globe"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis"><span class="nav-number">1.</span> <span class="nav-text">redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis的优势"><span class="nav-number">2.</span> <span class="nav-text">redis的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis数据持久化"><span class="nav-number">3.</span> <span class="nav-text">redis数据持久化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis持久化的意义"><span class="nav-number">4.</span> <span class="nav-text">redis持久化的意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis主从同步"><span class="nav-number">5.</span> <span class="nav-text">redis主从同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步原理"><span class="nav-number">6.</span> <span class="nav-text">同步原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis事务处理"><span class="nav-number">7.</span> <span class="nav-text">redis事务处理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cooper</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="DNS,Java,">
+  <meta name="keywords" content="redis,">
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
-<meta name="keywords" content="DNS,Java">
+<meta name="description" content="redis的过期策略以及内存淘汰机制redis采用的是定期删除+惰性删除策略。 定期删除：redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。 惰性删除：获取某个key">
+<meta name="keywords" content="redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用Java实现一个DNS中继器">
-<meta property="og:url" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/index.html">
+<meta property="og:title" content="redis过期策略和内存淘汰">
+<meta property="og:url" content="http://yoursite.com/2018/11/16/redis过期策略和内存淘汰/index.html">
 <meta property="og:site_name" content="Cooper&#39;s Blog">
-<meta property="og:description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
+<meta property="og:description" content="redis的过期策略以及内存淘汰机制redis采用的是定期删除+惰性删除策略。 定期删除：redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。 惰性删除：获取某个key">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png">
-<meta property="og:updated_time" content="2018-11-06T20:02:16.000Z">
+<meta property="og:updated_time" content="2019-02-19T08:27:13.556Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用Java实现一个DNS中继器">
-<meta name="twitter:description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
-<meta name="twitter:image" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png">
+<meta name="twitter:title" content="redis过期策略和内存淘汰">
+<meta name="twitter:description" content="redis的过期策略以及内存淘汰机制redis采用的是定期删除+惰性删除策略。 定期删除：redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。 惰性删除：获取某个key">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/">
+  <link rel="canonical" href="http://yoursite.com/2018/11/16/redis过期策略和内存淘汰/">
 
 
 
 
 
-  <title>用Java实现一个DNS中继器 | Cooper's Blog</title>
+  <title>redis过期策略和内存淘汰 | Cooper's Blog</title>
   
 
 
@@ -275,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/16/redis过期策略和内存淘汰/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -292,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">用Java实现一个DNS中继器</h1>
+          <h1 class="post-title" itemprop="name headline">redis过期策略和内存淘汰</h1>
         
 
         <div class="post-meta">
@@ -304,8 +302,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-24T12:00:39+08:00">
-                2018-09-24
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-16T12:51:01+08:00">
+                2018-11-16
               </time>
             
 
@@ -342,38 +340,44 @@
       
 
       
-        <p>五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～</p>
-<h5 id="功能设计"><a href="#功能设计" class="headerlink" title="功能设计"></a>功能设计</h5><p>一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：</p>
-<ol>
-<li>检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能）</li>
-<li>检索结果：普通IP地址，则向客户端返回该地址（服务器功能）</li>
-<li>表中未检到该域名，则向因特网DNS服务器发出查询，并将结果返给客户端（中继功能）</li>
-</ol>
-<h5 id="模块划分"><a href="#模块划分" class="headerlink" title="模块划分"></a>模块划分</h5><ul>
-<li><p>通信模块</p>
-<p>该模块包含ClientManager和ExternalDNSManager两个类，负责与客户端、外部DNS服务器通信。</p>
-</li>
-<li><p>数据处理模块</p>
-<p>该模块包含Processor和TranslateTasks两个类。</p>
-<p>Processor分析收到的包中的数据，根据数据包来源不同进行不同的处理，若是客户端发来的查询请求包，则调用检索表模块进行检索，根据检索结果，调用通信模块发回响应报文或转换ID后向外部DNS服务器转发请求；若是外部DNS服务器发来的响应包，转换ID后直接转发给客户端。</p>
-<p>TranslateTasks负责对要向外部DNS转发的请求进行ID转换，因为可能存在并发的客户端访问，不同客户端发来的请求可能出现重复的ID，所以需要将ID转换成具有唯一性的序列号，再转发给外部DNS服务器。</p>
-</li>
-<li><p>检索模块</p>
-<p>该模块包含TranslateData类，负责读取或写入检索表文件，并提供查询某个域名在检索表中对应ip地址的方法。</p>
-</li>
-<li><p>工具模块</p>
-<p>该模块包含DebugUtil类，负责输出一些调试信息，RelayConfig类，负责处理配置信息。</p>
-</li>
+        <h3 id="redis的过期策略以及内存淘汰机制"><a href="#redis的过期策略以及内存淘汰机制" class="headerlink" title="redis的过期策略以及内存淘汰机制"></a>redis的过期策略以及内存淘汰机制</h3><p>redis采用的是定期删除+惰性删除策略。</p>
+<p><strong>定期删除：</strong>redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis会卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p>
+<p><strong>惰性删除：</strong>获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p>
+<p>如果定期删除没删除key。然后也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用内存淘汰机制。</p>
+<h4 id="内存淘汰机制"><a href="#内存淘汰机制" class="headerlink" title="内存淘汰机制"></a>内存淘汰机制</h4><p>在redis.conf中有一行配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># maxmemory-policy volatile-lru</span><br></pre></td></tr></table></figure>
+<p>该配置就是配内存淘汰策略</p>
+<p>1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。应该没人用吧。</p>
+<p>2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。推荐使用。</p>
+<p>3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。</p>
+<p>4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐</p>
+<p>5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。依然不推荐</p>
+<p>6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。不推荐</p>
+<p>ps：如果没有设置 expire 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</p>
+<h3 id="如何应对缓存穿透和缓存雪崩问题"><a href="#如何应对缓存穿透和缓存雪崩问题" class="headerlink" title="如何应对缓存穿透和缓存雪崩问题"></a>如何应对缓存穿透和缓存雪崩问题</h3><p><strong>缓存穿透：</strong>即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试</p>
+<p>(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。</p>
+<p>(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。</p>
+<p><strong>缓存雪崩：</strong>即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。</p>
+<p>解决方案:</p>
+<p>(一)给缓存的失效时间，加上一个随机值，避免集体失效。</p>
+<p>(二)使用互斥锁，但是该方案吞吐量明显下降了。</p>
+<p>(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点</p>
+<ul>
+<li>I 从缓存A读数据库，有则直接返回</li>
+<li>II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。</li>
+<li>III 更新线程同时更新缓存A和缓存B。</li>
 </ul>
-<h5 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h5><p><img src="/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png" alt="dnsrelay1"></p>
-<h5 id="遇到的一些问题"><a href="#遇到的一些问题" class="headerlink" title="遇到的一些问题"></a>遇到的一些问题</h5><ul>
-<li><p>端口被占用</p>
-<p>程序需要监听本机53端口的数据，但因为Ubuntu中开启了默认的DNS服务器dnsmasq，占用了53端口，NetworkManager可以靠自身配置文件的设置项启动 dnsmasq 。在 NetworkManager.conf 文件的 [main] 节段注释掉 dns=dnsmasq 配置语句，就可以禁用dnsmasq。</p>
-</li>
-<li><p>客户端收到错误报文</p>
-<p>程序在检索表中查询到了结果，构建响应包时，直接将ip地址的字符串转为字节数组放进包的answer部分，但根据协议规范，这里应该将ip地址拆分成4个数字，分别放入四个字节。</p>
-</li>
-</ul>
+<h3 id="如何解决redis的并发竞争key问题"><a href="#如何解决redis的并发竞争key问题" class="headerlink" title="如何解决redis的并发竞争key问题"></a>如何解决redis的并发竞争key问题</h3><p>使用redis事务机制，但基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，redis的事务机制，十分鸡肋。</p>
+<p>(1)如果对这个key操作，不要求顺序</p>
+<p>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。</p>
+<p>(2)如果对这个key操作，要求顺序</p>
+<p>假设有一个key1,系统A需要将key1设置为valueA,系统B需要将key1设置为valueB,系统C需要将key1设置为valueC.</p>
+<p>期望按照key1的value值按照 valueA–&gt;valueB–&gt;valueC的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line"></span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line"></span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br></pre></td></tr></table></figure>
+<p>那么，假设这会系统B先抢到锁，将key1设置为{valueB 3:05}。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做set操作了。以此类推。</p>
+<p>其他方法，比如利用队列，将set方法变成串行访问也可以。总之，灵活变通。</p>
 
       
     </div>
@@ -391,9 +395,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/DNS/" rel="tag"># DNS</a>
-          
-            <a href="/tags/Java/" rel="tag"># Java</a>
+            <a href="/tags/redis/" rel="tag"># redis</a>
           
         </div>
       
@@ -406,8 +408,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/24/DNS协议-RFC1035/" rel="next" title="DNS协议-RFC1035">
-                <i class="fa fa-chevron-left"></i> DNS协议-RFC1035
+              <a href="/2018/11/12/redis学习笔记1/" rel="next" title="redis学习笔记1">
+                <i class="fa fa-chevron-left"></i> redis学习笔记1
               </a>
             
           </div>
@@ -416,8 +418,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/11/04/B树和B-树/" rel="prev" title="B树和B+树">
-                B树和B+树 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/12/01/netty学习笔记1/" rel="prev" title="netty学习笔记1">
+                netty学习笔记1 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -559,7 +561,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#功能设计"><span class="nav-number">1.</span> <span class="nav-text">功能设计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块划分"><span class="nav-number">2.</span> <span class="nav-text">模块划分</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#流程图"><span class="nav-number">3.</span> <span class="nav-text">流程图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#遇到的一些问题"><span class="nav-number">4.</span> <span class="nav-text">遇到的一些问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis的过期策略以及内存淘汰机制"><span class="nav-number">1.</span> <span class="nav-text">redis的过期策略以及内存淘汰机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#内存淘汰机制"><span class="nav-number">1.1.</span> <span class="nav-text">内存淘汰机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何应对缓存穿透和缓存雪崩问题"><span class="nav-number">2.</span> <span class="nav-text">如何应对缓存穿透和缓存雪崩问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何解决redis的并发竞争key问题"><span class="nav-number">3.</span> <span class="nav-text">如何解决redis的并发竞争key问题</span></a></li></ol></div>
             
 
           </div>

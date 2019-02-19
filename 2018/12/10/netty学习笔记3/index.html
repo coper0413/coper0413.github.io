@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="DNS,Java,">
+  <meta name="keywords" content="netty,">
 
 
 
@@ -79,20 +79,20 @@
 
 
 
-<meta name="description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
-<meta name="keywords" content="DNS,Java">
+<meta name="description" content="tcp粘包拆包概念TCP是个“流”协议，所谓流，就是没有界限的一串数据。TCP底层并不了解上层业务数据的具体含义，它会根据TCP缓冲区的实际情况进行包的划分，所以在业务上认为，一个完整的包可能会被TCP拆分成多个包进行发送，也有可能把多个小的包封装成一个大的数据包发送，这就是所谓的TCP粘包和拆包问题。  客户端和服务器建立一个连接，客户端发送一条消息，客户端关闭与服务端的连接。 客户端和服务器简">
+<meta name="keywords" content="netty">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用Java实现一个DNS中继器">
-<meta property="og:url" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/index.html">
+<meta property="og:title" content="netty学习笔记3">
+<meta property="og:url" content="http://yoursite.com/2018/12/10/netty学习笔记3/index.html">
 <meta property="og:site_name" content="Cooper&#39;s Blog">
-<meta property="og:description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
+<meta property="og:description" content="tcp粘包拆包概念TCP是个“流”协议，所谓流，就是没有界限的一串数据。TCP底层并不了解上层业务数据的具体含义，它会根据TCP缓冲区的实际情况进行包的划分，所以在业务上认为，一个完整的包可能会被TCP拆分成多个包进行发送，也有可能把多个小的包封装成一个大的数据包发送，这就是所谓的TCP粘包和拆包问题。  客户端和服务器建立一个连接，客户端发送一条消息，客户端关闭与服务端的连接。 客户端和服务器简">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png">
-<meta property="og:updated_time" content="2018-11-06T20:02:16.000Z">
+<meta property="og:image" content="http://yoursite.com/2018/12/10/netty学习笔记3/111.png">
+<meta property="og:updated_time" content="2019-02-19T08:28:02.880Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用Java实现一个DNS中继器">
-<meta name="twitter:description" content="五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～ 功能设计一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：  检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能） 检索结果：普通IP地址，则向客户端返回该地址（服务器功能） 表中未检到该域名，则向因特网D">
-<meta name="twitter:image" content="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png">
+<meta name="twitter:title" content="netty学习笔记3">
+<meta name="twitter:description" content="tcp粘包拆包概念TCP是个“流”协议，所谓流，就是没有界限的一串数据。TCP底层并不了解上层业务数据的具体含义，它会根据TCP缓冲区的实际情况进行包的划分，所以在业务上认为，一个完整的包可能会被TCP拆分成多个包进行发送，也有可能把多个小的包封装成一个大的数据包发送，这就是所谓的TCP粘包和拆包问题。  客户端和服务器建立一个连接，客户端发送一条消息，客户端关闭与服务端的连接。 客户端和服务器简">
+<meta name="twitter:image" content="http://yoursite.com/2018/12/10/netty学习笔记3/111.png">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/">
+  <link rel="canonical" href="http://yoursite.com/2018/12/10/netty学习笔记3/">
 
 
 
 
 
-  <title>用Java实现一个DNS中继器 | Cooper's Blog</title>
+  <title>netty学习笔记3 | Cooper's Blog</title>
   
 
 
@@ -275,7 +275,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/24/用Java实现一个DNS中继器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/10/netty学习笔记3/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Cooper">
@@ -292,7 +292,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">用Java实现一个DNS中继器</h1>
+          <h1 class="post-title" itemprop="name headline">netty学习笔记3</h1>
         
 
         <div class="post-meta">
@@ -304,8 +304,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-24T12:00:39+08:00">
-                2018-09-24
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-10T21:47:07+08:00">
+                2018-12-10
               </time>
             
 
@@ -342,38 +342,37 @@
       
 
       
-        <p>五月份写了一个简单的DNS中继器，一直没有时间总结，趁着中秋节赶快梳理一下～</p>
-<h5 id="功能设计"><a href="#功能设计" class="headerlink" title="功能设计"></a>功能设计</h5><p>一个DNS服务器程序，读入“IP地址-域名”对照表，当客户端查询域名对应的IP地址时，用域名检索该对照表，有三种可能检索结果：</p>
+        <h4 id="tcp粘包拆包概念"><a href="#tcp粘包拆包概念" class="headerlink" title="tcp粘包拆包概念"></a><strong>tcp粘包拆包概念</strong></h4><p>TCP是个“流”协议，所谓流，就是没有界限的一串数据。TCP底层并不了解上层业务数据的具体含义，它会根据TCP缓冲区的实际情况进行包的划分，所以在业务上认为，一个完整的包可能会被TCP拆分成多个包进行发送，也有可能把多个小的包封装成一个大的数据包发送，这就是所谓的TCP粘包和拆包问题。</p>
 <ol>
-<li>检索结果：ip地址0.0.0.0，则向客户端返回“域名不存在”的报错消息（不良网站拦截功能）</li>
-<li>检索结果：普通IP地址，则向客户端返回该地址（服务器功能）</li>
-<li>表中未检到该域名，则向因特网DNS服务器发出查询，并将结果返给客户端（中继功能）</li>
+<li>客户端和服务器建立一个连接，客户端发送一条消息，客户端关闭与服务端的连接。</li>
+<li>客户端和服务器简历一个连接，客户端连续发送两条消息，客户端关闭与服务端的连接。</li>
 </ol>
-<h5 id="模块划分"><a href="#模块划分" class="headerlink" title="模块划分"></a>模块划分</h5><ul>
-<li><p>通信模块</p>
-<p>该模块包含ClientManager和ExternalDNSManager两个类，负责与客户端、外部DNS服务器通信。</p>
-</li>
-<li><p>数据处理模块</p>
-<p>该模块包含Processor和TranslateTasks两个类。</p>
-<p>Processor分析收到的包中的数据，根据数据包来源不同进行不同的处理，若是客户端发来的查询请求包，则调用检索表模块进行检索，根据检索结果，调用通信模块发回响应报文或转换ID后向外部DNS服务器转发请求；若是外部DNS服务器发来的响应包，转换ID后直接转发给客户端。</p>
-<p>TranslateTasks负责对要向外部DNS转发的请求进行ID转换，因为可能存在并发的客户端访问，不同客户端发来的请求可能出现重复的ID，所以需要将ID转换成具有唯一性的序列号，再转发给外部DNS服务器。</p>
-</li>
-<li><p>检索模块</p>
-<p>该模块包含TranslateData类，负责读取或写入检索表文件，并提供查询某个域名在检索表中对应ip地址的方法。</p>
-</li>
-<li><p>工具模块</p>
-<p>该模块包含DebugUtil类，负责输出一些调试信息，RelayConfig类，负责处理配置信息。</p>
-</li>
-</ul>
-<h5 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h5><p><img src="/2018/09/24/用Java实现一个DNS中继器/dnsrelay1.png" alt="dnsrelay1"></p>
-<h5 id="遇到的一些问题"><a href="#遇到的一些问题" class="headerlink" title="遇到的一些问题"></a>遇到的一些问题</h5><ul>
-<li><p>端口被占用</p>
-<p>程序需要监听本机53端口的数据，但因为Ubuntu中开启了默认的DNS服务器dnsmasq，占用了53端口，NetworkManager可以靠自身配置文件的设置项启动 dnsmasq 。在 NetworkManager.conf 文件的 [main] 节段注释掉 dns=dnsmasq 配置语句，就可以禁用dnsmasq。</p>
-</li>
-<li><p>客户端收到错误报文</p>
-<p>程序在检索表中查询到了结果，构建响应包时，直接将ip地址的字符串转为字节数组放进包的answer部分，但根据协议规范，这里应该将ip地址拆分成4个数字，分别放入四个字节。</p>
-</li>
-</ul>
+<p>对于第一种情况，服务端的处理流程可以是这样的：当客户端与服务端的连接建立成功之后，服务端不断读取客户端发送过来的数据，当客户端与服务端连接断开之后，服务端知道已经读完了一条消息，然后进行解码和后续处理。</p>
+<p>对于第二种情况，客户端发送的两条消息递交到服务端有可能出现的情况如下：</p>
+<p><img src="/2018/12/10/netty学习笔记3/111.png" alt="p1"></p>
+<p>（1）服务端分两次读取到了两个独立的数据包，分别是D1和D2，没有粘包和拆包；</p>
+<p>（2）服务端一次接收到了两个数据包，D1和D2粘合在一起，被称为TCP粘包；</p>
+<p>（3）服务端分两次读取到了两个数据包，第一次读取到了完整的D1包和D2包的部分内容，第二次读取到了D2包的剩余内容，这被称为TCP拆包；</p>
+<p>（4）服务端分两次读取到了两个数据包，第一次读取到了D1包的部分内容D1_1，第二次读取到了D1包的剩余内容D1_2和D2包的整包。</p>
+<p>如果此时服务端TCP接收滑窗非常小，而数据包D1和D2比较大，很有可能会发生第五种可能，即服务端分多次才能将D1和D2包接收完全，期间发生多次拆包。</p>
+<h4 id="产生tcp粘包和拆包的原因"><a href="#产生tcp粘包和拆包的原因" class="headerlink" title="产生tcp粘包和拆包的原因"></a><strong>产生tcp粘包和拆包的原因</strong></h4><p>tcp是以流动的方式传输数据，传输的最小单位为一个报文段（segment）。tcp Header中有个Options标识位，常见的标识为mss(Maximum Segment Size)指的是，连接层每次传输的数据有个最大限制MTU(Maximum Transmission Unit)，一般是1500比特，超过这个量要分成多个报文段，mss则是这个最大限制减去TCP的header，光是要传输的数据的大小，一般为1460比特。换算成字节，也就是180多字节。</p>
+<p>tcp为提高性能，发送端会将需要发送的数据发送到缓冲区，等待缓冲区满了之后，再将缓冲中的数据发送到接收方。同理，接收方也有缓冲区这样的机制，来接收数据。</p>
+<p>发生TCP粘包、拆包主要是由于下面一些原因：</p>
+<ol>
+<li>应用程序写入的数据大于套接字缓冲区大小，这将会发生拆包。</li>
+<li>应用程序写入数据小于套接字缓冲区大小，网卡将应用多次写入的数据发送到网络上，这将会发生粘包。</li>
+<li>进行mss（最大报文长度）大小的TCP分段，当TCP报文长度-TCP头部长度&gt;mss的时候将发生拆包。</li>
+<li>接收方法不及时读取套接字缓冲区数据，这将发生粘包。</li>
+</ol>
+<h4 id="解决拆包粘包的方法"><a href="#解决拆包粘包的方法" class="headerlink" title="解决拆包粘包的方法"></a>解决拆包粘包的方法</h4><ol>
+<li>使用带消息头的协议、消息头存储消息开始标识及消息长度信息，服务端获取消息头的时候解析出消息长度，然后向后读取该长度的内容。</li>
+<li>设置定长消息，服务端每次读取既定长度的内容作为一条完整消息。</li>
+<li>设置消息边界，服务端从网络流中按消息编辑分离出消息内容。</li>
+</ol>
+<h4 id="netty5解决拆包粘包"><a href="#netty5解决拆包粘包" class="headerlink" title="netty5解决拆包粘包"></a>netty5解决拆包粘包</h4><p><strong>LineBasedFrameDecoder</strong></p>
+<p>LineBasedFrameDecoder的工作原理是它依次遍历ByteBuf中的可读字节，判断看是否有“\n”或者“\r\n”，如果有，就以此位置为结束位置，从可读索引到结束位置区间的字节就组成了一行。它是以换行符为结束标志的解码器，支持携带结束符或者不携带结束符两种解码方式，同时支持配置单行的最大长度。如果连续读取到最大长度后仍然没有发现换行符，就会抛出异常，同时忽略掉之前读到的异常码流。</p>
+<p><strong>StringDecoder</strong></p>
+<p>StringDecoder就是将接收到的对象转换成字符串，然后继续调用后面的handler ，StringDecoder和LineBasedFrameDecoder的的组合就是按行切换的文本解码器，他被设计用来支持TCP的粘包和拆包。</p>
 
       
     </div>
@@ -391,9 +390,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/DNS/" rel="tag"># DNS</a>
-          
-            <a href="/tags/Java/" rel="tag"># Java</a>
+            <a href="/tags/netty/" rel="tag"># netty</a>
           
         </div>
       
@@ -406,8 +403,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/24/DNS协议-RFC1035/" rel="next" title="DNS协议-RFC1035">
-                <i class="fa fa-chevron-left"></i> DNS协议-RFC1035
+              <a href="/2018/12/03/netty学习笔记2/" rel="next" title="netty学习笔记2">
+                <i class="fa fa-chevron-left"></i> netty学习笔记2
               </a>
             
           </div>
@@ -416,8 +413,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/11/04/B树和B-树/" rel="prev" title="B树和B+树">
-                B树和B+树 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/01/08/Kafka原理1/" rel="prev" title="Kafka原理1">
+                Kafka原理1 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -559,7 +556,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#功能设计"><span class="nav-number">1.</span> <span class="nav-text">功能设计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块划分"><span class="nav-number">2.</span> <span class="nav-text">模块划分</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#流程图"><span class="nav-number">3.</span> <span class="nav-text">流程图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#遇到的一些问题"><span class="nav-number">4.</span> <span class="nav-text">遇到的一些问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#tcp粘包拆包概念"><span class="nav-number">1.</span> <span class="nav-text">tcp粘包拆包概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#产生tcp粘包和拆包的原因"><span class="nav-number">2.</span> <span class="nav-text">产生tcp粘包和拆包的原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决拆包粘包的方法"><span class="nav-number">3.</span> <span class="nav-text">解决拆包粘包的方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#netty5解决拆包粘包"><span class="nav-number">4.</span> <span class="nav-text">netty5解决拆包粘包</span></a></li></ol></div>
             
 
           </div>
